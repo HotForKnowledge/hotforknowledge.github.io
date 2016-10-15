@@ -232,9 +232,9 @@ table {
   margin: 0 40px; }
 
 .post-header {
-  border-bottom: 6px solid #303030;
+  border-bottom: 3px solid #303030;
   margin: 0 0 20px;
-  padding: 0 0 20px;
+  padding: 0 0 0;
   text-align: center;
   text-transform: uppercase; }
 

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Post-rsses on Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/post/index.xml</link>
-    <description>Recent content in Post-rsses on Hot For Knowledge</description>
+    <title>Hot For Knowledge</title>
+    <link>http://hotforknowledge.com/tags/blog/index.xml</link>
+    <description>Recent content on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate>
-    <atom:link href="http://hotforknowledge.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://hotforknowledge.com/tags/blog/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Migrating to Hugo Engine</title>
