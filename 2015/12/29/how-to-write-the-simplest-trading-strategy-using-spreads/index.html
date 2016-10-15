@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>How to write the simplest trading strategy using Spreads &middot; Victor Baybekov</title>
+        <meta name="description" content="I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of shared state with events hell like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that CEP is the approach that desks and serious traders use.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.17" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="How to write the simplest trading strategy using Spreads">
+<meta property="og:description" content="I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of shared state with events hell like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that CEP is the approach that desks and serious traders use.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://hotforknowledge.com/2015/12/29/how-to-write-the-simplest-trading-strategy-using-spreads/">
+        <link rel="stylesheet" href="http://hotforknowledge.com/css/normalize.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/css/highlight.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/css/style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+        <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
+    </head>
+    <body>
+        
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-66650797-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">How to write the simplest trading strategy using Spreads</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2015-12-29" itemprop="datePublished">Tue, Dec 29, 2015</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://twitter.com/buybackoff/" itemprop="url" rel="author">Victor Baybekov</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <p>I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of <em>shared state with events hell</em> like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that <strong><a href="https://en.wikipedia.org/wiki/Complex_event_processing">CEP</a></strong> is the approach that desks and serious traders use.</p>
+
+<p>Spreads is not a framework for financial markets but a generic CEP library that allows to model markets as <em>data series</em> and use pure math and functional data transformations.</p>
+
+<p>The simplest trivial example is <em>simple moving average </em>trend following strategy. This example is written in F# interactive console.  First, we generate trending artificial data where trend changes each 40 points:
+<pre class="lang:default decode:true">let quotes : Series&lt;DateTime, float&gt; = // data is produced outside
+    let mutable previous = 1.0
+    let sm = SortedMap()
+    let now = DateTime.UtcNow
+    let mutable trend = -1.0
+    let mutable cnt = 0
+    for i in 0..500 do
+      previous &lt;- previous*(1.0 + rng.NextDouble()*0.002 - 0.001 + 0.001 * trend)
+      sm.Add(now.AddSeconds(-((500-i) |&gt; float)*0.2), previous)
+      cnt &lt;- cnt + 1
+      if cnt % 40 = 0 then trend &lt;- -trend</p>
+
+<pre><code>Task.Run((fun _ -&amp;gt;
+
+    while not ct.IsCancellationRequested do
+      Thread.Sleep(500)
+      previous &amp;lt;- previous*(1.0 + rng.NextDouble()*0.002 - 0.001 + 0.001 * trend)
+      sm.Add(DateTime.UtcNow, previous)
+      cnt &amp;lt;- cnt + 1
+      if cnt % 40 = 0 then trend &amp;lt;- -trend
+  ), ct) |&amp;gt; ignore
+sm :&amp;gt; Series&amp;lt;DateTime, float&amp;gt;&lt;/pre&gt;
+</code></pre>
+
+<p>Then we calculate simple moving average over 20 points. The second argument allows using incomplete windows, e.g. for the first 10 data points the average is calculated over them. With false, the first SMA point is calculated only at the 20th quotes point.
+<pre class="lang:default decode:true ">let sma = quotes.SMA(20, true)</pre>
+Our trading rule is that if the current price is above SMA, we go long, and we go short otherwise. This is a classic trend following strategy and it works quite well in the long run on emerging markets and some commodities. We calculate our target position as:
+<pre class="lang:default decode:true">let targetPosition = (quotes / sma - 1.0).Map(fun deviation -&gt; double &lt;| Math.Sign(deviation))
+</pre>
+This target position series is live - its values are updated in real-time together with quotes. To execute our strategy, we must prepare storage for actual positions and trades:
+<pre class="lang:default decode:true ">// we must keep track of actual position
+let actualPositionWritable = SortedMap&lt;DateTime,float&gt;()
+let realTrades = SortedMap&lt;DateTime,float&gt;()
+let actualPosition = actualPositionWritable :&gt; Series&lt;<em>,</em>&gt;
+actualPosition.Do((fun k v -&gt;
+    Console.WriteLine(&ldquo;Actual position: &ldquo; + k.ToString() + &rdquo; : &ldquo; + v.ToString())
+  ), ct)</pre>
+Then we could feed our target position to a trader. Trader is &ldquo;functional&rdquo;, instead of receiving orders it receives desired state and does its best to move actual state to the desired state. Here for simplicity we have a very dangerous assumption that trades are executed  immediately after a signal. Such an assumption should be avoided in real world backtesting. <span style="line-height: 1.5;">We use </span><em style="line-height: 1.5;">Do()</em><span style="line-height: 1.5;"> extension method that invokes an action over each key/value in a series sequentially:</span>
+<pre class="lang:default decode:true ">targetPosition.Do(
+  (fun k v -&gt;
+    if k &lt;= DateTime.UtcNow.AddMilliseconds(-400.0) then
+      // simulate historical trading
+      let qty =
+        if actualPositionWritable.IsEmpty then v
+        else (v - actualPositionWritable.Last.Value)
+      if qty &lt;&gt; 0.0 then
+        Console.WriteLine(k.ToString() +  &ldquo; : Paper trade: &ldquo; + qty.ToString())
+        actualPositionWritable.AddLast(k, v)
+    else
+      // do real trading
+      let qty =
+        if actualPositionWritable.IsEmpty then failwith &ldquo;must test strategy before real trading&rdquo;
+        else (v - actualPositionWritable.Last.Value)
+      if qty &lt;&gt; 0.0 &amp;&amp; k &gt; actualPositionWritable.Last.Key then // protect from executing history
+        let tradeTime = DateTime.UtcNow.AddMilliseconds(5.0)
+        Console.WriteLine(tradeTime.ToString() +  &ldquo; : Real trade: &ldquo; + qty.ToString())
+        realTrades.AddLast(tradeTime, qty)
+        actualPositionWritable.AddLast(tradeTime, v)
+  ), ct)</pre>
+Now the trading is started and we could see our trades in the FSI console every several seconds.</p>
+
+<p>Finally, we calculate our P&amp;L. Because the market was trending by construction, we have earned a lot of money with this strategy:
+<pre class="lang:default decode:true">let returns = quotes.ZipLag(1u, fun c p -&gt; c/p - 1.0)
+let myReturns = actualPosition.Repeat() * returns
+let myAumIndex = myReturns.Scan(1.0, fun st k v -&gt; st*(1.0 + v))</pre>
+Here, we use <em>ZipLag()</em> to calculate price returns. Then we calculate returns of our position and aggregate them as running product (no trading costs in this example). All these and above series are live, we could use the <em>Do()</em> method to print the values in real-time:
+<pre class="lang:default decode:true ">// Print live data
+myAumIndex.Do((fun k v -&gt;
+    Console.WriteLine(&ldquo;AUM Index: &ldquo; + k.ToString() + &rdquo; : &ldquo; + v.ToString())
+  ), ct)</pre>
+&nbsp;</p>
+
+<p>Note that from the technical point of view there is nothing special that links the calculations to financial markets. Instead of financial data, we could use data from some sensors, e.g. temperature, and instead of trading we could turn off/on heating if temperature goes above or below some target value.</p>
+
+<p>The whole example is <a href="https://github.com/Spreads/Spreads/blob/master/tests/Spreads.Tests.Profile/Example.fsx">here</a>. You could select all code, press Alt+Enter and watch how AUM increases while using Spreads library! :)</p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+                 <a href="/tags/markets/">markets</a>
+            
+                 <a href="/tags/spreads/">Spreads</a>
+            
+        </p>
+    
+</footer>
+
+        
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        var disqus_shortname = 'hotforknowledge';
+        
+        
+        
+        
+        if (window.location.hostname == "localhost")
+            return;
+
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Hot For Knowledge" href="http://hotforknowledge.com/">Hot For Knowledge</a>
+                    </h1>
+                    <a class="button-square" href="http://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
+                    <a name="footer"></a>
+                    
+                        <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:vbaybekov@gmail.com">
+                            <i class="fa fa-at"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Twitter&#xFEFF;" href="https://twitter.com/buybackoff/">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Facebook&#xFEFF;" href="https://www.facebook.com/buybackoff/">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Instagram&#xFEFF;" href="https://www.instagram.com/buybackoff/">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Github&#xFEFF;" href="https://github.com/buybackoff/">
+                            <i class="fa fa-github-alt"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Stack Overflow&#xFEFF;" href="http://stackoverflow.com/users/801189/v-b/">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;LinkedIn&#xFEFF;" href="https://linkedin.com/in/buybackoff/">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    
+                    
+                    
+                    <a class="button-square button-jump-top js-jump-top" href="#" data-hint="Back to top" title="Back to top">
+                        <i class="fa fa-angle-up"></i>
+                    </a>&#xFEFF;
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2016 Victor Baybekov </span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+        <script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+        <script src="http://hotforknowledge.com/js/scripts.js"></script>
+    </body>
+</html>
+
