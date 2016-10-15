@@ -630,3 +630,9 @@ table {
     padding: 0 10px; } }
 
 /*# sourceMappingURL=style.css.map */
+
+
+img[src$='#aboutimage']
+{
+	margin: 0 auto;
+}
