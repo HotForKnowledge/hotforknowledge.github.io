@@ -3,21 +3,17 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>about &middot; Victor Baybekov</title>
-        <meta name="description" content="Hello! My name is Victor Baybekov. I am a financial analyst, data scientist, programmer and long-distance runner, searching for the global utility maximum in this space.
-This is my blog in English. This blog will be focused on programming, data analytics, and finance. But in general, it could be about anything that interests me.
-My old blog in Russian, which is mostly about running, is there. I have finished 7 full marathons.">
+        <title>Migrating to Hugo Engine &middot; Victor Baybekov</title>
+        <meta name="description" content="Easy and joyful static site generation with Hugo">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
         <meta name="generator" content="Hugo 0.17" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta property="og:title" content="about">
-<meta property="og:description" content="Hello! My name is Victor Baybekov. I am a financial analyst, data scientist, programmer and long-distance runner, searching for the global utility maximum in this space.
-This is my blog in English. This blog will be focused on programming, data analytics, and finance. But in general, it could be about anything that interests me.
-My old blog in Russian, which is mostly about running, is there. I have finished 7 full marathons.">
+        <meta property="og:title" content="Migrating to Hugo Engine">
+<meta property="og:description" content="Easy and joyful static site generation with Hugo">
 <meta property="og:type" content="article">
-<meta property="og:url" content="http://hotforknowledge.com/about/">
+<meta property="og:url" content="http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/">
         <link rel="stylesheet" href="http://hotforknowledge.com/css/normalize.css">
         <link rel="stylesheet" href="http://hotforknowledge.com/css/highlight.css">
         <link rel="stylesheet" href="http://hotforknowledge.com/css/style.css">
@@ -63,32 +59,77 @@ ga('send', 'pageview');
 
 
 <div class="container">
-    <article class="post-container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
-    <h1 class="post-title">about</h1>
+    <h1 class="post-title" itemprop="name headline">Migrating to Hugo Engine</h1>
     
+        <p class="post-description" itemprop="description">Easy and joyful static site generation with Hugo</p>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2016-10-15" itemprop="datePublished">Sat, Oct 15, 2016</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://twitter.com/buybackoff/" itemprop="url" rel="author">Victor Baybekov</a>
+            </span>
+        </span>
+    </p>
 </header>
 
-        <div class="post-content clearfix">
+        <div class="post-content clearfix" itemprop="articleBody">
     
 
-    <p>Hello! My name is Victor Baybekov.
-I am a financial analyst, data scientist, programmer and long-distance runner,
-searching for the global utility maximum in this space.</p>
+    <p>I have migrated my <a href="http://old.hotforknowledge.com/">old</a> Wordpress blog to
+<a href="http://gohugo.io/">Hugo</a>. Since I am not a web publishing expert,
+I have nothing to say other than the experience was very nice and flexibility is awesome.
+Markdown + VS Code + git rule them all!</p>
 
-<p>This is my blog in English. This blog will be focused on programming,
-data analytics, and finance. But in general, it could be about anything that interests me.</p>
+<p>I didn&rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago.
+Wordpress was easy to install from WebMatrix and to run on IIS, but I was afraid to touch anything
+because the entire setup looked fragile.</p>
 
-<p>My old blog in Russian, which is mostly about running,
-is <a href="http://buybackoff.livejournal.com/">there</a>. I have finished 7 full
-marathons. On this photo I am approaching the finish line in Barcelona -
-this was my fifth and the best race by <a href="http://buybackoff.livejournal.com/489055.html">many measures</a>.</p>
-
-<p><img src="/img/about/me_barcelona.png#aboutimage" alt="Barcelona marathon finish" /></p>
-
-<p>You may contact me via any channel listed in the footer <a href="#footer">&darr;</a>. Thanks for reading!</p>
+<p>Hugo is super fast and doesn&rsquo;t interfere with writing workflow, gives total control and a hope that I
+could publish all the overdue posts about Spreads and related things soon.</p>
 
 </div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+                 <a href="/tags/meta/">meta</a>
+            
+                 <a href="/tags/blogging/">blogging</a>
+            
+        </p>
+    
+</footer>
+
+        
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+    var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/15\/3-hugo-website-engine\/';
+    
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        var disqus_shortname = 'hotforknowledge';
+        
+        
+        
+        
+        if (window.location.hostname == "localhost")
+            return;
+
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
     </article>
 </div>
 

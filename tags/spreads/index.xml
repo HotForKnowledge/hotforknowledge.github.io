@@ -11,10 +11,10 @@
     
     <item>
       <title>How to write the simplest trading strategy using Spreads</title>
-      <link>http://hotforknowledge.com/2015/12/29/how-to-write-the-simplest-trading-strategy-using-spreads/</link>
+      <link>http://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/</link>
       <pubDate>Tue, 29 Dec 2015 17:51:27 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/12/29/how-to-write-the-simplest-trading-strategy-using-spreads/</guid>
+      <guid>http://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/</guid>
       <description>&lt;p&gt;I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of &lt;em&gt;shared state with events hell&lt;/em&gt; like &amp;ldquo;OnData&amp;rdquo;, &amp;ldquo;OnOrder&amp;rdquo;, &amp;ldquo;OnBarOpen&amp;rdquo;, &amp;ldquo;OnBarClose&amp;rdquo;, etc. The more I talk with people, the more I realize that &lt;strong&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Complex_event_processing&#34;&gt;CEP&lt;/a&gt;&lt;/strong&gt; is the approach that desks and serious traders use.&lt;/p&gt;
 
 &lt;p&gt;Spreads is not a framework for financial markets but a generic CEP library that allows to model markets as &lt;em&gt;data series&lt;/em&gt; and use pure math and functional data transformations.&lt;/p&gt;
@@ -100,10 +100,10 @@ myAumIndex.Do((fun k v -&amp;gt;
     
     <item>
       <title>Introducing Spreads library</title>
-      <link>http://hotforknowledge.com/2015/12/20/introducing-spreads-library/</link>
+      <link>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</link>
       <pubDate>Sun, 20 Dec 2015 17:46:36 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/12/20/introducing-spreads-library/</guid>
+      <guid>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</guid>
       <description>&lt;p&gt;&lt;strong&gt;TL;DR;&lt;/strong&gt; This post is about background and thoughts on my number-crunching library &lt;strong&gt;Spreads, &lt;/strong&gt;which stands for  &lt;strong&gt;S&lt;/strong&gt;eries and &lt;strong&gt;P&lt;/strong&gt;anels for &lt;strong&gt;R&lt;/strong&gt;eal-time and &lt;strong&gt;E&lt;/strong&gt;xploratory &lt;strong&gt;A&lt;/strong&gt;nalysis of &lt;strong&gt;D&lt;/strong&gt;ata &lt;strong&gt;S&lt;/strong&gt;treams. The library and its readme are on GitHub: &lt;a href=&#34;https://github.com/Spreads/Spreads&#34;&gt;https://github.com/Spreads/Spreads&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;!-- This is to make sure your relative image links show up nicely. --&gt; While I worked at Goldman Sachs as research analyst, I got used to internal declarative time series processing langauge. It was so cool that I could build MSCI index rebalancing methodology with several lines of code. Probably that was &lt;a href=&#34;http://news.efinancialcareers.com/uk-en/147434/inside-goldman-sachs-secret-sauce/&#34;&gt;Slang&lt;/a&gt; or some wrapper around it. After I left the firm, I cannot stand for other existing tools and wanted the same functionality as an end user. I had been far away from the IT department, had no idea about implementation, never uploaded any code to a &lt;a href=&#34;http://www.vanityfair.com/news/2013/09/michael-lewis-goldman-sachs-programmer&#34;&gt;German&lt;/a&gt; or any other file hostings and wrote my own implementation. (This paragraph is name dropping for search engines, there is no affiliation or any other relation other than design inspiration).&lt;/p&gt;

@@ -11,27 +11,40 @@
     
     <item>
       <title>Migrating to Hugo Engine</title>
-      <link>http://hotforknowledge.com/2016/10/15/hugo-website-engine/</link>
+      <link>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</link>
       <pubDate>Sat, 15 Oct 2016 15:00:12 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2016/10/15/hugo-website-engine/</guid>
-      <description>&lt;p&gt;TODO&lt;/p&gt;
+      <guid>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
+      <description>&lt;p&gt;I have migrated my &lt;a href=&#34;http://old.hotforknowledge.com/&#34;&gt;old&lt;/a&gt; Wordpress blog to
+&lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;. Since I am not a web publishing expert,
+I have nothing to say other than the experience was very nice and flexibility is awesome.
+Markdown + VS Code + git rule them all!&lt;/p&gt;
 
-&lt;p&gt;Lorem ipsum dorem sit amet &amp;hellip;&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #272822&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;foo&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #e6db74&#34;&gt;&amp;quot;bar&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #272822&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;foo&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #e6db74&#34;&gt;&amp;quot;bar&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago.
+Wordpress was easy to install from WebMatrix and to run on IIS, but I was afraid to touch anything
+because the entire setup looked fragile.&lt;/p&gt;
+
+&lt;p&gt;Hugo is super fast and doesn&amp;rsquo;t interfere with writing workflow, gives total control and a hope that I
+could publish all the overdue posts about Spreads and related things soon.&lt;/p&gt;
 </description>
     </item>
     
     <item>
       <title>My “hacker” background</title>
-      <link>http://hotforknowledge.com/2015/08/23/hacker-background/</link>
+      <link>http://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
       <pubDate>Sun, 23 Aug 2015 17:41:56 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/08/23/hacker-background/</guid>
-      <description>&lt;p&gt;On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there, or a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts. The problem is mild or even not a problem at all, because I am not and will not be seeking a job as a full-time programmer while I have something to eat. Instead, I am mostly interested in quantitative finance or startup projects where I could utilize all my knowledge and boost my productive by just delegating work to hardware. These days I think about programming in the same way as I think about math or English language or Excel - it is just an essential tool for achieving goals in some practical domain, not a separate domain (unless you are a language designer or a computer science teacher).&lt;/p&gt;
+      <guid>http://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
+      <description>&lt;p&gt;On my LinkedIn page, there are almost no endorsements for programming/tech, even though 
+I program since age 12 or so. Probably this is an indication that the endorsement system
+is broken there or I am not very active there recently. Or this is a reflection of a mild
+problem I have - very few people from my former professional,
+mostly investment banking, network know that I can code well beyond VBA scripts.
+The problem is mild because I am not interested in a full-time programmer job outside finance or data science domain.
+I am mostly interested in quantitative finance or startup projects where I could utilize all my knowledge
+and boost my productivity by delegating work to hardware. These days I think about programming in the same
+way as I think about math or English language or Excel - it is just an essential tool for achieving goals
+in some practical domain, not a separate domain (unless you are a language designer or a computer science teacher).&lt;/p&gt;
 
 &lt;p&gt;I enjoy many aspects of pure programming, such as &lt;del&gt;premature&lt;/del&gt; performance  optimization, but the most fascinating thing about programming for me is augmentation of my human abilities. I cannot add numbers hundred million times per second or crawl the entire web and analyse content of million pages, but I can write a program to do so. A great philosophical question, which requires a separate post, is &amp;ldquo;Who is the actor - an entity that perform the actions encoded in my program - when my program runs&amp;rdquo;. Is it a machine, or a person who started the program, or an author of programming language, or a CPU designer, or is it me? Isn&amp;rsquo;t it a way to expand human consciousness and existence beyond their bodies and lifetimes!?&lt;/p&gt;
 

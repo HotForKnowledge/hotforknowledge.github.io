@@ -11,10 +11,10 @@
     
     <item>
       <title>Introducing Spreads library</title>
-      <link>http://hotforknowledge.com/2015/12/20/introducing-spreads-library/</link>
+      <link>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</link>
       <pubDate>Sun, 20 Dec 2015 17:46:36 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/12/20/introducing-spreads-library/</guid>
+      <guid>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</guid>
       <description>&lt;p&gt;&lt;strong&gt;TL;DR;&lt;/strong&gt; This post is about background and thoughts on my number-crunching library &lt;strong&gt;Spreads, &lt;/strong&gt;which stands for  &lt;strong&gt;S&lt;/strong&gt;eries and &lt;strong&gt;P&lt;/strong&gt;anels for &lt;strong&gt;R&lt;/strong&gt;eal-time and &lt;strong&gt;E&lt;/strong&gt;xploratory &lt;strong&gt;A&lt;/strong&gt;nalysis of &lt;strong&gt;D&lt;/strong&gt;ata &lt;strong&gt;S&lt;/strong&gt;treams. The library and its readme are on GitHub: &lt;a href=&#34;https://github.com/Spreads/Spreads&#34;&gt;https://github.com/Spreads/Spreads&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;!-- This is to make sure your relative image links show up nicely. --&gt; While I worked at Goldman Sachs as research analyst, I got used to internal declarative time series processing langauge. It was so cool that I could build MSCI index rebalancing methodology with several lines of code. Probably that was &lt;a href=&#34;http://news.efinancialcareers.com/uk-en/147434/inside-goldman-sachs-secret-sauce/&#34;&gt;Slang&lt;/a&gt; or some wrapper around it. After I left the firm, I cannot stand for other existing tools and wanted the same functionality as an end user. I had been far away from the IT department, had no idea about implementation, never uploaded any code to a &lt;a href=&#34;http://www.vanityfair.com/news/2013/09/michael-lewis-goldman-sachs-programmer&#34;&gt;German&lt;/a&gt; or any other file hostings and wrote my own implementation. (This paragraph is name dropping for search engines, there is no affiliation or any other relation other than design inspiration).&lt;/p&gt;
@@ -39,11 +39,20 @@
     
     <item>
       <title>My “hacker” background</title>
-      <link>http://hotforknowledge.com/2015/08/23/hacker-background/</link>
+      <link>http://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
       <pubDate>Sun, 23 Aug 2015 17:41:56 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/08/23/hacker-background/</guid>
-      <description>&lt;p&gt;On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there, or a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts. The problem is mild or even not a problem at all, because I am not and will not be seeking a job as a full-time programmer while I have something to eat. Instead, I am mostly interested in quantitative finance or startup projects where I could utilize all my knowledge and boost my productive by just delegating work to hardware. These days I think about programming in the same way as I think about math or English language or Excel - it is just an essential tool for achieving goals in some practical domain, not a separate domain (unless you are a language designer or a computer science teacher).&lt;/p&gt;
+      <guid>http://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
+      <description>&lt;p&gt;On my LinkedIn page, there are almost no endorsements for programming/tech, even though 
+I program since age 12 or so. Probably this is an indication that the endorsement system
+is broken there or I am not very active there recently. Or this is a reflection of a mild
+problem I have - very few people from my former professional,
+mostly investment banking, network know that I can code well beyond VBA scripts.
+The problem is mild because I am not interested in a full-time programmer job outside finance or data science domain.
+I am mostly interested in quantitative finance or startup projects where I could utilize all my knowledge
+and boost my productivity by delegating work to hardware. These days I think about programming in the same
+way as I think about math or English language or Excel - it is just an essential tool for achieving goals
+in some practical domain, not a separate domain (unless you are a language designer or a computer science teacher).&lt;/p&gt;
 
 &lt;p&gt;I enjoy many aspects of pure programming, such as &lt;del&gt;premature&lt;/del&gt; performance  optimization, but the most fascinating thing about programming for me is augmentation of my human abilities. I cannot add numbers hundred million times per second or crawl the entire web and analyse content of million pages, but I can write a program to do so. A great philosophical question, which requires a separate post, is &amp;ldquo;Who is the actor - an entity that perform the actions encoded in my program - when my program runs&amp;rdquo;. Is it a machine, or a person who started the program, or an author of programming language, or a CPU designer, or is it me? Isn&amp;rsquo;t it a way to expand human consciousness and existence beyond their bodies and lifetimes!?&lt;/p&gt;
 
