@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hot For Knowledge</title>
+    <link>http://hotforknowledge.com/tags/dataspreads/index.xml</link>
+    <description>Recent content on Hot For Knowledge</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Victor Baybekov</copyright>
+    <atom:link href="http://hotforknowledge.com/tags/dataspreads/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Data Spreads: Write your Excel Macros In C#</title>
+      <link>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</link>
+      <pubDate>Mon, 31 Oct 2016 19:25:11 +0300</pubDate>
+      
+      <guid>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</guid>
+      <description>
+
+&lt;p&gt;A week ago, a friend of mine asked me if I could help him with parsing his old Excel
+files containing orders of Christmas trees. It was his seasonal business every end of a year
+for a long time, and old orders back to 2006 were kept in quite a free form so that I myself
+as a human had difficulties to grasp the structure of the worksheets. However, the goal was
+to export the data into a CRM system, to identify clients who made regular orders and to call them and try selling trees this year as well.&lt;/p&gt;
+
+&lt;p&gt;I have been working on a desktop app that will integrate my &lt;a href=&#34;https://github.com/Spreads/Spreads&#34;&gt;Spreads&lt;/a&gt; library,
+Excel, R and .NET coding into a single real-time universe of data, called &lt;a href=&#34;http://dataspreads.com/&#34;&gt;Data Spreads&lt;/a&gt;. This work is still in progress,
+but the Christmas trees story forced me to pack at least the scripting feature I had
+and distribute it to my friend. So that instead of repacking an XLL add-in every time
+on my side, I could send him a C# script as a text file and interactively (e.g. via a remote desktop) adjust its behavior if needed.&lt;/p&gt;
+
+&lt;p&gt;The scripting feature was &amp;ldquo;nice to have&amp;rdquo; initially for &lt;em&gt;Data Spreads&lt;/em&gt;. I started playing with the &lt;a href=&#34;https://github.com/lukebuehler/CShell&#34;&gt;CShell&lt;/a&gt;,
+but it was rather overloaded from GUI and internal modular architecture perspectives, yet the editing experience
+was not very great compared to what Visual Studio or VS Code offers. Then I stumbled upon
+&lt;a href=&#34;https://github.com/aelij/RoslynPad&#34;&gt;RoslynPad&lt;/a&gt;, and it surprised me with its elegant simplicity and very pleasant editing experience powered
+by Roslyn. At some point, I found myself keeping it open for writing small snippets and using it
+instead of the heavyweight VS for quick data parsing and similar tasks.
+Integrating RoslynPad with Excel was quite easy with another great
+open-source library &lt;a href=&#34;https://github.com/Excel-DNA/ExcelDna&#34;&gt;ExcelDna&lt;/a&gt;. All I had to do
+was to rewrite the RP hosting functionality to run in the same process and AppDomain where Excel add-in runs,
+and hook up some events to register UDFs and macros marked with the relevant ExcelDna attributes.
+Then it just worked&amp;trade;☺&lt;/p&gt;
+
+&lt;h1 id=&#34;christmas-trees-order-parsing&#34;&gt;Christmas trees order parsing&lt;/h1&gt;
+
+&lt;p&gt;Humans were entering the orders in plain Excel, without any common format of addresses or phone numbers even
+on the same worksheet. Therefore, the task of correctly extracting the addresses and names looked like a
+machine learning task. However, the business task was extracting the phone numbers, connecting related orders,
+and making an aggregate statistics by items and success status. In addition, it turned out that humans from a call center
+would be calling to the clients, and in every particular case they could easily read the address and confirm
+with the client if it is still valid. The entire parsing task reduced to extracting phone numbers, order dates and
+success statuses - the three things that couldn&amp;rsquo;t be done easily with Excel formulas and required some coding.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://hotforknowledge.com/img/christmas_trees/orders_sample_2006.png#aboutimage&#34; alt=&#34;Orders sample 2006&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;phone-numbers&#34;&gt;Phone numbers&lt;/h4&gt;
+
+&lt;p&gt;Moscow had optional phone prefix until recently, so the seven-digit numbers are &lt;code&gt;+7 495 XXX XX XX&lt;/code&gt; now. The long-distance
+prefix &lt;code&gt;8&lt;/code&gt; is optional, and by international standard should be &lt;code&gt;+7&lt;/code&gt;. The usage of dashes, dots, parentheses and spaces
+was non-standard inside each sheet. To deal with this, I wrote a simple &lt;code&gt;Sloppy Digit Pattern&lt;/code&gt; RegEx:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// SloppyDigitPattern: Since human entered text in a free form, we assume spaces between digits in any place (fat fingers)
+// and very optional use of punctuation, e.g. &#39;-&#39;, &#39;.&#39;    
+public static string sdp = @&amp;quot;([\+-.\(]?\s*\d\s*[\)]?)&amp;quot;;
+public static Regex phoneRegex = new Regex($@&amp;quot;({sdp}{{7,11}})&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then a simple function returns all found phone numbers in the format that the CRM system supports:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public static partial class Parser
+{
+    public static string Phones(string value)
+    {
+        return phoneRegex.Matches(value)
+            .Cast&amp;lt;Match&amp;gt;().Select(m =&amp;gt; m.Value)
+            .Select(str =&amp;gt; new String(str.Where(ch =&amp;gt; Char.IsDigit(ch)).ToArray())) // keep only digits
+            .Select(number =&amp;gt;
+                {
+                    if (number.Length == 11)
+                    {
+                        number = &amp;quot;+7&amp;quot; + number.Substring(1);
+                    }
+                    else if (number.Length == 10)
+                    {
+                        number = &amp;quot;+7&amp;quot; + number;
+                    }
+                    else if (number.Length == 7)
+                    {
+                        number = &amp;quot;+7495&amp;quot; + number;
+                    }
+                    else
+                    {
+                        return &amp;quot;&amp;quot;; // we only support 7, 10, and full 11 digit numbers
+                    }
+        
+                    return number;
+                })
+            .Where(x =&amp;gt; !string.IsNullOrWhiteSpace(x))
+            .Select(number =&amp;gt; number.Insert(2, &amp;quot; &amp;quot;).Insert(6, &amp;quot; &amp;quot;).Insert(10, &amp;quot; &amp;quot;).Insert(13, &amp;quot; &amp;quot;)) // comment to remove spaces
+            .Aggregate(&amp;quot;&amp;quot;, (acc, st) =&amp;gt; acc + &amp;quot;[ &amp;quot; + st + &amp;quot; ] &amp;quot;).Trim();
+
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, we wrap the static method in another method that is marked with ExcelDna&amp;rsquo;s &lt;code&gt;ExcelFunction&lt;/code&gt; attribute.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;const bool defaultVolatile = true;
+
+[ExcelFunction(IsVolatile = defaultVolatile)]
+public static object ParsePhone(string input = &amp;quot;&amp;quot;)
+{
+    return string.IsNullOrWhiteSpace(input) ? &amp;quot;&amp;quot; : Parser.Phones(input);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now after running the script (&lt;code&gt;F5&lt;/code&gt;) we have the function &lt;code&gt;ParsePhone&lt;/code&gt; available from Excel or could debug it directly from
+the script editor. The editor pretty-prints the last variable in a script (placed without semicolon), or any variable using
+the &lt;code&gt;Dump()&lt;/code&gt; extension method, e.g. &lt;code&gt;matches.Dump();&lt;/code&gt;. Interestingly, the &lt;code&gt;Dump&lt;/code&gt; method works when a function is called from Excel
+and prints variables in the same way, which is nice for debugging.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://hotforknowledge.com/img/christmas_trees/debug_dump.png#aboutimage&#34; alt=&#34;Debug dump&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;delivery-date&#34;&gt;Delivery date&lt;/h4&gt;
+
+&lt;p&gt;Delivery dates were put as a header, once per day and not per order, e.g. &lt;code&gt;на 08.12.07г. , суббота&lt;/code&gt; on the picture.
+Instead of writing C# code that will do something like &amp;ldquo;for every row where the address and quantity are not empty,
+move above until the quantity is empty, parse the cell in the same column as addresses, and for those orders apply that parsed date&amp;rdquo;,
+I wrote that logic using Excel functions. The task became very similar to phone parsing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public static Regex deliveryDateRegex = 
+    new Regex(@&amp;quot;(?&amp;lt;date&amp;gt;\d{1,4})(\s*[.]?\s*)(?&amp;lt;month&amp;gt;(\d{1,4}|\p{L}+))(\s*[.]?\s*)?(?&amp;lt;year&amp;gt;\d{1,4})?&amp;quot;);
+
+public static DateTime? DeliveryDate(string value, int year = 0)
+{
+    try
+    {
+        var match = deliveryDateRegex.Matches(value).Cast&amp;lt;Match&amp;gt;().First();
+        var date = int.Parse(match.Groups[&amp;quot;date&amp;quot;].Value);
+        //date.Dump(&amp;quot;date&amp;quot;);
+        var monthString = match.Groups[&amp;quot;month&amp;quot;].Value;
+        int month = 0;
+        if (!int.TryParse(monthString, out month))
+        {
+            if (monthString.ToLowerInvariant().Contains(&amp;quot;дек&amp;quot;))
+            {
+                month = 12;
+            }
+            if (monthString.ToLowerInvariant().Contains(&amp;quot;ноя&amp;quot;))
+            {
+                month = 11;
+            }
+            if (monthString.ToLowerInvariant().Contains(&amp;quot;окт&amp;quot;))
+            {
+                month = 10;
+            }
+        }
+        //month.Dump(&amp;quot;month&amp;quot;);
+        if (month == 0) return null;
+        if (year == 0) return null;
+        //year.Dump(&amp;quot;year&amp;quot;);
+        var dt = new DateTime(year, month, date);
+        return dt;
+    }
+    catch (Exception)
+    {
+        return null;
+    }
+}
+
+[ExcelFunction(IsVolatile = defaultVolatile)]
+public static object ParseDeliveryDate(string input, int year = 0)
+{
+    var dt = Parser.DeliveryDate(input, year);
+    return dt == null ? (object)&amp;quot;&amp;quot; : dt.Value.ToOADate();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;order-status&#34;&gt;Order status&lt;/h4&gt;
+
+&lt;p&gt;Order status is determined by background or font color. The simple rule is that when
+any of those colors have &lt;code&gt;R&lt;/code&gt; value greater that &lt;code&gt;G&lt;/code&gt; value in the &lt;code&gt;RGB&lt;/code&gt; representation, the order
+status is unsuccessful.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#r &amp;quot;System.Drawing&amp;quot;
+
+using ExcelDna.Integration;
+using Microsoft.Office.Interop.Excel;
+
+public static Range ReferenceToRange(ExcelReference xlRef)
+{
+    var xlRange = (ExcelDnaUtil.Application as Application).Evaluate(XlCall.Excel(XlCall.xlfReftext, xlRef, true)) as Range;
+    return xlRange;
+}
+
+[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]
+public static async Task&amp;lt;int&amp;gt; Status([ExcelArgument(AllowReference = true)]object input)
+{
+    var xlRef = input as ExcelReference;
+    var rng = ReferenceToRange(xlRef);
+    try
+    {
+        var oleColor = (int)(double)rng.Interior.Color;
+        //oleColor.Dump();
+        var color = System.Drawing.ColorTranslator.FromOle(oleColor);
+        if (color.R &amp;gt; color.G) return 0;
+        oleColor = (int)(double)rng.Font.Color;
+        color = System.Drawing.ColorTranslator.FromOle(oleColor);
+        return (color.R &amp;gt; color.G) ? 0 : 1;
+    }
+    catch (Exception)
+    {
+        return -1;
+    }
+    finally
+    {
+        Marshal.ReleaseComObject(rng);
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here we use COM interop and &lt;code&gt;Microsoft.Office.Interop.Excel&lt;/code&gt; namespace to get the COM &lt;code&gt;Range&lt;/code&gt; object
+from ExcelDna&amp;rsquo;s &lt;code&gt;ExcelReference&lt;/code&gt; object, and then convert OLE colors to RGB ones using the
+&lt;code&gt;System.Drawing.ColorTranslator.FromOle&lt;/code&gt; method. Note the usage of &lt;code&gt;Marshal.ReleaseComObject&lt;/code&gt; for COM
+objects here: it is a good practice to use this method whenever user code received or created a COM object
+and no longer needs it (more on this in the next section).
+&lt;img src=&#34;http://hotforknowledge.com/img/christmas_trees/status.png#aboutimage&#34; alt=&#34;Status formula&#34; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;excel-model-and-xlresult&#34;&gt;Excel Model and XlResult&lt;/h1&gt;
+
+&lt;p&gt;While quickly writing the parsing code above, I made a very common mistake that I was aware of,
+but still assigned a COM object to a static field and did not release a reference to it. That issue is described
+in details in &lt;a href=&#34;http://stackoverflow.com/questions/158706/how-to-properly-clean-up-excel-interop-objects?noredirect=1&amp;amp;lq=1&#34;&gt;this SO question&lt;/a&gt;.
+The simple rule of thumb is to never ever call C or COM Excel API outside of the main thread,
+never use 2 dots with com objects, do not
+store COM objects for longer than they are needed and always release them with &lt;code&gt;Marshal.ReleaseComObject&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;ExcelDna has a helper method to schedule any action on the main thread, but it doesn&amp;rsquo;t return a value. Also,
+if one uses the method when already on the main thread and tries to wait for a result using a wait handle or
+a TaskComletionSource, there will be a deadlock. Always following the rules in a safe way requires
+repeating the same boilerplate code, and I wrote a helper class that works similarly to &lt;code&gt;Task&lt;/code&gt;, but always
+executes on the main Excel thread, is awaitable from C# &lt;code&gt;async&lt;/code&gt; methods using the &lt;code&gt;await&lt;/code&gt; keyword, supports
+composition of functions and adds very little overheads. The code is quite long to place it here inline and is available
+on &lt;a href=&#34;https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs&#34;&gt;GitHub&lt;/a&gt;.
+The main work happens in the  &lt;a href=&#34;https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L80&#34;&gt;&lt;code&gt;GetResult&lt;/code&gt; method&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We then could rewrite the Status example above using &lt;code&gt;XlResult&lt;/code&gt; and &lt;code&gt;await&lt;/code&gt; keyword. C# could &lt;a href=&#34;https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-anything/&#34;&gt;await anything&lt;/a&gt;
+that has &lt;code&gt;GetAwaiter&lt;/code&gt; method, and we just use &lt;a href=&#34;https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L113&#34;&gt;&lt;code&gt;TaskComletionSource.Task&lt;/code&gt;&lt;/a&gt; for this.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+public static XlResult&amp;lt;Range&amp;gt; ReferenceToRange(ExcelReference xlRef)
+{
+    var xlRange = new XlResult&amp;lt;Range&amp;gt;(() =&amp;gt; (ExcelDnaUtil.Application as Application).Evaluate(XlCall.Excel(XlCall.xlfReftext, xlRef, true)) as Range);
+    return xlRange;
+}
+
+[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]
+public static async Task&amp;lt;int&amp;gt; Status([ExcelArgument(AllowReference = true)]object input)
+{
+    var xlRef = input as ExcelReference;
+    // we could await XlResult from any thread safely
+    var rng = await ReferenceToRange(xlRef);
+    // same code for Status...
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The COM issue could quickly become nasty. At some point, I even wrote an F# computation expression
+that did manual reference counting behind the scenes, but it didn&amp;rsquo;t work reliably 100% of times.
+Therefore, instead of reference counting, I added a &lt;code&gt;Map&lt;/code&gt; method that could chain different functions together
+and guarantee that COM objects and C/COM APIs are never accessed outside the main thread. E.g. in this
+example, we chain three functions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ExcelFunction(IsMacroType = true)]
+public static async Task&amp;lt;string&amp;gt; Hello([ExcelArgument(AllowReference = true)]object text) {
+    var xlRef = text as ExcelReference;
+    if (xlRef != null) {
+        using (var result = XlResult.XlCall(XlCall.xlfReftext, xlRef, true)
+            .Map(str =&amp;gt; DSAddIn.XlApp.Evaluate((string)str) as Range)
+            .Map(rng =&amp;gt; rng.Value2.ToString())) {
+            return await result;
+        }
+    }
+    throw new Exception();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Accessing COM object and C API only from the main thread should work &amp;ldquo;as expected&amp;rdquo; even without
+explicit releasing via &lt;code&gt;Marshal&lt;/code&gt; methods, as was written somewhere on ExcelDna forum/mailing list (cannot find a link).
+Using &lt;code&gt;XlResult&lt;/code&gt; helps to stay on the main thread and follow the rules.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/DataSpreads/ExcelModel&#34;&gt;ExcelModel&lt;/a&gt; library also contains some code from GitHub, where
+the author tried to achieve the similar result - to avoid using COM objects while working with a similar
+object model. However, it is not thread-safe now and I will gradually rewrite frequently used methods
+with the &lt;code&gt;XlResult&lt;/code&gt; async pattern.&lt;/p&gt;
+
+&lt;h1 id=&#34;install-and-usage&#34;&gt;Install and usage&lt;/h1&gt;
+
+&lt;p&gt;To install the &lt;em&gt;Data Spreads&lt;/em&gt; app, please download &lt;a href=&#34;http://downloads.dataspreads.com/Setup.exe&#34;&gt;Setup.exe&lt;/a&gt; or
+&lt;a href=&#34;http://downloads.dataspreads.com/Setup.msi&#34;&gt;Setup.msi&lt;/a&gt; files*, which are packed with &lt;a href=&#34;https://github.com/Squirrel/Squirrel.Windows&#34;&gt;Squirrel&lt;/a&gt;
+and will automatically update when I add new functionality. When the Setup process finishes, you will have
+a tray icon with three commands: &lt;em&gt;Excel Add-In&lt;/em&gt;, which starts Excel and loads the add-in, &lt;em&gt;Script Editor&lt;/em&gt;, which loads
+a standalone editor, and &lt;em&gt;Exit&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://hotforknowledge.com/img/christmas_trees/tray_icon.png#aboutimage&#34; alt=&#34;Tray icon&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In Excel, you will have &lt;em&gt;Data Spreads&lt;/em&gt; tab with a &lt;em&gt;Script Editor&lt;/em&gt; button. You may find a basic self-explanatory
+sample and the Christmas trees sample in the &lt;code&gt;Samples\Data Spreads\Excel&lt;/code&gt; folder. An Excel file that actually uses the functions from the
+Christmas sample is &lt;a href=&#34;http://hotforknowledge.com/excel/christmas_trees_sample.xlsx&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://hotforknowledge.com/img/christmas_trees/ribbon.png#aboutimage&#34; alt=&#34;Ribbon&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you get some error related to Excel version or bitness, you may find the &lt;code&gt;.xll&lt;/code&gt; files in the
+&lt;code&gt;C:\Users\%USERNAME%\AppData\Local\DataSpreads\app-X.Y.Z\Excel&lt;/code&gt; directory and start the one
+that corresponds to your Excel bitness (if you do not know it, just try both &lt;code&gt;DataSpreads[32/64].xll&lt;/code&gt; until it works).&lt;/p&gt;
+
+&lt;p&gt;Below are the simplest user-defined functions that return the same &lt;code&gt;$&amp;quot;Hello, {name}!&amp;quot;&lt;/code&gt; text. The difference
+is that the first one will block Excel UI during its execution, while the second one will return &lt;code&gt;#NA&lt;/code&gt; until
+the async result is available but will keep the UI responsive. The async version is the best option
+for long-running functions with heavy calculations or IO operations, and could be easily used with awaitable &lt;code&gt;XlResult&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ExcelFunction(IsVolatile = false, IsThreadSafe = true, IsClusterSafe = true, Name = &amp;quot;Hello&amp;quot;)]
+public static object Hello(
+[ExcelArgument(Name = &amp;quot;NAME&amp;quot;, AllowReference = true, Description = &amp;quot;Name for greetings&amp;quot;)] string name)
+{
+    if (string.IsNullOrWhiteSpace(name)) name = &amp;quot;Data Spreads&amp;quot;;
+    // this will block Excel UI
+    Thread.Sleep(1000);
+    return $&amp;quot;Hello, {name}!&amp;quot;;
+}
+
+[ExcelFunction(IsVolatile = false, IsClusterSafe = true, Name = &amp;quot;HelloAsync&amp;quot;)]
+public static async Task&amp;lt;object&amp;gt; HelloAsync(
+[ExcelArgument(Name = &amp;quot;NAME&amp;quot;, AllowReference = true, Description = &amp;quot;Name for greetings&amp;quot;)] string name)
+{
+    if (string.IsNullOrWhiteSpace(name)) name = &amp;quot;Data Spreads&amp;quot;;
+    // This will nicely return #NA and then the result after the delay, without blocking Excel UI
+    await Task.Delay(1000);
+    return $&amp;quot;Hello, {name}!&amp;quot;;
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note the &lt;code&gt;IsThreadSafe = true&lt;/code&gt; attribute parameter of the first function: when it is set to true the execution happens
+not on the main thread but on a dedicated calculation thread; but the UI is still blocked. With &lt;code&gt;IsThreadSafe = false&lt;/code&gt;, the function will always run on the
+main thread, which could be seen by adding &lt;code&gt;Thread.CurrentThread.ManagedThreadId&lt;/code&gt; to the return value.
+In the async case, the execution is never on the main thread but on a .NET thread-pool, and one should keep in mind the COM interop issues
+and use the XlResult pattern when working with COM/C APIs.&lt;/p&gt;
+
+&lt;h1 id=&#34;contributing-roadmap&#34;&gt;Contributing &amp;amp; roadmap&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/aelij/RoslynPad&#34;&gt;&lt;strong&gt;RoslynPad&lt;/strong&gt;&lt;/a&gt;: I made almost no changes to the RoslynPad core functionality - its &lt;em&gt;Common&lt;/em&gt;, &lt;em&gt;Roslyn&lt;/em&gt; and &lt;em&gt;RoslynEditor&lt;/em&gt; &lt;a href=&#34;https://github.com/aelij/RoslynPad/tree/master/src&#34;&gt;projects&lt;/a&gt;
+are practically unchanged. Therefore, all kudos and contributions related to the code editing experience
+should go to the &lt;a href=&#34;https://github.com/aelij/RoslynPad&#34;&gt;original project&lt;/a&gt;.
+My changes to hosting and GUI are very small and do not deserve a separate project; instead, I will try
+to push them upstream.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/Excel-DNA/ExcelDna&#34;&gt;&lt;strong&gt;ExcelDna&lt;/strong&gt;&lt;/a&gt;: This is a very mature and well-documented project. The fact that I could use it from the script editor
+without any single change just proves its reliability. Please go to &lt;a href=&#34;https://github.com/Excel-DNA/ExcelDna&#34;&gt;its repo&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/DataSpreads/ExcelModel/&#34;&gt;&lt;strong&gt;ExcelModel&lt;/strong&gt;&lt;/a&gt;: This is my small library for Excel utilities, with a goal to make a thread-safe API
+using .NET types over Excel&amp;rsquo;s C or COM API. Currently it contains &lt;a href=&#34;https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs&#34;&gt;&lt;code&gt;XlResult&amp;lt;TResult&amp;gt;&lt;/code&gt;&lt;/a&gt;
+ helper type that is described
+in the &lt;em&gt;Excel Model&lt;/em&gt; section above, and some legacy code from GitHub. At first, I
+will add data dumping features, such as charts and tables, and utility functions scattered among my private projects
+ (such as &lt;code&gt;ReferenceToRange&lt;/code&gt; in the samples above). This library is referenced from all scripts when the editor is started
+ from Excel, will be updated frequently and is &lt;em&gt;open for any contributions&lt;/em&gt;!&lt;/p&gt;
+
+&lt;p&gt;My current focus is on other features of &lt;em&gt;Data Spreads&lt;/em&gt; project and I am happy that I checked the box with Script Editor.
+I will continue to polish it and contribute to upstream repos, but it is already quite good for the real job of Excel scripting
+ - thanks to the awesome open-source libraries. I do no plan to charge anything for offline features of &lt;em&gt;Data Spreads&lt;/em&gt; such as this Script Editor, while similar solutions
+cost much more (and currently provide more features, e.g. &lt;a href=&#34;http://fcell.io/&#34;&gt;http://fcell.io/&lt;/a&gt; costs $1k per annum). My goal is to
+make the standalone application useful for number crunching and data science even without internet connection.
+So please stay tuned and share your feedback and features you need the most!&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;P.S. If you are in Moscow and need a Christmas tree, don&amp;rsquo;t think twice and just go to &lt;a href=&#34;http://elki-shop.ru/&#34;&gt;http://elki-shop.ru/&lt;/a&gt;,
+the shop has the best ones in the city and 10+ years track record with happy customers! ☺&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;* THE SOFTWARE IS PROVIDED &amp;ldquo;AS IS&amp;rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.&lt;/p&gt;
+
+&lt;p&gt;The application is experimental work in progress, even though is already useful.&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
