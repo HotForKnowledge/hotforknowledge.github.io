@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Rust Is the new C &middot; Victor Baybekov</title>
+        <meta name="description" content="Evaluating Rust as the common denominator of modern development">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.55.6" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Rust Is the new C">
+<meta property="og:description" content="Evaluating Rust as the common denominator of modern development">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://hotforknowledge.com/2019/07/09/6-rust-is-the-new-c/">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
+        <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
+        
+        
+        
+    </head>
+    <body>
+        
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-66650797-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about">About</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="Contact" href="#footer">Contact</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <nav class="toc toc-left is-position-fixed"></nav>
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Rust Is the new C</h1>
+    
+        <p class="post-description" itemprop="description">Evaluating Rust as the common denominator of modern development</p>
+    
+    <p class="post-date post-line">
+        <span>Published <time datetime="2019-07-09" itemprop="datePublished">Tue, Jul 9, 2019</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://twitter.com/buybackoff/" itemprop="url" rel="author">Victor Baybekov</a>
+            </span>
+        </span>
+    </p>
+    
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>In this post I will experiment with Rust as a safer C replacement. The idea is to combine a couple
+of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API
+from a Rust library as C ABI. Then I will consume the same exported Rust method from a number of
+modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</p>
+
+<p>I started writing this post before writing a single line of code. It will mainly serve as a walk-through
+guide to my future self, but I also hope that you will find it interesting.</p>
+
+<p>I&rsquo;ve already done this with C# and <a href="https://github.com/Blosc/c-blosc/">C-Blosc</a> as a part of
+<a href="https://github.com/Spreads/Spreads.Native">Spreads.Native</a>. But in that project I&rsquo;ve only re-exported
+existing C methods and used Rust Cargo build system to automate CMake build, which for me was more convenient than
+working with CMake directly. The lack of convenient C/C++ package manager and build systems is
+a good enough reason on its own to investigate Rust and Cargo. But here I will focus more on code.
+The post is inspired by my struggles with integrating native libraries with .NET in a cross-platform
+and repeatable way and finally triggered by this awesome talk by Ashley Mannix (<a href="[KodrAus](https://twitter.com/KodrAus)">@KodrAus</a>) <a href="https://www.youtube.com/watch?v=0B1U3fVCIX0">https://www.youtube.com/watch?v=0B1U3fVCIX0</a></p>
+
+<p>Not primary but important goal of this exercise is to achieve easy debugging experience
+for all listed languages from VS Code on Windows directly and/or via <a href="https://code.visualstudio.com/docs/remote/containers">containers</a>.</p>
+
+<h2 id="c-abi">C ABI</h2>
+
+<p>C language is the lowest lower &ldquo;normal&rdquo; programmers could probably deal with. By normal I mean
+those who do not write drivers, operating systems or OS-dependent things. But very often it is
+the C Application Binary Interface (ABI) that matters more than the power of &ldquo;portable assembler&rdquo;
+that the C language gives. Many great open-source stable projects are written in C by people
+who wrote code for NASA 20 years ago and in general are orders of magnitude more proficient in C.
+We the mortals could only use that pieces of portable and performant art in our routine work
+from our favorite languages and only dream about such deep C knowledge. It is also not practical
+and very dangerous to write important code in C without multiple years of experience.</p>
+
+<p>We could consume C ABI practically from any programming language:</p>
+
+<ul>
+<li><strong>.NET (C#, F#)</strong>: <a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke">P/Invoke requires a single attribute added to an extern method definition</a>;</li>
+<li><strong>Python</strong>: <a href="https://docs.python.org/2/extending/extending.html">ctypes module, cffi library or native/CPython extensions</a>;</li>
+<li><strong>Java</strong>: <a href="https://en.wikipedia.org/wiki/Java_Native_Interface">Java Native Interface (JNI)</a>;</li>
+<li><strong>Nodejs</strong>: <a href="https://nodejs.org/api/n-api.html">N-API addons</a> or <a href="https://github.com/node-ffi/node-ffi"><code>node-ffi</code> module</a>;</li>
+<li><strong>R</strong>: <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html">R native extensions</a> or <a href="https://github.com/RcppCore/Rcpp">Rcpp</a>;</li>
+<li><strong>Go</strong>: <a href="https://golang.org/cmd/cgo/">cgo</a> or <a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">&ldquo;C&rdquo; pseudo package</a>;</li>
+<li><strong>C/C++</strong>: just reuse API exported from Rust natively.</li>
+</ul>
+
+<p>The Go language is interesting because it could expose C ABI as well, but it has GC, a bigger runtime and the native
+boundary is expensive (e.g. <a href="https://dave.cheney.net/2016/01/18/cgo-is-not-go">1</a>, <a href="https://news.ycombinator.com/item?id=17165179">2</a>).
+So despite the fact that many consider Go to be the main Rust competitor for writing complete programs,
+Go cannot be used as a low-level C alternative.</p>
+
+<h2 id="rust-lib-to-rule-them-all">Rust lib to rule them all</h2>
+
+<p>To make this exercise not futile I will use the native dependencies from my <a href="https://github.com/Spreads">Spreads</a> stack.
+The Rust library will do a typical job of compressing and persisting a series object
+that is represented as a sorted array (span/vector) of keys, corresponding values and
+the length. To simplify things keys will be <code>long</code>s as nanoseconds and values will be <code>double</code>s.
+This case is interesting for language interoperability because languages such as JavaScript
+cannot represent integers higher than <code>2^53</code> without losing precision (all numbers are 64-bit
+floating pointer numbers), but the current time in nanoseconds is approximately <code>2^60.4</code>.</p>
+
+<p>(TODO but that will probably require MinGW for many native Rust <code>...-sys</code> deps)</p>
+
+<p><a href="https://news.ycombinator.com/item?id=18588543">https://news.ycombinator.com/item?id=18588543</a>
+<a href="https://hsivonen.fi/modern-cpp-in-rust/">https://hsivonen.fi/modern-cpp-in-rust/</a></p>
+
+<h2 id="foreign-clients">Foreign clients</h2>
+
+<h3 id="node-n-api">Node N-API</h3>
+
+<p><a href="https://medium.com/@tarkus/how-to-call-c-c-code-from-node-js-86a773033892">https://medium.com/@tarkus/how-to-call-c-c-code-from-node-js-86a773033892</a></p>
+
+<h3 id="go">Go</h3>
+
+<p><a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">https://karthikkaranth.me/blog/calling-c-code-from-go/</a></p>
+
+<p>TODO this is work in progress, just testing my resurrected blog.</p>
+
+<p>Hopefully will finish this by mid July at least for a couple
+of languages excluding .NET</p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+            
+                <a href="/tags/rust/">Rust</a>, 
+            
+                <a href="/tags/ffi/">ffi</a>
+            
+        </p>
+    
+
+    <div class="share">
+        
+            <a class="icon-twitter" href="https://twitter.com/share?text=Rust%20Is%20the%20new%20C&url=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f09%2f6-rust-is-the-new-c%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-twitter"></i>
+                <span class="hidden">Twitter</span>
+            </a>
+        
+
+        
+            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f09%2f6-rust-is-the-new-c%2f"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-facebook"></i>
+                <span class="hidden">Facebook</span>
+            </a>
+        
+
+        
+        
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Rust%20Is%20the%20new%20C&url=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f09%2f6-rust-is-the-new-c%2f&summary=Evaluating%20Rust%20as%20the%20common%20denominator%20of%20modern%20development"
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
+               <i class="fa fa-linkedin"></i>
+               <span class="hidden">LinkedIn</span>
+            </a>
+        
+    </div>
+</footer>
+
+        
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = 'http:\/\/hotforknowledge.com\/2019\/07\/09\/6-rust-is-the-new-c\/';
+
+        (function () {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            var disqus_shortname = 'hotforknowledge';
+            
+
+            
+            
+            if (window.location.hostname == "localhost")
+                return;
+
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+    <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Hot For Knowledge" href="http://hotforknowledge.com/">Hot For Knowledge</a>
+                    </h1>
+                    <a class="button-square" href="http://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
+                    <a name="footer"></a>
+                    
+                        <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:vbaybekov@gmail.com">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Twitter&#xFEFF;" href="https://twitter.com/buybackoff/">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Facebook&#xFEFF;" href="https://www.facebook.com/buybackoff/">
+                            <i class="fa fa-facebook-official"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Instagram&#xFEFF;" href="https://www.instagram.com/buybackoff/">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Github&#xFEFF;" href="https://github.com/buybackoff/">
+                            <i class="fa fa-github-alt"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;Stack Overflow&#xFEFF;" href="http://stackoverflow.com/users/801189/v-b/">
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    
+                    
+                        <a class="button-square" title="&#xFEFF;LinkedIn&#xFEFF;" href="https://linkedin.com/in/buybackoff/">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    
+                    
+                    
+                    <a class="button-square button-jump-top js-jump-top" href="#" data-hint="Back to top" title="Back to top">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2015-2019 Victor Baybekov </span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
+        <script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+        
+            <script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+        <script src="http://hotforknowledge.com/js/scripts.js"></script>
+    </body>
+</html>
+

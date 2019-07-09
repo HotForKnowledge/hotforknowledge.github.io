@@ -1,37 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Data Spreads: Write your Excel Macros In C# &middot; Victor Baybekov</title>
         <meta name="description" content="Replace VBA with modern C# for UDFs, macros and other Excel automation without Visual Studio">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.17" />
+        <meta name="generator" content="Hugo 0.55.6" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="og:title" content="Data Spreads: Write your Excel Macros In C#">
 <meta property="og:description" content="Replace VBA with modern C# for UDFs, macros and other Excel automation without Visual Studio">
 <meta property="og:type" content="article">
 <meta property="og:url" content="http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/normalize.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/highlight.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/style.css">
-        
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
         <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
+        
+        
+        
     </head>
     <body>
         
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-66650797-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-66650797-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 
 
@@ -60,25 +66,28 @@ ga('send', 'pageview');
 
 
 <div class="container">
+    <nav class="toc toc-left is-position-fixed"></nav>
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
     <h1 class="post-title" itemprop="name headline">Data Spreads: Write your Excel Macros In C#</h1>
     
         <p class="post-description" itemprop="description">Replace VBA with modern C# for UDFs, macros and other Excel automation without Visual Studio</p>
     
-    <p class="post-date">
+    <p class="post-date post-line">
         <span>Published <time datetime="2016-10-31" itemprop="datePublished">Mon, Oct 31, 2016</time></span>
         <span>by</span>
-        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
             <span itemprop="name">
                 <a href="https://twitter.com/buybackoff/" itemprop="url" rel="author">Victor Baybekov</a>
             </span>
         </span>
     </p>
+    
 </header>
 
         <div class="post-content clearfix" itemprop="articleBody">
     
+
     
 
 <p>A week ago, a friend of mine asked me if I could help him with parsing his old Excel
@@ -122,62 +131,56 @@ success statuses - the three things that couldn&rsquo;t be done easily with Exce
 <p>Moscow had optional phone prefix until recently, so the seven-digit numbers are <code>+7 495 XXX XX XX</code> now. The long-distance
 prefix <code>8</code> is optional, and by international standard should be <code>+7</code>. The usage of dashes, dots, parentheses and spaces
 was non-standard inside each sheet. To deal with this, I wrote a simple <code>Sloppy Digit Pattern</code> RegEx:</p>
-
-<pre><code>// SloppyDigitPattern: Since human entered text in a free form, we assume spaces between digits in any place (fat fingers)
-// and very optional use of punctuation, e.g. '-', '.'    
-public static string sdp = @&quot;([\+-.\(]?\s*\d\s*[\)]?)&quot;;
-public static Regex phoneRegex = new Regex($@&quot;({sdp}{{7,11}})&quot;);
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="c1">// SloppyDigitPattern: Since human entered text in a free form, we assume spaces between digits in any place (fat fingers)
+</span><span class="c1">// and very optional use of punctuation, e.g. &#39;-&#39;, &#39;.&#39;    
+</span><span class="c1"></span><span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">sdp</span> <span class="p">=</span> <span class="s">@&#34;([\+-.\(]?\s*\d\s*[\)]?)&#34;</span><span class="p">;</span>
+<span class="k">public</span> <span class="k">static</span> <span class="n">Regex</span> <span class="n">phoneRegex</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Regex</span><span class="p">(</span><span class="s">$@&#34;({sdp}{{7,11}})&#34;</span><span class="p">);</span>
+</code></pre></div>
 <p>Then a simple function returns all found phone numbers in the format that the CRM system supports:</p>
-
-<pre><code>public static partial class Parser
-{
-    public static string Phones(string value)
-    {
-        return phoneRegex.Matches(value)
-            .Cast&lt;Match&gt;().Select(m =&gt; m.Value)
-            .Select(str =&gt; new String(str.Where(ch =&gt; Char.IsDigit(ch)).ToArray())) // keep only digits
-            .Select(number =&gt;
-                {
-                    if (number.Length == 11)
-                    {
-                        number = &quot;+7&quot; + number.Substring(1);
-                    }
-                    else if (number.Length == 10)
-                    {
-                        number = &quot;+7&quot; + number;
-                    }
-                    else if (number.Length == 7)
-                    {
-                        number = &quot;+7495&quot; + number;
-                    }
-                    else
-                    {
-                        return &quot;&quot;; // we only support 7, 10, and full 11 digit numbers
-                    }
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="k">public</span> <span class="k">static</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">Parser</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">Phones</span><span class="p">(</span><span class="kt">string</span> <span class="k">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">phoneRegex</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">Cast</span><span class="p">&lt;</span><span class="n">Match</span><span class="p">&gt;().</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span> <span class="p">=&gt;</span> <span class="n">m</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">str</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">String</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">ch</span> <span class="p">=&gt;</span> <span class="n">Char</span><span class="p">.</span><span class="n">IsDigit</span><span class="p">(</span><span class="n">ch</span><span class="p">)).</span><span class="n">ToArray</span><span class="p">()))</span> <span class="c1">// keep only digits
+</span><span class="c1"></span>            <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">number</span> <span class="p">=&gt;</span>
+                <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">number</span><span class="p">.</span><span class="n">Length</span> <span class="p">==</span> <span class="m">11</span><span class="p">)</span>
+                    <span class="p">{</span>
+                        <span class="n">number</span> <span class="p">=</span> <span class="s">&#34;+7&#34;</span> <span class="p">+</span> <span class="n">number</span><span class="p">.</span><span class="n">Substring</span><span class="p">(</span><span class="m">1</span><span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">number</span><span class="p">.</span><span class="n">Length</span> <span class="p">==</span> <span class="m">10</span><span class="p">)</span>
+                    <span class="p">{</span>
+                        <span class="n">number</span> <span class="p">=</span> <span class="s">&#34;+7&#34;</span> <span class="p">+</span> <span class="n">number</span><span class="p">;</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">number</span><span class="p">.</span><span class="n">Length</span> <span class="p">==</span> <span class="m">7</span><span class="p">)</span>
+                    <span class="p">{</span>
+                        <span class="n">number</span> <span class="p">=</span> <span class="s">&#34;+7495&#34;</span> <span class="p">+</span> <span class="n">number</span><span class="p">;</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span>
+                    <span class="p">{</span>
+                        <span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">;</span> <span class="c1">// we only support 7, 10, and full 11 digit numbers
+</span><span class="c1"></span>                    <span class="p">}</span>
         
-                    return number;
-                })
-            .Where(x =&gt; !string.IsNullOrWhiteSpace(x))
-            .Select(number =&gt; number.Insert(2, &quot; &quot;).Insert(6, &quot; &quot;).Insert(10, &quot; &quot;).Insert(13, &quot; &quot;)) // comment to remove spaces
-            .Aggregate(&quot;&quot;, (acc, st) =&gt; acc + &quot;[ &quot; + st + &quot; ] &quot;).Trim();
+                    <span class="k">return</span> <span class="n">number</span><span class="p">;</span>
+                <span class="p">})</span>
+            <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span> <span class="p">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">number</span> <span class="p">=&gt;</span> <span class="n">number</span><span class="p">.</span><span class="n">Insert</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="s">&#34; &#34;</span><span class="p">).</span><span class="n">Insert</span><span class="p">(</span><span class="m">6</span><span class="p">,</span> <span class="s">&#34; &#34;</span><span class="p">).</span><span class="n">Insert</span><span class="p">(</span><span class="m">10</span><span class="p">,</span> <span class="s">&#34; &#34;</span><span class="p">).</span><span class="n">Insert</span><span class="p">(</span><span class="m">13</span><span class="p">,</span> <span class="s">&#34; &#34;</span><span class="p">))</span> <span class="c1">// comment to remove spaces
+</span><span class="c1"></span>            <span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">st</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">acc</span> <span class="p">+</span> <span class="s">&#34;[ &#34;</span> <span class="p">+</span> <span class="n">st</span> <span class="p">+</span> <span class="s">&#34; ] &#34;</span><span class="p">).</span><span class="n">Trim</span><span class="p">();</span>
 
-    }
-}
-</code></pre>
-
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Finally, we wrap the static method in another method that is marked with ExcelDna&rsquo;s <code>ExcelFunction</code> attribute.</p>
-
-<pre><code>const bool defaultVolatile = true;
-
-[ExcelFunction(IsVolatile = defaultVolatile)]
-public static object ParsePhone(string input = &quot;&quot;)
-{
-    return string.IsNullOrWhiteSpace(input) ? &quot;&quot; : Parser.Phones(input);
-}
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="k">const</span> <span class="kt">bool</span> <span class="n">defaultVolatile</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span><span class="na">
+</span><span class="na">
+</span><span class="na">[ExcelFunction(IsVolatile = defaultVolatile)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="kt">object</span> <span class="n">ParsePhone</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span> <span class="p">=</span> <span class="s">&#34;&#34;</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">input</span><span class="p">)</span> <span class="p">?</span> <span class="s">&#34;&#34;</span> <span class="p">:</span> <span class="n">Parser</span><span class="p">.</span><span class="n">Phones</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Now after running the script (<code>F5</code>) we have the function <code>ParsePhone</code> available from Excel or could debug it directly from
 the script editor. The editor pretty-prints the last variable in a script (placed without semicolon), or any variable using
 the <code>Dump()</code> extension method, e.g. <code>matches.Dump();</code>. Interestingly, the <code>Dump</code> method works when a function is called from Excel
@@ -191,99 +194,94 @@ and prints variables in the same way, which is nice for debugging.</p>
 Instead of writing C# code that will do something like &ldquo;for every row where the address and quantity are not empty,
 move above until the quantity is empty, parse the cell in the same column as addresses, and for those orders apply that parsed date&rdquo;,
 I wrote that logic using Excel functions. The task became very similar to phone parsing:</p>
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="k">public</span> <span class="k">static</span> <span class="n">Regex</span> <span class="n">deliveryDateRegex</span> <span class="p">=</span> 
+    <span class="k">new</span> <span class="n">Regex</span><span class="p">(</span><span class="s">@&#34;(?&lt;date&gt;\d{1,4})(\s*[.]?\s*)(?&lt;month&gt;(\d{1,4}|\p{L}+))(\s*[.]?\s*)?(?&lt;year&gt;\d{1,4})?&#34;</span><span class="p">);</span>
 
-<pre><code>public static Regex deliveryDateRegex = 
-    new Regex(@&quot;(?&lt;date&gt;\d{1,4})(\s*[.]?\s*)(?&lt;month&gt;(\d{1,4}|\p{L}+))(\s*[.]?\s*)?(?&lt;year&gt;\d{1,4})?&quot;);
-
-public static DateTime? DeliveryDate(string value, int year = 0)
-{
-    try
-    {
-        var match = deliveryDateRegex.Matches(value).Cast&lt;Match&gt;().First();
-        var date = int.Parse(match.Groups[&quot;date&quot;].Value);
-        //date.Dump(&quot;date&quot;);
-        var monthString = match.Groups[&quot;month&quot;].Value;
-        int month = 0;
-        if (!int.TryParse(monthString, out month))
-        {
-            if (monthString.ToLowerInvariant().Contains(&quot;дек&quot;))
-            {
-                month = 12;
-            }
-            if (monthString.ToLowerInvariant().Contains(&quot;ноя&quot;))
-            {
-                month = 11;
-            }
-            if (monthString.ToLowerInvariant().Contains(&quot;окт&quot;))
-            {
-                month = 10;
-            }
-        }
-        //month.Dump(&quot;month&quot;);
-        if (month == 0) return null;
-        if (year == 0) return null;
-        //year.Dump(&quot;year&quot;);
-        var dt = new DateTime(year, month, date);
-        return dt;
-    }
-    catch (Exception)
-    {
-        return null;
-    }
-}
-
-[ExcelFunction(IsVolatile = defaultVolatile)]
-public static object ParseDeliveryDate(string input, int year = 0)
-{
-    var dt = Parser.DeliveryDate(input, year);
-    return dt == null ? (object)&quot;&quot; : dt.Value.ToOADate();
-}
-</code></pre>
-
+<span class="k">public</span> <span class="k">static</span> <span class="n">DateTime</span><span class="p">?</span> <span class="n">DeliveryDate</span><span class="p">(</span><span class="kt">string</span> <span class="k">value</span><span class="p">,</span> <span class="kt">int</span> <span class="n">year</span> <span class="p">=</span> <span class="m">0</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">match</span> <span class="p">=</span> <span class="n">deliveryDateRegex</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="k">value</span><span class="p">).</span><span class="n">Cast</span><span class="p">&lt;</span><span class="n">Match</span><span class="p">&gt;().</span><span class="n">First</span><span class="p">();</span>
+        <span class="kt">var</span> <span class="n">date</span> <span class="p">=</span> <span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">Groups</span><span class="na">[&#34;date&#34;]</span><span class="p">.</span><span class="n">Value</span><span class="p">);</span>
+        <span class="c1">//date.Dump(&#34;date&#34;);
+</span><span class="c1"></span>        <span class="kt">var</span> <span class="n">monthString</span> <span class="p">=</span> <span class="n">match</span><span class="p">.</span><span class="n">Groups</span><span class="na">[&#34;month&#34;]</span><span class="p">.</span><span class="n">Value</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">month</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(!</span><span class="kt">int</span><span class="p">.</span><span class="n">TryParse</span><span class="p">(</span><span class="n">monthString</span><span class="p">,</span> <span class="k">out</span> <span class="n">month</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">monthString</span><span class="p">.</span><span class="n">ToLowerInvariant</span><span class="p">().</span><span class="n">Contains</span><span class="p">(</span><span class="s">&#34;дек&#34;</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">month</span> <span class="p">=</span> <span class="m">12</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">monthString</span><span class="p">.</span><span class="n">ToLowerInvariant</span><span class="p">().</span><span class="n">Contains</span><span class="p">(</span><span class="s">&#34;ноя&#34;</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">month</span> <span class="p">=</span> <span class="m">11</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">monthString</span><span class="p">.</span><span class="n">ToLowerInvariant</span><span class="p">().</span><span class="n">Contains</span><span class="p">(</span><span class="s">&#34;окт&#34;</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">month</span> <span class="p">=</span> <span class="m">10</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">//month.Dump(&#34;month&#34;);
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">month</span> <span class="p">==</span> <span class="m">0</span><span class="p">)</span> <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">year</span> <span class="p">==</span> <span class="m">0</span><span class="p">)</span> <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+        <span class="c1">//year.Dump(&#34;year&#34;);
+</span><span class="c1"></span>        <span class="kt">var</span> <span class="n">dt</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">[ExcelFunction(IsVolatile = defaultVolatile)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="kt">object</span> <span class="n">ParseDeliveryDate</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">,</span> <span class="kt">int</span> <span class="n">year</span> <span class="p">=</span> <span class="m">0</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">dt</span> <span class="p">=</span> <span class="n">Parser</span><span class="p">.</span><span class="n">DeliveryDate</span><span class="p">(</span><span class="n">input</span><span class="p">,</span> <span class="n">year</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">dt</span> <span class="p">==</span> <span class="k">null</span> <span class="p">?</span> <span class="p">(</span><span class="kt">object</span><span class="p">)</span><span class="s">&#34;&#34;</span> <span class="p">:</span> <span class="n">dt</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">ToOADate</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
 <h4 id="order-status">Order status</h4>
 
 <p>Order status is determined by background or font color. The simple rule is that when
 any of those colors have <code>R</code> value greater that <code>G</code> value in the <code>RGB</code> representation, the order
 status is unsuccessful.</p>
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="err">#</span><span class="n">r</span> <span class="s">&#34;System.Drawing&#34;</span>
 
-<pre><code>#r &quot;System.Drawing&quot;
+<span class="k">using</span> <span class="nn">ExcelDna.Integration</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">Microsoft.Office.Interop.Excel</span><span class="p">;</span>
 
-using ExcelDna.Integration;
-using Microsoft.Office.Interop.Excel;
-
-public static Range ReferenceToRange(ExcelReference xlRef)
-{
-    var xlRange = (ExcelDnaUtil.Application as Application).Evaluate(XlCall.Excel(XlCall.xlfReftext, xlRef, true)) as Range;
-    return xlRange;
-}
-
-[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]
-public static async Task&lt;int&gt; Status([ExcelArgument(AllowReference = true)]object input)
-{
-    var xlRef = input as ExcelReference;
-    var rng = ReferenceToRange(xlRef);
-    try
-    {
-        var oleColor = (int)(double)rng.Interior.Color;
-        //oleColor.Dump();
-        var color = System.Drawing.ColorTranslator.FromOle(oleColor);
-        if (color.R &gt; color.G) return 0;
-        oleColor = (int)(double)rng.Font.Color;
-        color = System.Drawing.ColorTranslator.FromOle(oleColor);
-        return (color.R &gt; color.G) ? 0 : 1;
-    }
-    catch (Exception)
-    {
-        return -1;
-    }
-    finally
-    {
-        Marshal.ReleaseComObject(rng);
-    }
-}
-
-</code></pre>
-
+<span class="k">public</span> <span class="k">static</span> <span class="n">Range</span> <span class="n">ReferenceToRange</span><span class="p">(</span><span class="n">ExcelReference</span> <span class="n">xlRef</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">xlRange</span> <span class="p">=</span> <span class="p">(</span><span class="n">ExcelDnaUtil</span><span class="p">.</span><span class="n">Application</span> <span class="k">as</span> <span class="n">Application</span><span class="p">).</span><span class="n">Evaluate</span><span class="p">(</span><span class="n">XlCall</span><span class="p">.</span><span class="n">Excel</span><span class="p">(</span><span class="n">XlCall</span><span class="p">.</span><span class="n">xlfReftext</span><span class="p">,</span> <span class="n">xlRef</span><span class="p">,</span> <span class="k">true</span><span class="p">))</span> <span class="k">as</span> <span class="n">Range</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">xlRange</span><span class="p">;</span>
+<span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">Status</span><span class="p">(</span><span class="na">[ExcelArgument(AllowReference = true)]</span><span class="kt">object</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">xlRef</span> <span class="p">=</span> <span class="n">input</span> <span class="k">as</span> <span class="n">ExcelReference</span><span class="p">;</span>
+    <span class="kt">var</span> <span class="n">rng</span> <span class="p">=</span> <span class="n">ReferenceToRange</span><span class="p">(</span><span class="n">xlRef</span><span class="p">);</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">oleColor</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="kt">double</span><span class="p">)</span><span class="n">rng</span><span class="p">.</span><span class="n">Interior</span><span class="p">.</span><span class="n">Color</span><span class="p">;</span>
+        <span class="c1">//oleColor.Dump();
+</span><span class="c1"></span>        <span class="kt">var</span> <span class="n">color</span> <span class="p">=</span> <span class="n">System</span><span class="p">.</span><span class="n">Drawing</span><span class="p">.</span><span class="n">ColorTranslator</span><span class="p">.</span><span class="n">FromOle</span><span class="p">(</span><span class="n">oleColor</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">R</span> <span class="p">&gt;</span> <span class="n">color</span><span class="p">.</span><span class="n">G</span><span class="p">)</span> <span class="k">return</span> <span class="m">0</span><span class="p">;</span>
+        <span class="n">oleColor</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="kt">double</span><span class="p">)</span><span class="n">rng</span><span class="p">.</span><span class="n">Font</span><span class="p">.</span><span class="n">Color</span><span class="p">;</span>
+        <span class="n">color</span> <span class="p">=</span> <span class="n">System</span><span class="p">.</span><span class="n">Drawing</span><span class="p">.</span><span class="n">ColorTranslator</span><span class="p">.</span><span class="n">FromOle</span><span class="p">(</span><span class="n">oleColor</span><span class="p">);</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">R</span> <span class="p">&gt;</span> <span class="n">color</span><span class="p">.</span><span class="n">G</span><span class="p">)</span> <span class="p">?</span> <span class="m">0</span> <span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="p">-</span><span class="m">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">finally</span>
+    <span class="p">{</span>
+        <span class="n">Marshal</span><span class="p">.</span><span class="n">ReleaseComObject</span><span class="p">(</span><span class="n">rng</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Here we use COM interop and <code>Microsoft.Office.Interop.Excel</code> namespace to get the COM <code>Range</code> object
 from ExcelDna&rsquo;s <code>ExcelReference</code> object, and then convert OLE colors to RGB ones using the
 <code>System.Drawing.ColorTranslator.FromOle</code> method. Note the usage of <code>Marshal.ReleaseComObject</code> for COM
@@ -311,45 +309,39 @@ The main work happens in the  <a href="https://github.com/DataSpreads/ExcelModel
 
 <p>We then could rewrite the Status example above using <code>XlResult</code> and <code>await</code> keyword. C# could <a href="https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-anything/">await anything</a>
 that has <code>GetAwaiter</code> method, and we just use <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L113"><code>TaskComletionSource.Task</code></a> for this.</p>
-
-<pre><code>
-public static XlResult&lt;Range&gt; ReferenceToRange(ExcelReference xlRef)
-{
-    var xlRange = new XlResult&lt;Range&gt;(() =&gt; (ExcelDnaUtil.Application as Application).Evaluate(XlCall.Excel(XlCall.xlfReftext, xlRef, true)) as Range);
-    return xlRange;
-}
-
-[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]
-public static async Task&lt;int&gt; Status([ExcelArgument(AllowReference = true)]object input)
-{
-    var xlRef = input as ExcelReference;
-    // we could await XlResult from any thread safely
-    var rng = await ReferenceToRange(xlRef);
-    // same code for Status...
-}
-
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="k">public</span> <span class="k">static</span> <span class="n">XlResult</span><span class="p">&lt;</span><span class="n">Range</span><span class="p">&gt;</span> <span class="n">ReferenceToRange</span><span class="p">(</span><span class="n">ExcelReference</span> <span class="n">xlRef</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">xlRange</span> <span class="p">=</span> <span class="k">new</span> <span class="n">XlResult</span><span class="p">&lt;</span><span class="n">Range</span><span class="p">&gt;(()</span> <span class="p">=&gt;</span> <span class="p">(</span><span class="n">ExcelDnaUtil</span><span class="p">.</span><span class="n">Application</span> <span class="k">as</span> <span class="n">Application</span><span class="p">).</span><span class="n">Evaluate</span><span class="p">(</span><span class="n">XlCall</span><span class="p">.</span><span class="n">Excel</span><span class="p">(</span><span class="n">XlCall</span><span class="p">.</span><span class="n">xlfReftext</span><span class="p">,</span> <span class="n">xlRef</span><span class="p">,</span> <span class="k">true</span><span class="p">))</span> <span class="k">as</span> <span class="n">Range</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">xlRange</span><span class="p">;</span>
+<span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">[ExcelFunction(IsVolatile = defaultVolatile, IsMacroType = true)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">Status</span><span class="p">(</span><span class="na">[ExcelArgument(AllowReference = true)]</span><span class="kt">object</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">xlRef</span> <span class="p">=</span> <span class="n">input</span> <span class="k">as</span> <span class="n">ExcelReference</span><span class="p">;</span>
+    <span class="c1">// we could await XlResult from any thread safely
+</span><span class="c1"></span>    <span class="kt">var</span> <span class="n">rng</span> <span class="p">=</span> <span class="k">await</span> <span class="n">ReferenceToRange</span><span class="p">(</span><span class="n">xlRef</span><span class="p">);</span>
+    <span class="c1">// same code for Status...
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div>
 <p>The COM issue could quickly become nasty. At some point, I even wrote an F# computation expression
 that did manual reference counting behind the scenes, but it didn&rsquo;t work reliably 100% of times.
 Therefore, instead of reference counting, I added a <code>Map</code> method that could chain different functions together
 and guarantee that COM objects and C/COM APIs are never accessed outside the main thread. E.g. in this
 example, we chain three functions:</p>
-
-<pre><code>[ExcelFunction(IsMacroType = true)]
-public static async Task&lt;string&gt; Hello([ExcelArgument(AllowReference = true)]object text) {
-    var xlRef = text as ExcelReference;
-    if (xlRef != null) {
-        using (var result = XlResult.XlCall(XlCall.xlfReftext, xlRef, true)
-            .Map(str =&gt; DSAddIn.XlApp.Evaluate((string)str) as Range)
-            .Map(rng =&gt; rng.Value2.ToString())) {
-            return await result;
-        }
-    }
-    throw new Exception();
-}
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="na">[ExcelFunction(IsMacroType = true)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">Hello</span><span class="p">(</span><span class="na">[ExcelArgument(AllowReference = true)]</span><span class="kt">object</span> <span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">var</span> <span class="n">xlRef</span> <span class="p">=</span> <span class="n">text</span> <span class="k">as</span> <span class="n">ExcelReference</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">xlRef</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="n">XlResult</span><span class="p">.</span><span class="n">XlCall</span><span class="p">(</span><span class="n">XlCall</span><span class="p">.</span><span class="n">xlfReftext</span><span class="p">,</span> <span class="n">xlRef</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">str</span> <span class="p">=&gt;</span> <span class="n">DSAddIn</span><span class="p">.</span><span class="n">XlApp</span><span class="p">.</span><span class="n">Evaluate</span><span class="p">((</span><span class="kt">string</span><span class="p">)</span><span class="n">str</span><span class="p">)</span> <span class="k">as</span> <span class="n">Range</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">rng</span> <span class="p">=&gt;</span> <span class="n">rng</span><span class="p">.</span><span class="n">Value2</span><span class="p">.</span><span class="n">ToString</span><span class="p">()))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">result</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">Exception</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Accessing COM object and C API only from the main thread should work &ldquo;as expected&rdquo; even without
 explicit releasing via <code>Marshal</code> methods, as was written somewhere on ExcelDna forum/mailing list (cannot find a link).
 Using <code>XlResult</code> helps to stay on the main thread and follow the rules.</p>
@@ -383,29 +375,26 @@ that corresponds to your Excel bitness (if you do not know it, just try both <co
 is that the first one will block Excel UI during its execution, while the second one will return <code>#NA</code> until
 the async result is available but will keep the UI responsive. The async version is the best option
 for long-running functions with heavy calculations or IO operations, and could be easily used with awaitable <code>XlResult</code>:</p>
-
-<pre><code>[ExcelFunction(IsVolatile = false, IsThreadSafe = true, IsClusterSafe = true, Name = &quot;Hello&quot;)]
-public static object Hello(
-[ExcelArgument(Name = &quot;NAME&quot;, AllowReference = true, Description = &quot;Name for greetings&quot;)] string name)
-{
-    if (string.IsNullOrWhiteSpace(name)) name = &quot;Data Spreads&quot;;
-    // this will block Excel UI
-    Thread.Sleep(1000);
-    return $&quot;Hello, {name}!&quot;;
-}
-
-[ExcelFunction(IsVolatile = false, IsClusterSafe = true, Name = &quot;HelloAsync&quot;)]
-public static async Task&lt;object&gt; HelloAsync(
-[ExcelArgument(Name = &quot;NAME&quot;, AllowReference = true, Description = &quot;Name for greetings&quot;)] string name)
-{
-    if (string.IsNullOrWhiteSpace(name)) name = &quot;Data Spreads&quot;;
-    // This will nicely return #NA and then the result after the delay, without blocking Excel UI
-    await Task.Delay(1000);
-    return $&quot;Hello, {name}!&quot;;
-}
-
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="na">[ExcelFunction(IsVolatile = false, IsThreadSafe = true, IsClusterSafe = true, Name = &#34;Hello&#34;)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="kt">object</span> <span class="n">Hello</span><span class="p">(</span><span class="na">
+</span><span class="na">[ExcelArgument(Name = &#34;NAME&#34;, AllowReference = true, Description = &#34;Name for greetings&#34;)]</span> <span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="n">name</span> <span class="p">=</span> <span class="s">&#34;Data Spreads&#34;</span><span class="p">;</span>
+    <span class="c1">// this will block Excel UI
+</span><span class="c1"></span>    <span class="n">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="m">1000</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s">$&#34;Hello, {name}!&#34;</span><span class="p">;</span>
+<span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">[ExcelFunction(IsVolatile = false, IsClusterSafe = true, Name = &#34;HelloAsync&#34;)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="kt">object</span><span class="p">&gt;</span> <span class="n">HelloAsync</span><span class="p">(</span><span class="na">
+</span><span class="na">[ExcelArgument(Name = &#34;NAME&#34;, AllowReference = true, Description = &#34;Name for greetings&#34;)]</span> <span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="n">name</span> <span class="p">=</span> <span class="s">&#34;Data Spreads&#34;</span><span class="p">;</span>
+    <span class="c1">// This will nicely return #NA and then the result after the delay, without blocking Excel UI
+</span><span class="c1"></span>    <span class="k">await</span> <span class="n">Task</span><span class="p">.</span><span class="n">Delay</span><span class="p">(</span><span class="m">1000</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s">$&#34;Hello, {name}!&#34;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Note the <code>IsThreadSafe = true</code> attribute parameter of the first function: when it is set to true the execution happens
 not on the main thread but on a dedicated calculation thread; but the UI is still blocked. With <code>IsThreadSafe = false</code>, the function will always run on the
 main thread, which could be seen by adding <code>Thread.CurrentThread.ManagedThreadId</code> to the return value.
@@ -464,36 +453,65 @@ SOFTWARE.</p>
         <p class="post-tags">
             <span>Tagged:</span>
             
-                 <a href="/tags/excel/">Excel</a>
             
-                 <a href="/tags/dataspreads/">DataSpreads</a>
+                <a href="/tags/excel/">Excel</a>, 
+            
+                <a href="/tags/dataspreads/">DataSpreads</a>
             
         </p>
     
+
+    <div class="share">
+        
+            <a class="icon-twitter" href="https://twitter.com/share?text=Data%20Spreads%3a%20Write%20your%20Excel%20Macros%20In%20C%23&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f31%2f5-data_spreads_excel_macros_in_csharp%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-twitter"></i>
+                <span class="hidden">Twitter</span>
+            </a>
+        
+
+        
+            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f31%2f5-data_spreads_excel_macros_in_csharp%2f"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-facebook"></i>
+                <span class="hidden">Facebook</span>
+            </a>
+        
+
+        
+        
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Data%20Spreads%3a%20Write%20your%20Excel%20Macros%20In%20C%23&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f31%2f5-data_spreads_excel_macros_in_csharp%2f&summary=Replace%20VBA%20with%20modern%20C%23%20for%20UDFs%2c%20macros%20and%20other%20Excel%20automation%20without%20Visual%20Studio"
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
+               <i class="fa fa-linkedin"></i>
+               <span class="hidden">LinkedIn</span>
+            </a>
+        
+    </div>
 </footer>
 
         
 <div class="comments">
-	<div id="disqus_thread"></div>
-	<script type="text/javascript">
-    var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/31\/5-data_spreads_excel_macros_in_csharp\/';
-    
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        var disqus_shortname = 'hotforknowledge';
-        
-        
-        
-        
-        if (window.location.hostname == "localhost")
-            return;
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/31\/5-data_spreads_excel_macros_in_csharp\/';
 
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        (function () {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            var disqus_shortname = 'hotforknowledge';
+            
+
+            
+            
+            if (window.location.hostname == "localhost")
+                return;
+
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
     </script>
-	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-	<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+    <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 </div>
 
     </article>
@@ -550,19 +568,23 @@ SOFTWARE.</p>
                     
                     <a class="button-square button-jump-top js-jump-top" href="#" data-hint="Back to top" title="Back to top">
                         <i class="fa fa-angle-up"></i>
-                    </a>&#xFEFF;
+                    </a>
                 </div>
 
                 <p class="footer-copyright">
-                    <span>&copy; 2016 Victor Baybekov </span>
+                    <span>&copy; 2015-2019 Victor Baybekov </span>
                 </p>
                 
             </div>
         </footer>
 
         <script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
         <script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+        
+            <script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
         <script src="http://hotforknowledge.com/js/scripts.js"></script>
     </body>
 </html>

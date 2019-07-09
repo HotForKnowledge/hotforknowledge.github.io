@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/blogging/index.xml</link>
-    <description>Recent content on Hot For Knowledge</description>
+    <title>blogging on Hot For Knowledge</title>
+    <link>http://hotforknowledge.com/tags/blogging/</link>
+    <description>Recent content in blogging on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <atom:link href="http://hotforknowledge.com/tags/blogging/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate>
+    
+	<atom:link href="http://hotforknowledge.com/tags/blogging/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Migrating to Hugo Engine</title>
@@ -15,19 +18,8 @@
       <pubDate>Sat, 15 Oct 2016 15:00:12 +0300</pubDate>
       
       <guid>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
-      <description>&lt;p&gt;I have migrated my WordPress blog to
-&lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;. Since I am not a web publishing expert,
-I have nothing to say other than the experience was very nice and flexibility is awesome.
-Markdown + VS Code + git rule them all!&lt;/p&gt;
-
-&lt;p&gt;I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago.
-WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything
-because the entire setup looked fragile. Hosted WP was not an option due to complete lack of control,
-however local WP installation was the same black box.&lt;/p&gt;
-
-&lt;p&gt;Hugo is super fast and doesn&amp;rsquo;t interfere with writing workflow, gives total control and a hope that I
-could publish all the overdue posts about Spreads and related things soon.&lt;/p&gt;
-</description>
+      <description>I have migrated my WordPress blog to Hugo. Since I am not a web publishing expert, I have nothing to say other than the experience was very nice and flexibility is awesome. Markdown + VS Code + git rule them all!
+I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago. WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything because the entire setup looked fragile.</description>
     </item>
     
   </channel>

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/meta/index.xml</link>
-    <description>Recent content on Hot For Knowledge</description>
+    <title>meta on Hot For Knowledge</title>
+    <link>http://hotforknowledge.com/tags/meta/</link>
+    <description>Recent content in meta on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <atom:link href="http://hotforknowledge.com/tags/meta/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate>
+    
+	<atom:link href="http://hotforknowledge.com/tags/meta/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Migrating to Hugo Engine</title>
@@ -15,19 +18,8 @@
       <pubDate>Sat, 15 Oct 2016 15:00:12 +0300</pubDate>
       
       <guid>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
-      <description>&lt;p&gt;I have migrated my WordPress blog to
-&lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;. Since I am not a web publishing expert,
-I have nothing to say other than the experience was very nice and flexibility is awesome.
-Markdown + VS Code + git rule them all!&lt;/p&gt;
-
-&lt;p&gt;I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago.
-WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything
-because the entire setup looked fragile. Hosted WP was not an option due to complete lack of control,
-however local WP installation was the same black box.&lt;/p&gt;
-
-&lt;p&gt;Hugo is super fast and doesn&amp;rsquo;t interfere with writing workflow, gives total control and a hope that I
-could publish all the overdue posts about Spreads and related things soon.&lt;/p&gt;
-</description>
+      <description>I have migrated my WordPress blog to Hugo. Since I am not a web publishing expert, I have nothing to say other than the experience was very nice and flexibility is awesome. Markdown + VS Code + git rule them all!
+I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago. WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything because the entire setup looked fragile.</description>
     </item>
     
     <item>
@@ -36,35 +28,7 @@ could publish all the overdue posts about Spreads and related things soon.&lt;/p
       <pubDate>Sun, 23 Aug 2015 17:41:56 +0300</pubDate>
       
       <guid>http://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
-      <description>&lt;p&gt;On my LinkedIn page, there are almost no endorsements for programming/tech, even though 
-I program since age 12 or so. Probably this is an indication that the endorsement system
-is broken there or I am not very active there recently. Or this is a reflection of a mild
-problem I have - very few people from my former professional,
-mostly investment banking, network know that I can code well beyond VBA scripts.
-The problem is mild because I am not interested in a full-time programmer job outside finance or data science domain.
-I am mostly interested in quantitative finance or startup projects where I could utilize all my knowledge
-and boost my productivity by delegating work to hardware. These days I think about programming in the same
-way as I think about math or English language or Excel - it is just an essential tool for achieving goals
-in some practical domain, not a separate domain (unless you are a language designer or a computer science teacher).&lt;/p&gt;
-
-&lt;p&gt;I enjoy many aspects of pure programming, such as &lt;del&gt;premature&lt;/del&gt; performance  optimization, but the most exciting thing about programming for me is an augmentation of my human abilities. I cannot add numbers hundred million times per second or crawl the entire web and analyze the content of million pages, but I can write a program to do so. A great philosophical question, which requires a separate post, is &amp;ldquo;Who is the actor - an entity that performs the actions encoded in my program - when my program runs&amp;rdquo;. Is it a machine, or a person who started the program, or an author of programming language, or a CPU designer, or it is me? Isn&amp;rsquo;t it a way to expand human consciousness and existence beyond their bodies and lifetimes!?&lt;/p&gt;
-
-&lt;p&gt;Below are my answers to some programming background questions from my application to the Hacker School, where I spent three summer months in 2014 and which is now known as the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt;. (I like the &lt;a href=&#34;https://www.recurse.com/blog/77-hacker-school-is-now-the-recurse-center&#34;&gt;old name&lt;/a&gt; much more!)  By the way, this is a great place for people who are passionate about programming, who are not yet damaged by formal education or &lt;a href=&#34;https://github.com/EnterpriseQualityCoding/FizzBuzzEnterpriseEdition&#34;&gt;enterprise software practices&lt;/a&gt;, and who prefer &lt;a href=&#34;http://www.wired.com/2012/02/zuck-letter/&#34;&gt;the hacker way&lt;/a&gt; of doing things to other ways.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Describe your programming background in a few sentences.&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;At age 12, I was yet to learn about the Turing test and tried to write a chatbot talking to humans. That failure did not push me away from programming. During my high school, I was planning for a CS degree and was accepted to a local tech university already in January 2002. However, in the June the best university in my country invited me to any economics faculty I would choose, without exams. That was a no-brainer because I liked economics as well. Programming became my main hobby and an important tool for study and work, but it was not my craft. In 2010, I was not happy with the stagnating investments industry and could not ignore the booming tech industry, so I started to invest my time heavily into modern programming. I was fluent in VBA and OK with the LAMP stack and HTML/JavaScript, so I started with Ruby on Rails. Then I touched statically typed C# and realized that I cannot stand for the avoidable complexity of dynamic languages. With C#, I started to develop some projects, but it did not work for some tasks. Over the past year, I learned F# to a decent level and now I develop my grown-up projects with .NET stack with a huge bias toward F#.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Have you worked professionally as a programmer?&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;No, technically. But my first ever $100 I earned around 2004 from guys in my dorm by writing a search web page to query a DB with real estate objects and a page with a form to add new objects. Then a colleague from my first real job for several months paid me an additional half of my intern salary from his pocket to develop for him a website about the local stock market. Then I used VBA/SQL heavily to build infrastructure for analytics and to do complex calculations while working at other banks; however, I was paid for investment research, not code. Now I program my own projects and this is my primary activity, but it is not employment.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Do you have a Computer Science degree or are you seeking one?&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;I do not have a CS degree and am not going to seek one because this is impractical now.&lt;/p&gt;
-
-&lt;p&gt;(answers are as of January 2014)&lt;/p&gt;
-</description>
+      <description>On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there or I am not very active there recently. Or this is a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts.</description>
     </item>
     
   </channel>

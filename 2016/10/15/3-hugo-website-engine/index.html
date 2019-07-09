@@ -1,37 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Migrating to Hugo Engine &middot; Victor Baybekov</title>
         <meta name="description" content="Easy and joyful static site generation with Hugo">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.17" />
+        <meta name="generator" content="Hugo 0.55.6" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="og:title" content="Migrating to Hugo Engine">
 <meta property="og:description" content="Easy and joyful static site generation with Hugo">
 <meta property="og:type" content="article">
 <meta property="og:url" content="http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/normalize.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/highlight.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/css/style.css">
-        
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
+        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
         <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
+        
+        
+        
     </head>
     <body>
         
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-66650797-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-66650797-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 
 
@@ -60,25 +66,28 @@ ga('send', 'pageview');
 
 
 <div class="container">
+    <nav class="toc toc-left is-position-fixed"></nav>
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
     <h1 class="post-title" itemprop="name headline">Migrating to Hugo Engine</h1>
     
         <p class="post-description" itemprop="description">Easy and joyful static site generation with Hugo</p>
     
-    <p class="post-date">
+    <p class="post-date post-line">
         <span>Published <time datetime="2016-10-15" itemprop="datePublished">Sat, Oct 15, 2016</time></span>
         <span>by</span>
-        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
             <span itemprop="name">
                 <a href="https://twitter.com/buybackoff/" itemprop="url" rel="author">Victor Baybekov</a>
             </span>
         </span>
     </p>
+    
 </header>
 
         <div class="post-content clearfix" itemprop="articleBody">
     
+
     <p>I have migrated my WordPress blog to
 <a href="http://gohugo.io/">Hugo</a>. Since I am not a web publishing expert,
 I have nothing to say other than the experience was very nice and flexibility is awesome.
@@ -99,36 +108,65 @@ could publish all the overdue posts about Spreads and related things soon.</p>
         <p class="post-tags">
             <span>Tagged:</span>
             
-                 <a href="/tags/meta/">meta</a>
             
-                 <a href="/tags/blogging/">blogging</a>
+                <a href="/tags/meta/">meta</a>, 
+            
+                <a href="/tags/blogging/">blogging</a>
             
         </p>
     
+
+    <div class="share">
+        
+            <a class="icon-twitter" href="https://twitter.com/share?text=Migrating%20to%20Hugo%20Engine&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f15%2f3-hugo-website-engine%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-twitter"></i>
+                <span class="hidden">Twitter</span>
+            </a>
+        
+
+        
+            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f15%2f3-hugo-website-engine%2f"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-facebook"></i>
+                <span class="hidden">Facebook</span>
+            </a>
+        
+
+        
+        
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Migrating%20to%20Hugo%20Engine&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f15%2f3-hugo-website-engine%2f&summary=Easy%20and%20joyful%20static%20site%20generation%20with%20Hugo"
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
+               <i class="fa fa-linkedin"></i>
+               <span class="hidden">LinkedIn</span>
+            </a>
+        
+    </div>
 </footer>
 
         
 <div class="comments">
-	<div id="disqus_thread"></div>
-	<script type="text/javascript">
-    var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/15\/3-hugo-website-engine\/';
-    
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        var disqus_shortname = 'hotforknowledge';
-        
-        
-        
-        
-        if (window.location.hostname == "localhost")
-            return;
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/15\/3-hugo-website-engine\/';
 
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        (function () {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            var disqus_shortname = 'hotforknowledge';
+            
+
+            
+            
+            if (window.location.hostname == "localhost")
+                return;
+
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
     </script>
-	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-	<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+    <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 </div>
 
     </article>
@@ -185,19 +223,23 @@ could publish all the overdue posts about Spreads and related things soon.</p>
                     
                     <a class="button-square button-jump-top js-jump-top" href="#" data-hint="Back to top" title="Back to top">
                         <i class="fa fa-angle-up"></i>
-                    </a>&#xFEFF;
+                    </a>
                 </div>
 
                 <p class="footer-copyright">
-                    <span>&copy; 2016 Victor Baybekov </span>
+                    <span>&copy; 2015-2019 Victor Baybekov </span>
                 </p>
                 
             </div>
         </footer>
 
         <script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
         <script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+        
+            <script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
         <script src="http://hotforknowledge.com/js/scripts.js"></script>
     </body>
 </html>

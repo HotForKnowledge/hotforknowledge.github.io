@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <url>
-    <loc>http://hotforknowledge.com/</loc>
-    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
     <loc>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/dataspreads/</loc>
+    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/excel/</loc>
+    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/</loc>
+    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/post/</loc>
+    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/</loc>
+    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -17,8 +43,32 @@
   </url>
   
   <url>
+    <loc>http://hotforknowledge.com/tags/spreads/</loc>
+    <lastmod>2016-10-19T10:50:09+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/cs/</loc>
+    <lastmod>2016-10-19T10:50:09+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</loc>
     <lastmod>2016-10-15T15:00:12+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/blogging/</loc>
+    <lastmod>2016-10-15T15:00:12+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/meta/</loc>
+    <lastmod>2016-10-15T15:00:12+03:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -29,6 +79,12 @@
   <url>
     <loc>http://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/</loc>
     <lastmod>2015-12-29T17:51:27+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/markets/</loc>
+    <lastmod>2015-12-29T17:51:27+03:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>

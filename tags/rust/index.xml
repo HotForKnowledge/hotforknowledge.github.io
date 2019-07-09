@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rust on Hot For Knowledge</title>
+    <link>http://hotforknowledge.com/tags/rust/</link>
+    <description>Recent content in Rust on Hot For Knowledge</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Victor Baybekov</copyright>
+    <lastBuildDate>Tue, 09 Jul 2019 15:08:32 +0300</lastBuildDate>
+    
+	<atom:link href="http://hotforknowledge.com/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust Is the new C</title>
+      <link>http://hotforknowledge.com/2019/07/09/6-rust-is-the-new-c/</link>
+      <pubDate>Tue, 09 Jul 2019 15:08:32 +0300</pubDate>
+      
+      <guid>http://hotforknowledge.com/2019/07/09/6-rust-is-the-new-c/</guid>
+      <description>In this post I will experiment with Rust as a safer C replacement. The idea is to combine a couple of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API from a Rust library as C ABI. Then I will consume the same exported Rust method from a number of modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</description>
+    </item>
+    
+  </channel>
+</rss>
