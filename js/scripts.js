@@ -26,5 +26,5 @@ tocbot.init({
     contentSelector: '.post-container',
     // Which headings to grab inside of the contentSelector element.
     headingSelector: 'h1, h2, h3',
-    collapseDepth: 3
+    collapseDepth: 4
   });

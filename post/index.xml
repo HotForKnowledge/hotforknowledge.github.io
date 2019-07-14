@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Mon, 31 Oct 2016 19:25:11 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jul 2019 16:12:00 +0300</lastBuildDate>
     
 	<atom:link href="http://hotforknowledge.com/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Rust as the new C. Part 1: building and combining native libs into C API</title>
+      <link>http://hotforknowledge.com/2019/07/14/6-rust-the-new-c/</link>
+      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      
+      <guid>http://hotforknowledge.com/2019/07/14/6-rust-the-new-c/</guid>
+      <description>In this blog series, I will experiment with Rust as a safer and simpler C/C++ replacement. The idea is to combine a couple of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API from a Rust library via C ABI. Then I will consume the same exported Rust methods from a number of modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</description>
+    </item>
     
     <item>
       <title>Data Spreads: Write your Excel Macros In C#</title>

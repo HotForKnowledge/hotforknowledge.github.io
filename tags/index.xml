@@ -7,10 +7,28 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Mon, 31 Oct 2016 19:25:11 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jul 2019 16:12:00 +0300</lastBuildDate>
     
 	<atom:link href="http://hotforknowledge.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Rust</title>
+      <link>http://hotforknowledge.com/tags/rust/</link>
+      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      
+      <guid>http://hotforknowledge.com/tags/rust/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ffi</title>
+      <link>http://hotforknowledge.com/tags/ffi/</link>
+      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      
+      <guid>http://hotforknowledge.com/tags/ffi/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>DataSpreads</title>

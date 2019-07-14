@@ -3,6 +3,41 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://hotforknowledge.com/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/post/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/rust/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/2019/07/14/6-rust-the-new-c/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://hotforknowledge.com/tags/ffi/</loc>
+    <lastmod>2019-07-14T16:12:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
   </url>
@@ -15,24 +50,6 @@
   
   <url>
     <loc>http://hotforknowledge.com/tags/excel/</loc>
-    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/</loc>
-    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/post/</loc>
-    <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
     <priority>0</priority>
   </url>
