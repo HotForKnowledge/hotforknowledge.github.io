@@ -2,13 +2,13 @@
 <html prefix="og: http://ogp.me/ns#">
     <head>
         
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-66650797-1"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6ZL8ZK6ZPZ"></script>
         <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'UA-66650797-1');
+        gtag('config', 'G-6ZL8ZK6ZPZ');
         </script>
 
         <meta charset="utf-8">
@@ -17,43 +17,52 @@
         <meta name="description" content="Why I am taking a pause with F# development (until tooling is fixed or I buy 32 core/64 Gb machine)">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.55.6" />
+        <meta name="generator" content="Hugo 0.101.0" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="og:title" content="Functional programming is a tool for thought, imperative programming is a tool for hacking">
 <meta property="og:description" content="Why I am taking a pause with F# development (until tooling is fixed or I buy 32 core/64 Gb machine)">
 <meta property="og:type" content="article">
-<meta property="og:url" content="http://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
+<meta property="og:url" content="https://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/site.css">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/syntax.css">
+        
+        
+            <link rel="stylesheet" href="https://hotforknowledge.com/dist/toc.css">
+        }}
+        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        
-        <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
-        
+        <link rel="icon" href="https://hotforknowledge.com/favicon.png?v=1" />
         
         
+        
+        
+        
+
     </head>
     <body>
         
 
-        <div id="wrapper">
+	<div id="wrapper">
             <header class="site-header">
                 <div class="container">
+                    
+
                     <ul class="site-nav">
                         
     <li class="site-nav-item">
-        <a title="Blog" href="/">Blog</a>
+        <a href="/">Blog</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="About" href="/about">About</a>
+        <a href="/about">About</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="Contact" href="#footer">Contact</a>
+        <a href="#footer">Contact</a>
     </li>
+
 
                     </ul>
                 </div>
@@ -62,8 +71,10 @@
             <div id="container">
 
 
+<nav class="toc toc-left is-position-fixed"></nav>
+
 <div class="container">
-    <nav class="toc toc-left is-position-fixed"></nav>
+    
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
     <h1 class="post-title" itemprop="name headline">Functional programming is a tool for thought, imperative programming is a tool for hacking</h1>
@@ -85,188 +96,140 @@
         <div class="post-content clearfix" itemprop="articleBody">
     
 
-    
-
-<p><strong>TL;DR;</strong> F# is great for algorithms and analytics. It could work for libraries, interop and high-performance
+    <p><strong>TL;DR;</strong> F# is great for algorithms and analytics. It could work for libraries, interop and high-performance 
 code as well, but the experience is far from great and I do not want to fight with it anymore. At least I tried&hellip;</p>
-
-<p>I have been functional programming aficionado for a while. At some point, I took its advantages over
-mutable imperative code almost religiously. I fell in love with F#. Then I fell in love with
+<p>I have been functional programming aficionado for a while. At some point, I took its advantages over 
+mutable imperative code almost religiously. I fell in love with F#. Then I fell in love with 
 mechanical sympathy, and F# - by being a multi-paradigm and .NET language - still allowed me to get
 almost all performance I needed, even if it required abusing it somewhat.</p>
-
-<p>But lately, I started to dig even deeper and closer to the metal, to use unsafe code, to do many small
+<p>But lately, I started to dig even deeper and closer to the metal, to use unsafe code, to do many small 
 experiments and microbenchmarks, to use .NET Core, and started to question my choice of F# as the
-primary language for .NET <em>library</em> development. Tooling, generated code performance, and .NET Core
+primary language for .NET <em>library</em> development. Tooling, generated code performance, and .NET Core 
 integration could be better. As a matter of fact, I almost haven&rsquo;t touched my F# code over last several
 months while programming exclusively on my laptop.</p>
-
-<p>F# is probably the best choice for end product development, but not the one for libraries that require
+<p>F# is probably the best choice for end product development, but not the one for libraries that require 
 performance, native interop, and (at this moment) .NET Core interop.</p>
-
 <h2 id="tooling">Tooling</h2>
-
 <p>Recently I have bought the very top model of MacBook Air with 8 Gb of RAM for development. Specifically,
 for F# development, because IDE experience was always slower than C#. But even on this machine,
-the IDE is still not responsive and compilation is slow. While C# projects fly on this machine even with R#,
+the IDE is still not responsive and compilation is slow. While C# projects fly on this machine even with R#, 
 F# ones crawl and creep even for such a small project as <a href="https://github.com/Spreads/Spreads/tree/master/src/Spreads.Collections">Spreads.Collections</a>.</p>
-
-<p><strong>Refactoring</strong> and simple edits take a very noticeable pause for type inference to finish and for IDE to become responsive, and this pause grows non-linearly with a project size. I understand
+<p><strong>Refactoring</strong> and simple edits take a very noticeable pause for type inference to finish and for IDE to become responsive, and this pause grows non-linearly with a project size. I understand 
 that type inference is expensive and it is almost a recompilation step, but when refactoring is done
 frequently it takes too much time.</p>
-
-<p><strong>Project recompilation</strong> happens on every build, even if there are no changes in the code. And it is slow.
+<p><strong>Project recompilation</strong> happens on every build, even if there are no changes in the code. And it is slow. 
 I searched for a solution in the <a href="http://stackoverflow.com/questions/4697771/f-compiling-too-slow">Internet</a>, but it didn&rsquo;t
-help. The recompilation happened on all my 4 machines over the past couple of years. And the funny thing is
+help. The recompilation happened on all my 4 machines over the past couple of years. And the funny thing is 
 that F# projects do not see changes in referenced C# projects when compiled separately, not as a part of a solution.</p>
-
 <p>Each problem is minor in isolation, but when this happens very often, then most of the development time is spent on tooling,
-not coding. In a workflow when I make many small refactorings, add tests and run microbenchmarks to see
-the results of the changes - the total time costs become too significant. It is similar to a program with garbage collection
-that takes most of the execution time. In the era when live editing and reload is a norm, slow recompilation significantly
+not coding. In a workflow when I make many small refactorings, add tests and run microbenchmarks to see 
+the results of the changes - the total time costs become too significant. It is similar to a program with garbage collection 
+that takes most of the execution time. In the era when live editing and reload is a norm, slow recompilation significantly 
 <a href="http://xkcd.com/303/">impedes productivity</a>. On the same machine, strongly-typed Angular2 (TypeScript) with WebPack
 reloads in just several seconds, while VS Code also flies. I wonder why F# compilation couldn&rsquo;t be slower than C#&rsquo;s just by several percents, not times!?</p>
-
 <blockquote>
-<p>They say that Russian programmers used to be very good because they lacked frequent access to machines in the 80s and
+<p>They say that Russian programmers used to be very good because they lacked frequent access to machines in the 80s and 
 they had to think a lot and to perfect their code before a chance to actually run it. That contrasts to modern
 days when people start with opening an editor/IDE and think over a blank screen like a writer thinks over a blank sheet of paper.
 On my laptop, F# nearly forces me to do such <a href="https://github.com/matthiasn/talk-transcripts/blob/master/Hickey_Rich/HammockDrivenDev.md">Hammock-driven development</a>.
 This is not bad per se, and for an end product, I think this is good. For some complex algorithm development, when most of the time
-is spent on thinking about domain subject and not about generated IL, F# type inference in the background
+is spent on thinking about domain subject and not about generated IL, F# type inference in the background 
 is invaluable for correctness. And by my own experience, I could confirm that when F# code compiles it is very often already correct.</p>
 </blockquote>
-
 <h2 id="generated-code-performance">Generated code performance</h2>
-
-<p>Generated code performance is also an issue: to get it right in F# one has to write really ugly
+<p>Generated code performance is also an issue: to get it right in F# one has to write really ugly 
 verbose mutable code and inspect IL and run a profiler to check for implicit allocations, which are
 sometimes hidden somewhere in the compiled code. This really defeats the F# elegance and terseness.
 (Also there is an interesting discussion <a href="https://github.com/Hopac/Hopac/issues/1">here</a>).
 Additions such as struct records/DU and <code>fixed</code> are kind of overdue, especially when I
 have already invested in unsafe C# as heavily as IL rewriting hack taken from <a href="https://github.com/dotnet/corefxlab/tree/master/src/System.Slices/tools">corefxlab</a>.</p>
-
-<p><strong>Native interop and unsafe</strong> could be done in F#, but this is ugly and clumsy. The Recent addition of
+<p><strong>Native interop and unsafe</strong> could be done in F#, but this is ugly and clumsy. The Recent addition of 
 <code>fixed</code> keyword is nice, but there is still no support for it in VS2015, and the <code>NativePtr</code> API
 is painful to work with compared to C-like pointers in unsafe C#.</p>
-
 <p><strong>Task Parallel Library</strong> is the best thing since sliced bread in .NET universe. Async/await came from F#.
-Yet, there is still a big overhead when interacting with TPL from F#, there is no native and
-idiomatic ways to do so. I tried to use <a href="http://stackoverflow.com/questions/35762747/performance-of-async-in-f-vs-c-sharp-is-there-a-better-way-to-write-async/35766979#35766979">Task computation expressions</a> from FSharpx project,
-but they explode like Galaxy S7 in <code>for/while</code> loops and other non-trivial constructs. Simple
-<code>Bind</code> and <code>Return</code> work well with recursion, but in the end manual usage of <code>GetAwaiter</code>,
+Yet, there is still a big overhead when interacting with TPL from F#, there is no native and 
+idiomatic ways to do so. I tried to use <a href="http://stackoverflow.com/questions/35762747/performance-of-async-in-f-vs-c-sharp-is-there-a-better-way-to-write-async/35766979#35766979">Task computation expressions</a> from FSharpx project, 
+but they explode like Galaxy S7 in <code>for/while</code> loops and other non-trivial constructs. Simple 
+<code>Bind</code> and <code>Return</code> work well with recursion, but in the end manual usage of <code>GetAwaiter</code>, 
 <code>OnComplete</code> callbacks and <code>TaskCompletionSource</code> is more reliable. I believe TPL integration
 at the core language level should be a priority to perceive of F# as a sibling on .NET platform,
 and not as an adoptee.</p>
-
 <p><strong>File and type ordering</strong> is an F# limitation that magically turns into blessing most of the times. But when it doesn&rsquo;t,
 <a href="http://stackoverflow.com/questions/38360616/how-to-circumvent-f-file-ordering-and-types-dependency">workarounds are awkward</a>.
 I spent some time to find a different architecture, but often recursive types across files are just the right thing.
 With the recent introduction of recursive modules and namespaces, I could put all my code in a single file,
 and sometimes I really thinking about this. #sarcasm</p>
-
 <p><strong>Implicit allocations and IL generation</strong> are almost fixed in latest versions and have proper attention from the core team,
 but sometimes a profiler shows unexpected results in the places where one would not expect. E.g. <code>Array.average</code>
-was <a href="https://github.com/Microsoft/visualfsharp/issues/885">allocating objects</a> just recently. After a lot of
+was <a href="https://github.com/Microsoft/visualfsharp/issues/885">allocating objects</a> just recently. After a lot of 
 work on eliminating allocations in my Spreads library, it was a surprise to find this. <em>Generated IL code</em> is not easy
 to reason about compared to C#, which is almost &ldquo;what you write is what you get&rdquo; and is to IL like C to assembly.
 F# <a href="https://github.com/Microsoft/visualfsharp/issues/558">sometimes surprises</a>.</p>
-
-<p>One could say I should fix F# itself since it is open source, but for the same reasons above
-just setting up and compiling VisualFSharp repo from a clean clone is a half-day exercise on a really
+<p>One could say I should fix F# itself since it is open source, but for the same reasons above 
+just setting up and compiling VisualFSharp repo from a clean clone is a half-day exercise on a really 
 powerful workstation machine; and editing is slow even if it eventually compiles with tests.
-By the way, I really tried to fix the array issue above and almost succeeded, however, the
-tooling was a great impediment in the process and I could hardly setup and compile the project
-after several attempts. I also reported the IL issue but had no idea how to fix it.
-I believe such contributions are optional and good will, not an obligation when I have my own work to do
+By the way, I really tried to fix the array issue above and almost succeeded, however, the 
+tooling was a great impediment in the process and I could hardly setup and compile the project 
+after several attempts. I also reported the IL issue but had no idea how to fix it. 
+I believe such contributions are optional and good will, not an obligation when I have my own work to do 
 (even though I would love to contribute more if I could both from time and technical ability perspective).
 As they say in Russian, &ldquo;Вам с шашечками или ехать?&rdquo;/&ldquo;Do you need limo or lift?&rdquo;, and C# gives a good ride.</p>
-
-<p>Despite the issues above, there is nothing wrong with F# itself and there is still a way to write efficient code.
+<p>Despite the issues above, there is nothing wrong with F# itself and there is still a way to write efficient code. 
 But to do so, I have to do many small experiments and changes very often, run tests and benchmarks - and repeat&hellip;
 In such workflow tooling again becomes the main obstacle to overcome the issues.</p>
-
 <h2 id="net-core-interop">.NET Core interop</h2>
-
 <p>This is both tooling and language issue. I often feel that Microsoft almost said: &ldquo;F^&amp;k you, come back in a year&rdquo;.
 It is just not there yet. Doesn&rsquo;t work with C#/F# project mix. #<strong>dont</strong>netcore</p>
-
 <p>When .NET Core was in alpha/beta, it was OK. Now it is 1.0 and there should be no excuses.
 It feels again that F# is a side project for MSFT.</p>
-
-<hr />
-
-<p>If you think this is just F# critics and rant - don&rsquo;t get me wrong. This is an open question and a call for action.
+<hr>
+<p>If you think this is just F# critics and rant - don&rsquo;t get me wrong. This is an open question and a call for action. 
 I am watching the development of <a href="https://github.com/dotnet/corefx">CoreFX</a> and <a href="https://github.com/dotnet/corefxlab">CoreFXLab</a> projects,
-and really like the recent trend of making C# even more performant and even <a href="https://github.com/dotnet/corefx/tree/master/src/System.Runtime.CompilerServices.Unsafe">less safe</a>
-than existing <code>unsafe</code> keyword. It feels like all the <a href="http://joeduffyblog.com/">&ldquo;fairy tales&rdquo;</a> about C# as a system programming language
-are slowly materializing. At the same time, C# aggressively takes the good parts from F# and is becoming
-more and more functional (in both senses of the word). With Roslyn, it added interactive execution. If only they add <code>if</code> as expression
-and a compiler option to disable implicit type conversions, similar to checked arithmetics&hellip;
+and really like the recent trend of making C# even more performant and even <a href="https://github.com/dotnet/corefx/tree/master/src/System.Runtime.CompilerServices.Unsafe">less safe</a> 
+than existing <code>unsafe</code> keyword. It feels like all the <a href="http://joeduffyblog.com/">&ldquo;fairy tales&rdquo;</a> about C# as a system programming language 
+are slowly materializing. At the same time, C# aggressively takes the good parts from F# and is becoming 
+more and more functional (in both senses of the word). With Roslyn, it added interactive execution. If only they add <code>if</code> as expression 
+and a compiler option to disable implicit type conversions, similar to checked arithmetics&hellip; 
 It looks like F# relevance is diminishing unless Microsoft invests in its tooling.</p>
-
 <p>F# is very great and functional programming has many good parts. F# is still faster than Scala,
-which takes forever to compile &ldquo;Hello, World&rdquo;. F# is great for an end product, like trading algorithms
+which takes forever to compile &ldquo;Hello, World&rdquo;. F# is great for an end product, like trading algorithms 
 or analytical code. Its absence of implicit conversions and presence of units of measure should
 not be taken lightly. (I had a real bug due to implicit <code>int</code>s conversions that took a long time and many
-sanity checks to find, &ldquo;select was not broken&rdquo;). In addition to trading and analytics, there is a kind of libraries where F# shines like a supernova
-- metaprogramming. I have a project that implements a very basic query language with FParsec, and it blows my mind
-how easy it is to implement a new language. (<a href="http://trelford.com/blog/post/parser.aspx">Small Basic</a> blog posts are a great start).</p>
-
-<p>This post started this morning from an <a href="https://github.com/Spreads/Spreads/issues/68">issue</a> on GitHub
+sanity checks to find, &ldquo;select was not broken&rdquo;). In addition to trading and analytics, there is a kind of libraries where F# shines like a supernova</p>
+<ul>
+<li>metaprogramming. I have a project that implements a very basic query language with FParsec, and it blows my mind
+how easy it is to implement a new language. (<a href="http://trelford.com/blog/post/parser.aspx">Small Basic</a> blog posts are a great start).</li>
+</ul>
+<p>This post started this morning from an <a href="https://github.com/Spreads/Spreads/issues/68">issue</a> on GitHub 
 after once again I was fighting with .NET Core C#/F# interop and many issues from above. But instead of bullets
-on what to change in the library I could&rsquo;d help but just started writing
+on what to change in the library I could&rsquo;d help but just started writing 
 about the issues and experiences I have had recently. I invested into F# quite a lot and tried to make
 it work where it doesn&rsquo;t fit. But now I am tired and emotional as if I drunk a lot of it and am experiencing a hangover.
-I am still addicted to it, though. It tastes great and has an elegant flavor, makes programming fun, protects from many classes of errors,
+I am still addicted to it, though. It tastes great and has an elegant flavor, makes programming fun, protects from many classes of errors, 
 and will remain my #1 choice for end products where correctness is paramount. Oh, and F# interactive is awesome for
 such scenarios, but I still could not find a way to productively use FSI for a solution with multiple C#/F# projects
 and my workflow. <em>What I am doing wrong?</em></p>
-
 <blockquote>
-<p>&ldquo;Functional programming is a tool for thought, imperative programming is a tool for hacking.&rdquo; &copy; <a href="https://twitter.com/buybackoff/status/689958055820333056">Erik Meijer</a></p>
+<p>&ldquo;Functional programming is a tool for thought, imperative programming is a tool for hacking.&rdquo; (c) <a href="https://twitter.com/buybackoff/status/689958055820333056">Erik Meijer</a></p>
 </blockquote>
 
 </div>
 
         <footer class="post-footer clearfix">
-    
         <p class="post-tags">
             <span>Tagged:</span>
-            
-            
                 <a href="/tags/cs/">CS</a>, 
-            
                 <a href="/tags/spreads/">Spreads</a>
-            
         </p>
-    
-
     <div class="share">
-        
-            <a class="icon-twitter" href="https://twitter.com/share?text=Functional%20programming%20is%20a%20tool%20for%20thought%2c%20imperative%20programming%20is%20a%20tool%20for%20hacking&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f19%2f4-functional-for-thought-imperative-for-hacking%2f"
-                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                <i class="fa fa-twitter"></i>
-                <span class="hidden">Twitter</span>
+            <a class="icon-twitter" href="https://twitter.com/share?text=Functional%20programming%20is%20a%20tool%20for%20thought%2c%20imperative%20programming%20is%20a%20tool%20for%20hacking&url=https%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f19%2f4-functional-for-thought-imperative-for-hacking%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" aria-label="Share on Twitter">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
             </a>
-        
-
-        
-            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f19%2f4-functional-for-thought-imperative-for-hacking%2f"
-                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                <i class="fa fa-facebook"></i>
-                <span class="hidden">Facebook</span>
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Functional%20programming%20is%20a%20tool%20for%20thought%2c%20imperative%20programming%20is%20a%20tool%20for%20hacking&url=https%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f19%2f4-functional-for-thought-imperative-for-hacking%2f&summary=Why%20I%20am%20taking%20a%20pause%20with%20F%23%20development%20%28until%20tooling%20is%20fixed%20or%20I%20buy%2032%20core%2f64%20Gb%20machine%29"
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;" aria-label="Share on LinkedIn">
+               <i class="fa fa-linkedin" aria-hidden="true"></i>
             </a>
-        
-
-        
-        
-            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Functional%20programming%20is%20a%20tool%20for%20thought%2c%20imperative%20programming%20is%20a%20tool%20for%20hacking&url=http%3a%2f%2fhotforknowledge.com%2f2016%2f10%2f19%2f4-functional-for-thought-imperative-for-hacking%2f&summary=Why%20I%20am%20taking%20a%20pause%20with%20F%23%20development%20%28until%20tooling%20is%20fixed%20or%20I%20buy%2032%20core%2f64%20Gb%20machine%29"
-               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
-               <i class="fa fa-linkedin"></i>
-               <span class="hidden">LinkedIn</span>
-            </a>
-        
     </div>
 </footer>
 
@@ -274,7 +237,7 @@ and my workflow. <em>What I am doing wrong?</em></p>
 <div class="comments">
     <div id="disqus_thread"></div>
     <script type="text/javascript">
-        var disqus_identifier = 'http:\/\/hotforknowledge.com\/2016\/10\/19\/4-functional-for-thought-imperative-for-hacking\/';
+        var disqus_identifier = 'https:\/\/hotforknowledge.com\/2016\/10\/19\/4-functional-for-thought-imperative-for-hacking\/';
 
         (function () {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -305,12 +268,14 @@ and my workflow. <em>What I am doing wrong?</em></p>
     <div class="container">
         <div class="site-title-wrapper">
             <h1 class="site-title">
-                <a title="Hot For Knowledge" href="http://hotforknowledge.com/">Hot For Knowledge</a>
+                        <a href="https://hotforknowledge.com/">Hot For Knowledge</a>
             </h1>
-            <a class="button-square" href="http://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
+                    <a class="button-square button-jump-top js-jump-top" href="#" aria-label="Back to Top">
+                        <i class="fa fa-angle-up" aria-hidden="true"></i>
+            <a class="button-square" href="https://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
             <a name="footer"></a>
             
-            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:vbaybekov@gmail.com">
+            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:blog@hotforknowledge.com">
                 <i class="fa fa-envelope"></i>
             </a>
             
@@ -320,14 +285,6 @@ and my workflow. <em>What I am doing wrong?</em></p>
             </a>
             
             
-            <a class="button-square" title="&#xFEFF;Facebook&#xFEFF;" href="https://www.facebook.com/buybackoff/">
-                <i class="fa fa-facebook-official"></i>
-            </a>
-            
-            
-            <a class="button-square" title="&#xFEFF;Instagram&#xFEFF;" href="https://www.instagram.com/buybackoff/">
-                <i class="fa fa-instagram"></i>
-            </a>
             
             
             
@@ -353,7 +310,7 @@ and my workflow. <em>What I am doing wrong?</em></p>
         </div>
 
         <p class="footer-copyright">
-            <span>&copy; 2015-2019 Victor Baybekov </span>
+            <span>&copy; 2015-2024 Victor Baybekov </span>
         </p>
         <p class="footer-copyright">
             <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
@@ -366,15 +323,12 @@ and my workflow. <em>What I am doing wrong?</em></p>
     </div>
 </footer>
 
-<script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
-<script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+<script src="https://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
+<script src="https://hotforknowledge.com/js/jquery.fitvids.js"></script>
 
-<script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
-<script src="http://hotforknowledge.com/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+<script src="https://hotforknowledge.com/js/scripts.js"></script>
+        
 </body>
 
 </html>

@@ -2,13 +2,13 @@
 <html prefix="og: http://ogp.me/ns#">
     <head>
         
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-66650797-1"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6ZL8ZK6ZPZ"></script>
         <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'UA-66650797-1');
+        gtag('config', 'G-6ZL8ZK6ZPZ');
         </script>
 
         <meta charset="utf-8">
@@ -17,43 +17,52 @@
         <meta name="description" content="I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually, that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of shared state with events hell like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that CEP is the approach that desks and serious traders use.">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.55.6" />
+        <meta name="generator" content="Hugo 0.101.0" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="og:title" content="How to write the simplest trading strategy using Spreads">
 <meta property="og:description" content="I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually, that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of shared state with events hell like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that CEP is the approach that desks and serious traders use.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="http://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
+<meta property="og:url" content="https://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/site.css">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/syntax.css">
+        
+        
+            <link rel="stylesheet" href="https://hotforknowledge.com/dist/toc.css">
+        }}
+        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        
-        <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
-        
+        <link rel="icon" href="https://hotforknowledge.com/favicon.png?v=1" />
         
         
+        
+        
+        
+
     </head>
     <body>
         
 
-        <div id="wrapper">
+	<div id="wrapper">
             <header class="site-header">
                 <div class="container">
+                    
+
                     <ul class="site-nav">
                         
     <li class="site-nav-item">
-        <a title="Blog" href="/">Blog</a>
+        <a href="/">Blog</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="About" href="/about">About</a>
+        <a href="/about">About</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="Contact" href="#footer">Contact</a>
+        <a href="#footer">Contact</a>
     </li>
+
 
                     </ul>
                 </div>
@@ -62,8 +71,10 @@
             <div id="container">
 
 
+<nav class="toc toc-left is-position-fixed"></nav>
+
 <div class="container">
-    <nav class="toc toc-left is-position-fixed"></nav>
+    
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
     <h1 class="post-title" itemprop="name headline">How to write the simplest trading strategy using Spreads</h1>
@@ -84,121 +95,94 @@
     
 
     <p>I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually, that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of <em>shared state with events hell</em> like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that <strong><a href="https://en.wikipedia.org/wiki/Complex_event_processing">CEP</a></strong> is the approach that desks and serious traders use.</p>
-
 <p>Spreads is not a framework for financial markets but a generic CEP library that allows to model markets as <em>data series</em> and use pure math and functional data transformations.</p>
-
 <p>The simplest trivial example is <em>simple moving average </em>trend following strategy. This example is written in F# interactive console.  First, we generate trending artificial data where trend changes each 40 points:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="k">let</span> <span class="nv">quotes</span> <span class="o">:</span> <span class="n">Series</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span> <span class="kt">float</span><span class="o">&gt;</span> <span class="o">=</span> <span class="c1">// data is produced outside
-</span><span class="c1"></span><span class="k">let</span> <span class="nv">mutable</span> <span class="n">previous</span> <span class="o">=</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span>
-<span class="k">let</span> <span class="nv">sm</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="bp">()</span>
-<span class="k">let</span> <span class="nv">now</span> <span class="o">=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="n">UtcNow</span>
-<span class="k">let</span> <span class="nv">mutable</span> <span class="n">trend</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">.</span><span class="n">0</span>
-<span class="k">let</span> <span class="nv">mutable</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">0</span>
-<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">0</span><span class="o">..</span><span class="n">500</span> <span class="k">do</span>
-  <span class="n">previous</span> <span class="o">&lt;-</span> <span class="n">previous</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">NextDouble</span><span class="bp">()</span><span class="o">*</span><span class="n">0</span><span class="o">.</span><span class="n">002</span> <span class="o">-</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">+</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">*</span> <span class="n">trend</span><span class="o">)</span>
-  <span class="n">sm</span><span class="o">.</span><span class="n">Add</span><span class="o">(</span><span class="n">now</span><span class="o">.</span><span class="n">AddSeconds</span><span class="o">(-((</span><span class="n">500</span><span class="o">-</span><span class="n">i</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="kt">float</span><span class="o">)*</span><span class="n">0</span><span class="o">.</span><span class="n">2</span><span class="o">),</span> <span class="n">previous</span><span class="o">)</span>
-  <span class="n">cnt</span> <span class="o">&lt;-</span> <span class="n">cnt</span> <span class="o">+</span> <span class="n">1</span>
-  <span class="k">if</span> <span class="n">cnt</span> <span class="o">%</span> <span class="n">40</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">trend</span> <span class="o">&lt;-</span> <span class="o">-</span><span class="n">trend</span>
-
-<span class="nn">Task</span><span class="p">.</span><span class="n">Run</span><span class="o">((</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span>
-    <span class="k">while</span> <span class="ow">not</span> <span class="n">ct</span><span class="o">.</span><span class="n">IsCancellationRequested</span> <span class="k">do</span>
-      <span class="nn">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="o">(</span><span class="n">500</span><span class="o">)</span>
-      <span class="n">previous</span> <span class="o">&lt;-</span> <span class="n">previous</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">NextDouble</span><span class="bp">()</span><span class="o">*</span><span class="n">0</span><span class="o">.</span><span class="n">002</span> <span class="o">-</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">+</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">*</span> <span class="n">trend</span><span class="o">)</span>
-      <span class="n">sm</span><span class="o">.</span><span class="n">Add</span><span class="o">(</span><span class="nn">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="o">,</span> <span class="n">previous</span><span class="o">)</span>
-      <span class="n">cnt</span> <span class="o">&lt;-</span> <span class="n">cnt</span> <span class="o">+</span> <span class="n">1</span>
-      <span class="k">if</span> <span class="n">cnt</span> <span class="o">%</span> <span class="n">40</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">trend</span> <span class="o">&lt;-</span> <span class="o">-</span><span class="n">trend</span>
-  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="n">ignore</span>
-<span class="n">sm</span> <span class="o">:&gt;</span> <span class="n">Series</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span> <span class="kt">float</span><span class="o">&gt;</span></code></pre></div>
-<p>Then we calculate simple moving average over 20 points. The second argument allows using incomplete windows, i.e. calculating the average over the first 1, 2, &hellip; 19 data points. With false, the first SMA point is calculated only at the 20th quotes point.</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="k">let</span> <span class="nv">sma</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">SMA</span><span class="o">(</span><span class="n">20</span><span class="o">,</span> <span class="k">true</span><span class="o">)</span></code></pre></div>
-<p>Our trading rule is that if the current price is above SMA, we go long, and we go short otherwise. This is a classic trend-following strategy and it works quite well in the long run on emerging markets and some commodities. We calculate our target position as:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="k">let</span> <span class="nv">targetPosition</span> <span class="o">=</span> <span class="o">(</span><span class="n">quotes</span> <span class="o">/</span> <span class="n">sma</span> <span class="o">-</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">).</span><span class="n">Map</span><span class="o">(</span><span class="k">fun</span> <span class="n">deviation</span> <span class="o">-&gt;</span> <span class="kt">double</span> <span class="o">&lt;|</span> <span class="nn">Math</span><span class="p">.</span><span class="n">Sign</span><span class="o">(</span><span class="n">deviation</span><span class="o">))</span></code></pre></div>
-<p>This target position series is live - its values are updated in real-time together with quotes. To execute our strategy, we must prepare storage for actual positions and trades:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="c1">// we must keep track of actual position
-</span><span class="c1"></span><span class="k">let</span> <span class="nv">actualPositionWritable</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span><span class="kt">float</span><span class="o">&gt;</span><span class="bp">()</span>
-<span class="k">let</span> <span class="nv">realTrades</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span><span class="kt">float</span><span class="o">&gt;</span><span class="bp">()</span> 
-<span class="k">let</span> <span class="nv">actualPosition</span> <span class="o">=</span> <span class="n">actualPositionWritable</span> <span class="o">:&gt;</span> <span class="n">Series</span><span class="o">&lt;_,_&gt;</span>
-<span class="n">actualPosition</span><span class="o">.</span><span class="n">Do</span><span class="o">((</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> 
-    <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="s">&#34;Actual position: &#34;</span> <span class="o">+</span> <span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span> <span class="s">&#34; : &#34;</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
-  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span></code></pre></div>
-<p>Then we could feed our target position to a trader. The trader is &ldquo;functional&rdquo;, instead of receiving orders it receives the desired state and does its best to move actual state to the desired state. 
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a></span><span class="cl"><span class="k">let</span> <span class="nv">quotes</span> <span class="o">:</span> <span class="n">Series</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span> <span class="kt">float</span><span class="o">&gt;</span> <span class="o">=</span> <span class="c1">// data is produced outside
+</span></span></span><span class="line"><span class="ln" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a></span><span class="cl"><span class="c1"></span><span class="k">let</span> <span class="nv">mutable</span> <span class="n">previous</span> <span class="o">=</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span>
+</span></span><span class="line"><span class="ln" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a></span><span class="cl"><span class="k">let</span> <span class="nv">sm</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="bp">()</span>
+</span></span><span class="line"><span class="ln" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a></span><span class="cl"><span class="k">let</span> <span class="nv">now</span> <span class="o">=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="n">UtcNow</span>
+</span></span><span class="line"><span class="ln" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a></span><span class="cl"><span class="k">let</span> <span class="nv">mutable</span> <span class="n">trend</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">.</span><span class="n">0</span>
+</span></span><span class="line"><span class="ln" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a></span><span class="cl"><span class="k">let</span> <span class="nv">mutable</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">0</span>
+</span></span><span class="line"><span class="ln" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a></span><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">0</span><span class="o">..</span><span class="n">500</span> <span class="k">do</span>
+</span></span><span class="line"><span class="ln" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a></span><span class="cl">  <span class="n">previous</span> <span class="o">&lt;-</span> <span class="n">previous</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">NextDouble</span><span class="bp">()</span><span class="o">*</span><span class="n">0</span><span class="o">.</span><span class="n">002</span> <span class="o">-</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">+</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">*</span> <span class="n">trend</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a></span><span class="cl">  <span class="n">sm</span><span class="o">.</span><span class="n">Add</span><span class="o">(</span><span class="n">now</span><span class="o">.</span><span class="n">AddSeconds</span><span class="o">(-((</span><span class="n">500</span><span class="o">-</span><span class="n">i</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="kt">float</span><span class="o">)*</span><span class="n">0</span><span class="o">.</span><span class="n">2</span><span class="o">),</span> <span class="n">previous</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a></span><span class="cl">  <span class="n">cnt</span> <span class="o">&lt;-</span> <span class="n">cnt</span> <span class="o">+</span> <span class="n">1</span>
+</span></span><span class="line"><span class="ln" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a></span><span class="cl">  <span class="k">if</span> <span class="n">cnt</span> <span class="o">%</span> <span class="n">40</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">trend</span> <span class="o">&lt;-</span> <span class="o">-</span><span class="n">trend</span>
+</span></span><span class="line"><span class="ln" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-0-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-13">13</a></span><span class="cl"><span class="nn">Task</span><span class="p">.</span><span class="n">Run</span><span class="o">((</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-0-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-14">14</a></span><span class="cl">    <span class="k">while</span> <span class="ow">not</span> <span class="n">ct</span><span class="o">.</span><span class="n">IsCancellationRequested</span> <span class="k">do</span>
+</span></span><span class="line"><span class="ln" id="hl-0-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-15">15</a></span><span class="cl">      <span class="nn">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="o">(</span><span class="n">500</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-0-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-16">16</a></span><span class="cl">      <span class="n">previous</span> <span class="o">&lt;-</span> <span class="n">previous</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">NextDouble</span><span class="bp">()</span><span class="o">*</span><span class="n">0</span><span class="o">.</span><span class="n">002</span> <span class="o">-</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">+</span> <span class="n">0</span><span class="o">.</span><span class="n">001</span> <span class="o">*</span> <span class="n">trend</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-0-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-17">17</a></span><span class="cl">      <span class="n">sm</span><span class="o">.</span><span class="n">Add</span><span class="o">(</span><span class="nn">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="o">,</span> <span class="n">previous</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-0-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-18">18</a></span><span class="cl">      <span class="n">cnt</span> <span class="o">&lt;-</span> <span class="n">cnt</span> <span class="o">+</span> <span class="n">1</span>
+</span></span><span class="line"><span class="ln" id="hl-0-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-19">19</a></span><span class="cl">      <span class="k">if</span> <span class="n">cnt</span> <span class="o">%</span> <span class="n">40</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">trend</span> <span class="o">&lt;-</span> <span class="o">-</span><span class="n">trend</span>
+</span></span><span class="line"><span class="ln" id="hl-0-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-20">20</a></span><span class="cl">  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="n">ignore</span>
+</span></span><span class="line"><span class="ln" id="hl-0-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-21">21</a></span><span class="cl"><span class="n">sm</span> <span class="o">:&gt;</span> <span class="n">Series</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span> <span class="kt">float</span><span class="o">&gt;</span>
+</span></span></code></pre></div><p>Then we calculate simple moving average over 20 points. The second argument allows using incomplete windows, i.e. calculating the average over the first 1, 2, &hellip; 19 data points. With false, the first SMA point is calculated only at the 20th quotes point.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a></span><span class="cl"><span class="k">let</span> <span class="nv">sma</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">SMA</span><span class="o">(</span><span class="n">20</span><span class="o">,</span> <span class="k">true</span><span class="o">)</span>
+</span></span></code></pre></div><p>Our trading rule is that if the current price is above SMA, we go long, and we go short otherwise. This is a classic trend-following strategy and it works quite well in the long run on emerging markets and some commodities. We calculate our target position as:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a></span><span class="cl"><span class="k">let</span> <span class="nv">targetPosition</span> <span class="o">=</span> <span class="o">(</span><span class="n">quotes</span> <span class="o">/</span> <span class="n">sma</span> <span class="o">-</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">).</span><span class="n">Map</span><span class="o">(</span><span class="k">fun</span> <span class="n">deviation</span> <span class="o">-&gt;</span> <span class="kt">double</span> <span class="o">&lt;|</span> <span class="nn">Math</span><span class="p">.</span><span class="n">Sign</span><span class="o">(</span><span class="n">deviation</span><span class="o">))</span>
+</span></span></code></pre></div><p>This target position series is live - its values are updated in real-time together with quotes. To execute our strategy, we must prepare storage for actual positions and trades:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a></span><span class="cl"><span class="c1">// we must keep track of actual position
+</span></span></span><span class="line"><span class="ln" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a></span><span class="cl"><span class="c1"></span><span class="k">let</span> <span class="nv">actualPositionWritable</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span><span class="kt">float</span><span class="o">&gt;</span><span class="bp">()</span>
+</span></span><span class="line"><span class="ln" id="hl-3-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-3">3</a></span><span class="cl"><span class="k">let</span> <span class="nv">realTrades</span> <span class="o">=</span> <span class="n">SortedMap</span><span class="o">&lt;</span><span class="n">DateTime</span><span class="o">,</span><span class="kt">float</span><span class="o">&gt;</span><span class="bp">()</span> 
+</span></span><span class="line"><span class="ln" id="hl-3-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-4">4</a></span><span class="cl"><span class="k">let</span> <span class="nv">actualPosition</span> <span class="o">=</span> <span class="n">actualPositionWritable</span> <span class="o">:&gt;</span> <span class="n">Series</span><span class="o">&lt;_,_&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-3-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-5">5</a></span><span class="cl"><span class="n">actualPosition</span><span class="o">.</span><span class="n">Do</span><span class="o">((</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> 
+</span></span><span class="line"><span class="ln" id="hl-3-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-6">6</a></span><span class="cl">    <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="s">&#34;Actual position: &#34;</span> <span class="o">+</span> <span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span> <span class="s">&#34; : &#34;</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-3-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-7">7</a></span><span class="cl">  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span>
+</span></span></code></pre></div><p>Then we could feed our target position to a trader. The trader is &ldquo;functional&rdquo;, instead of receiving orders it receives the desired state and does its best to move actual state to the desired state. 
 Here for simplicity, we have a very dangerous assumption that trades are executed  immediately after a signal. Such an assumption should be avoided in real world backtesting. We use the <em>Do()</em> extension method that invokes an action over each key/value in a series sequentially:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="n">targetPosition</span><span class="o">.</span><span class="n">Do</span><span class="o">(</span>
-  <span class="o">(</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span>
-    <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="nn">UtcNow</span><span class="p">.</span><span class="n">AddMilliseconds</span><span class="o">(-</span><span class="n">400</span><span class="o">.</span><span class="n">0</span><span class="o">)</span> <span class="k">then</span>
-      <span class="c1">// simulate historical trading
-</span><span class="c1"></span>      <span class="k">let</span> <span class="nv">qty</span> <span class="o">=</span> 
-        <span class="k">if</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">IsEmpty</span> <span class="k">then</span> <span class="n">v</span>
-        <span class="k">else</span> <span class="o">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="nn">Last</span><span class="p">.</span><span class="n">Value</span><span class="o">)</span>
-      <span class="k">if</span> <span class="n">qty</span> <span class="o">&lt;&gt;</span> <span class="n">0</span><span class="o">.</span><span class="n">0</span> <span class="k">then</span>
-        <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span>  <span class="s">&#34; : Paper trade: &#34;</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
-        <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span>
-    <span class="k">else</span>
-      <span class="c1">// do real trading
-</span><span class="c1"></span>      <span class="k">let</span> <span class="nv">qty</span> <span class="o">=</span>
-        <span class="k">if</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">IsEmpty</span> <span class="k">then</span> <span class="n">failwith</span> <span class="s">&#34;must test strategy before real trading&#34;</span>
-        <span class="k">else</span> <span class="o">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="nn">Last</span><span class="p">.</span><span class="n">Value</span><span class="o">)</span>
-      <span class="k">if</span> <span class="n">qty</span> <span class="o">&lt;&gt;</span> <span class="n">0</span><span class="o">.</span><span class="n">0</span> <span class="o">&amp;&amp;</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="nn">Last</span><span class="p">.</span><span class="n">Key</span> <span class="k">then</span> <span class="c1">// protect from executing history
-</span><span class="c1"></span>        <span class="k">let</span> <span class="nv">tradeTime</span> <span class="o">=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="nn">UtcNow</span><span class="p">.</span><span class="n">AddMilliseconds</span><span class="o">(</span><span class="n">5</span><span class="o">.</span><span class="n">0</span><span class="o">)</span>
-        <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span>  <span class="s">&#34; : Real trade: &#34;</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
-        <span class="n">realTrades</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">,</span> <span class="n">qty</span><span class="o">)</span>
-        <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span>
-  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span></code></pre></div>
-<p>Now the trading is started and we could see our trades in the FSI console every several seconds.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-4-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-1"> 1</a></span><span class="cl"><span class="n">targetPosition</span><span class="o">.</span><span class="n">Do</span><span class="o">(</span>
+</span></span><span class="line"><span class="ln" id="hl-4-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-2"> 2</a></span><span class="cl">  <span class="o">(</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-4-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-3"> 3</a></span><span class="cl">    <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="nn">UtcNow</span><span class="p">.</span><span class="n">AddMilliseconds</span><span class="o">(-</span><span class="n">400</span><span class="o">.</span><span class="n">0</span><span class="o">)</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln" id="hl-4-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-4"> 4</a></span><span class="cl">      <span class="c1">// simulate historical trading
+</span></span></span><span class="line"><span class="ln" id="hl-4-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-5"> 5</a></span><span class="cl"><span class="c1"></span>      <span class="k">let</span> <span class="nv">qty</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="ln" id="hl-4-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-6"> 6</a></span><span class="cl">        <span class="k">if</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">IsEmpty</span> <span class="k">then</span> <span class="n">v</span>
+</span></span><span class="line"><span class="ln" id="hl-4-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-7"> 7</a></span><span class="cl">        <span class="k">else</span> <span class="o">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">Last</span><span class="o">.</span><span class="n">Value</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-8"> 8</a></span><span class="cl">      <span class="k">if</span> <span class="n">qty</span> <span class="o">&lt;&gt;</span> <span class="n">0</span><span class="o">.</span><span class="n">0</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln" id="hl-4-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-9"> 9</a></span><span class="cl">        <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span>  <span class="s">&#34; : Paper trade: &#34;</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-10">10</a></span><span class="cl">        <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-11">11</a></span><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="ln" id="hl-4-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-12">12</a></span><span class="cl">      <span class="c1">// do real trading
+</span></span></span><span class="line"><span class="ln" id="hl-4-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-13">13</a></span><span class="cl"><span class="c1"></span>      <span class="k">let</span> <span class="nv">qty</span> <span class="o">=</span>
+</span></span><span class="line"><span class="ln" id="hl-4-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-14">14</a></span><span class="cl">        <span class="k">if</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">IsEmpty</span> <span class="k">then</span> <span class="n">failwith</span> <span class="s">&#34;must test strategy before real trading&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-4-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-15">15</a></span><span class="cl">        <span class="k">else</span> <span class="o">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">Last</span><span class="o">.</span><span class="n">Value</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-16">16</a></span><span class="cl">      <span class="k">if</span> <span class="n">qty</span> <span class="o">&lt;&gt;</span> <span class="n">0</span><span class="o">.</span><span class="n">0</span> <span class="o">&amp;&amp;</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">Last</span><span class="o">.</span><span class="n">Key</span> <span class="k">then</span> <span class="c1">// protect from executing history
+</span></span></span><span class="line"><span class="ln" id="hl-4-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-17">17</a></span><span class="cl"><span class="c1"></span>        <span class="k">let</span> <span class="nv">tradeTime</span> <span class="o">=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="nn">UtcNow</span><span class="p">.</span><span class="n">AddMilliseconds</span><span class="o">(</span><span class="n">5</span><span class="o">.</span><span class="n">0</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-18">18</a></span><span class="cl">        <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span>  <span class="s">&#34; : Real trade: &#34;</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-19">19</a></span><span class="cl">        <span class="n">realTrades</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">,</span> <span class="n">qty</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-20">20</a></span><span class="cl">        <span class="n">actualPositionWritable</span><span class="o">.</span><span class="n">AddLast</span><span class="o">(</span><span class="n">tradeTime</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-4-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-21">21</a></span><span class="cl">  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span>
+</span></span></code></pre></div><p>Now the trading is started and we could see our trades in the FSI console every several seconds.</p>
 <p>Finally, we calculate our P&amp;L. Because the market was trending by construction, we have earned a lot of money with this strategy:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="k">let</span> <span class="nv">returns</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">ZipLag</span><span class="o">(</span><span class="n">1u</span><span class="o">,</span> <span class="k">fun</span> <span class="n">c</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">c</span><span class="o">/</span><span class="n">p</span> <span class="o">-</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">)</span>
-<span class="k">let</span> <span class="nv">myReturns</span> <span class="o">=</span> <span class="n">actualPosition</span><span class="o">.</span><span class="n">Repeat</span><span class="bp">()</span> <span class="o">*</span> <span class="n">returns</span>
-<span class="k">let</span> <span class="nv">myAumIndex</span> <span class="o">=</span> <span class="n">myReturns</span><span class="o">.</span><span class="n">Scan</span><span class="o">(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">,</span> <span class="k">fun</span> <span class="n">st</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">v</span><span class="o">))</span></code></pre></div>
-<p>Here, we use *ZipLag()* to calculate price returns. Then we calculate returns of our position and aggregate them as running product (no trading costs in this example). All these and above series are live, we could use the <em>Do()</em> method to print the values in real-time:</p>
-<div class="highlight"><pre class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="c1">// Print live data
-</span><span class="c1"></span><span class="n">myAumIndex</span><span class="o">.</span><span class="n">Do</span><span class="o">((</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> 
-    <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="s">&#34;AUM Index: &#34;</span> <span class="o">+</span> <span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span> <span class="s">&#34; : &#34;</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
-  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span></code></pre></div>
-<p>Note that from the technical point of view there is nothing special that links the calculations to financial markets. Instead of financial data, we could use data from some sensors, e.g. a temperature, and instead of trading, we could turn off/on heating if the temperature goes above or below some target value.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1">1</a></span><span class="cl"><span class="k">let</span> <span class="nv">returns</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">ZipLag</span><span class="o">(</span><span class="n">1u</span><span class="o">,</span> <span class="k">fun</span> <span class="n">c</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">c</span><span class="o">/</span><span class="n">p</span> <span class="o">-</span> <span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2">2</a></span><span class="cl"><span class="k">let</span> <span class="nv">myReturns</span> <span class="o">=</span> <span class="n">actualPosition</span><span class="o">.</span><span class="n">Repeat</span><span class="bp">()</span> <span class="o">*</span> <span class="n">returns</span>
+</span></span><span class="line"><span class="ln" id="hl-5-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-3">3</a></span><span class="cl"><span class="k">let</span> <span class="nv">myAumIndex</span> <span class="o">=</span> <span class="n">myReturns</span><span class="o">.</span><span class="n">Scan</span><span class="o">(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span><span class="o">,</span> <span class="k">fun</span> <span class="n">st</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">*(</span><span class="n">1</span><span class="o">.</span><span class="n">0</span> <span class="o">+</span> <span class="n">v</span><span class="o">))</span>
+</span></span></code></pre></div><p>Here, we use <em>ZipLag()</em> to calculate price returns. Then we calculate returns of our position and aggregate them as running product (no trading costs in this example). All these and above series are live, we could use the <em>Do()</em> method to print the values in real-time:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-FSharp" data-lang="FSharp"><span class="line"><span class="ln" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1">1</a></span><span class="cl"><span class="c1">// Print live data
+</span></span></span><span class="line"><span class="ln" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2">2</a></span><span class="cl"><span class="c1"></span><span class="n">myAumIndex</span><span class="o">.</span><span class="n">Do</span><span class="o">((</span><span class="k">fun</span> <span class="n">k</span> <span class="n">v</span> <span class="o">-&gt;</span> 
+</span></span><span class="line"><span class="ln" id="hl-6-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-3">3</a></span><span class="cl">    <span class="nn">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="o">(</span><span class="s">&#34;AUM Index: &#34;</span> <span class="o">+</span> <span class="n">k</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span> <span class="o">+</span> <span class="s">&#34; : &#34;</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln" id="hl-6-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-4">4</a></span><span class="cl">  <span class="o">),</span> <span class="n">ct</span><span class="o">)</span>
+</span></span></code></pre></div><p>Note that from the technical point of view there is nothing special that links the calculations to financial markets. Instead of financial data, we could use data from some sensors, e.g. a temperature, and instead of trading, we could turn off/on heating if the temperature goes above or below some target value.</p>
 <p>The whole example is <a href="https://github.com/Spreads/Spreads/blob/master/tests/Spreads.Tests.Profile/Example.fsx">here</a>. You could select all code, press Alt+Enter and watch how AUM increases while using Spreads library! :)</p>
 
 </div>
 
         <footer class="post-footer clearfix">
-    
         <p class="post-tags">
             <span>Tagged:</span>
-            
-            
                 <a href="/tags/markets/">markets</a>, 
-            
                 <a href="/tags/spreads/">Spreads</a>
-            
         </p>
-    
-
     <div class="share">
-        
-            <a class="icon-twitter" href="https://twitter.com/share?text=How%20to%20write%20the%20simplest%20trading%20strategy%20using%20Spreads&url=http%3a%2f%2fhotforknowledge.com%2f2015%2f12%2f29%2f2-how-to-write-the-simplest-trading-strategy-using-spreads%2f"
-                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                <i class="fa fa-twitter"></i>
-                <span class="hidden">Twitter</span>
+            <a class="icon-twitter" href="https://twitter.com/share?text=How%20to%20write%20the%20simplest%20trading%20strategy%20using%20Spreads&url=https%3a%2f%2fhotforknowledge.com%2f2015%2f12%2f29%2f2-how-to-write-the-simplest-trading-strategy-using-spreads%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" aria-label="Share on Twitter">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
             </a>
-        
-
-        
-            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2015%2f12%2f29%2f2-how-to-write-the-simplest-trading-strategy-using-spreads%2f"
-                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                <i class="fa fa-facebook"></i>
-                <span class="hidden">Facebook</span>
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=How%20to%20write%20the%20simplest%20trading%20strategy%20using%20Spreads&url=https%3a%2f%2fhotforknowledge.com%2f2015%2f12%2f29%2f2-how-to-write-the-simplest-trading-strategy-using-spreads%2f&summary="
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;" aria-label="Share on LinkedIn">
+               <i class="fa fa-linkedin" aria-hidden="true"></i>
             </a>
-        
-
-        
-        
-            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=How%20to%20write%20the%20simplest%20trading%20strategy%20using%20Spreads&url=http%3a%2f%2fhotforknowledge.com%2f2015%2f12%2f29%2f2-how-to-write-the-simplest-trading-strategy-using-spreads%2f&summary="
-               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
-               <i class="fa fa-linkedin"></i>
-               <span class="hidden">LinkedIn</span>
-            </a>
-        
     </div>
 </footer>
 
@@ -237,12 +221,14 @@ Here for simplicity, we have a very dangerous assumption that trades are execute
     <div class="container">
         <div class="site-title-wrapper">
             <h1 class="site-title">
-                <a title="Hot For Knowledge" href="http://hotforknowledge.com/">Hot For Knowledge</a>
+                        <a href="https://hotforknowledge.com/">Hot For Knowledge</a>
             </h1>
-            <a class="button-square" href="http://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
+                    <a class="button-square button-jump-top js-jump-top" href="#" aria-label="Back to Top">
+                        <i class="fa fa-angle-up" aria-hidden="true"></i>
+            <a class="button-square" href="https://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
             <a name="footer"></a>
             
-            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:vbaybekov@gmail.com">
+            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:blog@hotforknowledge.com">
                 <i class="fa fa-envelope"></i>
             </a>
             
@@ -252,14 +238,6 @@ Here for simplicity, we have a very dangerous assumption that trades are execute
             </a>
             
             
-            <a class="button-square" title="&#xFEFF;Facebook&#xFEFF;" href="https://www.facebook.com/buybackoff/">
-                <i class="fa fa-facebook-official"></i>
-            </a>
-            
-            
-            <a class="button-square" title="&#xFEFF;Instagram&#xFEFF;" href="https://www.instagram.com/buybackoff/">
-                <i class="fa fa-instagram"></i>
-            </a>
             
             
             
@@ -285,7 +263,7 @@ Here for simplicity, we have a very dangerous assumption that trades are execute
         </div>
 
         <p class="footer-copyright">
-            <span>&copy; 2015-2019 Victor Baybekov </span>
+            <span>&copy; 2015-2024 Victor Baybekov </span>
         </p>
         <p class="footer-copyright">
             <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
@@ -298,15 +276,12 @@ Here for simplicity, we have a very dangerous assumption that trades are execute
     </div>
 </footer>
 
-<script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
-<script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+<script src="https://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
+<script src="https://hotforknowledge.com/js/jquery.fitvids.js"></script>
 
-<script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
-<script src="http://hotforknowledge.com/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+<script src="https://hotforknowledge.com/js/scripts.js"></script>
+        
 </body>
 
 </html>

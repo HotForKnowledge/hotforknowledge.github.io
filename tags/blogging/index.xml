@@ -1,23 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>blogging on Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/blogging/</link>
+    <link>https://hotforknowledge.com/tags/blogging/</link>
     <description>Recent content in blogging on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate>
-    
-	<atom:link href="http://hotforknowledge.com/tags/blogging/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/blogging/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Migrating to Hugo Engine</title>
-      <link>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</link>
+      <link>https://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</link>
       <pubDate>Sat, 15 Oct 2016 15:00:12 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
+      <guid>https://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
       <description>I have migrated my WordPress blog to Hugo. Since I am not a web publishing expert, I have nothing to say other than the experience was very nice and flexibility is awesome. Markdown + VS Code + git rule them all!
 I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago. WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything because the entire setup looked fragile.</description>
     </item>

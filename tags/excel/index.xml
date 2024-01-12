@@ -1,23 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Excel on Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/excel/</link>
+    <link>https://hotforknowledge.com/tags/excel/</link>
     <description>Recent content in Excel on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Mon, 31 Oct 2016 19:25:11 +0300</lastBuildDate>
-    
-	<atom:link href="http://hotforknowledge.com/tags/excel/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Mon, 31 Oct 2016 19:25:11 +0300</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/excel/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Data Spreads: Write your Excel Macros In C#</title>
-      <link>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</link>
+      <link>https://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</link>
       <pubDate>Mon, 31 Oct 2016 19:25:11 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</guid>
+      <guid>https://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</guid>
       <description>A week ago, a friend of mine asked me if I could help him with parsing his old Excel files containing orders of Christmas trees. It was his seasonal business every end of a year for a long time, and old orders back to 2006 were kept in quite a free form so that I myself as a human had difficulties to grasp the structure of the worksheets. However, the goal was to export the data into a CRM system, to identify clients who made regular orders and to call them and try selling trees this year as well.</description>
     </item>
     

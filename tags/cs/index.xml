@@ -1,43 +1,39 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>cs on Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/cs/</link>
+    <link>https://hotforknowledge.com/tags/cs/</link>
     <description>Recent content in cs on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Wed, 19 Oct 2016 10:50:09 +0300</lastBuildDate>
-    
-	<atom:link href="http://hotforknowledge.com/tags/cs/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 19 Oct 2016 10:50:09 +0300</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/cs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Functional programming is a tool for thought, imperative programming is a tool for hacking</title>
-      <link>http://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</link>
+      <link>https://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</link>
       <pubDate>Wed, 19 Oct 2016 10:50:09 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</guid>
+      <guid>https://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</guid>
       <description>TL;DR; F# is great for algorithms and analytics. It could work for libraries, interop and high-performance code as well, but the experience is far from great and I do not want to fight with it anymore. At least I tried&amp;hellip;
 I have been functional programming aficionado for a while. At some point, I took its advantages over mutable imperative code almost religiously. I fell in love with F#. Then I fell in love with mechanical sympathy, and F# - by being a multi-paradigm and .</description>
     </item>
     
     <item>
       <title>Introducing Spreads library</title>
-      <link>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</link>
+      <link>https://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</link>
       <pubDate>Sun, 20 Dec 2015 17:46:36 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</guid>
+      <guid>https://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</guid>
       <description>TL;DR; This post is about background and thoughts on my number-crunching library Spreads, which stands for Series and Panels for Real-time and Exploratory Analysis of Data Streams. The library and its readme are on GitHub: https://github.com/Spreads/Spreads.
 While I worked at Goldman Sachs as a research analyst, I got used to internal declarative time series processing language. It was so cool that I could build MSCI index rebalancing methodology with several lines of code.</description>
     </item>
     
     <item>
       <title>My “hacker” background</title>
-      <link>http://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
+      <link>https://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
       <pubDate>Sun, 23 Aug 2015 17:41:56 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
+      <guid>https://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
       <description>On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there or I am not very active there recently. Or this is a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts.</description>
     </item>
     

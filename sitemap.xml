@@ -1,117 +1,65 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
-    <loc>http://hotforknowledge.com/</loc>
+    <loc>https://hotforknowledge.com/tags/ffi/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/post/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/rust/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/post/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2019/07/14/6-rust-the-new-c/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/rust/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2019/07/14/6-rust-the-new-c/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/ffi/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/</loc>
     <lastmod>2019-07-14T16:12:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2016/10/31/5-data_spreads_excel_macros_in_csharp/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/dataspreads/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/dataspreads/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/excel/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/excel/</loc>
     <lastmod>2016-10-31T19:25:11+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/cs/</loc>
     <lastmod>2016-10-19T10:50:09+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/spreads/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2016/10/19/4-functional-for-thought-imperative-for-hacking/</loc>
     <lastmod>2016-10-19T10:50:09+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/cs/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/spreads/</loc>
     <lastmod>2016-10-19T10:50:09+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/blogging/</loc>
     <lastmod>2016-10-15T15:00:12+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/blogging/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/meta/</loc>
     <lastmod>2016-10-15T15:00:12+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/meta/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</loc>
     <lastmod>2016-10-15T15:00:12+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/about/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/about/</loc>
     <lastmod>2016-10-15T12:39:02+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/</loc>
     <lastmod>2015-12-29T17:51:27+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/tags/markets/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/tags/markets/</loc>
     <lastmod>2015-12-29T17:51:27+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2015/12/20/1-introducing-spreads-library/</loc>
     <lastmod>2015-12-20T17:46:36+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://hotforknowledge.com/2015/08/23/0-hacker-background/</loc>
+  </url><url>
+    <loc>https://hotforknowledge.com/2015/08/23/0-hacker-background/</loc>
     <lastmod>2015-08-23T17:41:56+03:00</lastmod>
   </url>
-  
 </urlset>

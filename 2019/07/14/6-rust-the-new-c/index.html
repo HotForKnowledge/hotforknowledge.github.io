@@ -2,13 +2,13 @@
 <html prefix="og: http://ogp.me/ns#">
     <head>
         
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-66650797-1"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6ZL8ZK6ZPZ"></script>
         <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'UA-66650797-1');
+        gtag('config', 'G-6ZL8ZK6ZPZ');
         </script>
 
         <meta charset="utf-8">
@@ -17,43 +17,52 @@
         <meta name="description" content="Evaluating Rust as the common denominator of modern development">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.55.6" />
+        <meta name="generator" content="Hugo 0.101.0" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="og:title" content="Rust as the new C. Part 1: building and combining native libs into C API">
 <meta property="og:description" content="Evaluating Rust as the common denominator of modern development">
 <meta property="og:type" content="article">
-<meta property="og:url" content="http://hotforknowledge.com/2019/07/14/6-rust-the-new-c/">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/normalize.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/highlight.css">
-        <link rel="stylesheet" href="http://hotforknowledge.com/dist/styles.css">
+<meta property="og:url" content="https://hotforknowledge.com/2019/07/14/6-rust-the-new-c/">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/site.css">
+        <link rel="stylesheet" href="https://hotforknowledge.com/dist/syntax.css">
+        
+        
+            <link rel="stylesheet" href="https://hotforknowledge.com/dist/toc.css">
+        }}
+        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        
-        <link rel="icon" href="http://hotforknowledge.com/favicon.png?v=1" />
-        
+        <link rel="icon" href="https://hotforknowledge.com/favicon.png?v=1" />
         
         
+        
+        
+        
+
     </head>
     <body>
         
 
-        <div id="wrapper">
+	<div id="wrapper">
             <header class="site-header">
                 <div class="container">
+                    
+
                     <ul class="site-nav">
                         
     <li class="site-nav-item">
-        <a title="Blog" href="/">Blog</a>
+        <a href="/">Blog</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="About" href="/about">About</a>
+        <a href="/about">About</a>
     </li>
 
     <li class="site-nav-item">
-        <a title="Contact" href="#footer">Contact</a>
+        <a href="#footer">Contact</a>
     </li>
+
 
                     </ul>
                 </div>
@@ -62,8 +71,10 @@
             <div id="container">
 
 
+<nav class="toc toc-left is-position-fixed"></nav>
+
 <div class="container">
-    <nav class="toc toc-left is-position-fixed"></nav>
+    
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
     <h1 class="post-title" itemprop="name headline">Rust as the new C. Part 1: building and combining native libs into C API</h1>
@@ -85,13 +96,10 @@
         <div class="post-content clearfix" itemprop="articleBody">
     
 
-    
-
-<p>In this blog series, I will experiment with Rust as a safer and simpler C/C++ replacement. The idea is to combine a couple
+    <p>In this blog series, I will experiment with Rust as a safer and simpler C/C++ replacement. The idea is to combine a couple
 of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API
 from a Rust library via C ABI. Then I will consume the same exported Rust methods from a number of
 modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</p>
-
 <p>I&rsquo;ve already done this with C# and <a href="https://github.com/Blosc/c-blosc/">C-Blosc</a> as a part of
 <a href="https://github.com/Spreads/Spreads.Native">Spreads.Native</a> library. But in that project, I&rsquo;ve only re-exported
 existing C methods and used Rust Cargo build system to automate CMake build, which for me was more convenient than
@@ -99,24 +107,17 @@ working with CMake directly. The lack of convenient C/C++ package manager and bu
 a good enough reason on its own to investigate Rust and Cargo. But here (part 3) I will focus more on the code.
 The post is inspired by my struggles with building and integrating native libraries with .NET in a cross-platform
 and repeatable way and was finally triggered by this awesome talk by Ashley Mannix (<a href="https://twitter.com/KodrAus">@KodrAus</a>) <a href="https://www.youtube.com/watch?v=0B1U3fVCIX0">https://www.youtube.com/watch?v=0B1U3fVCIX0</a></p>
-
 <p>A not primary but important goal of this exercise is to achieve easy debugging experience
 for all listed languages from VS Code on Windows directly and/or via <a href="https://code.visualstudio.com/docs/remote/containers">containers</a>.</p>
-
 <p>I started writing this post before writing a single line of code. It will mainly serve as a walk-through
 guide to my future self, but I hope that you will find it interesting.</p>
-
 <p><em>In this part 1</em>, I will only build native libraries from source using Rust tools, combine them in a trivial way,
 expose the combined code from Rust <code>cdylib</code> as C API, debug the code locally from <code>windows-msvc</code> and remotely in Docker container,
 and consume the combined functionality from .NET Core.</p>
-
 <p><em>In part 2</em>, I will add other languages that consume the simple API.</p>
-
 <p><em>In part 3</em>, I will write some concurrent code (a very simplified version of what my <a href="https://github.com/DataSpreads/DataSpreads">DataSpreads</a> does)
 and multi-language clients that work on the same data from different processes simultaneously.</p>
-
 <h2 id="c-abi">C ABI</h2>
-
 <p>The C language is the lowest level &ldquo;normal&rdquo; programmers could probably deal with ever. By normal I mean
 those who do not write drivers, operating systems or OS-dependent things. But very often it is
 the API of important popular libraries available via stable C Application Binary Interface (ABI)
@@ -127,9 +128,7 @@ We the mortals could only use that pieces of portable and performant art in our 
 from our favorite languages and only dream about such deep C knowledge. It is also not practical
 and very dangerous to write important code in C without multiple years of experience and
 to spend so much time on mastering C.</p>
-
 <p>We could consume C ABI practically from any programming language:</p>
-
 <ul>
 <li><strong>.NET (C#, F#)</strong>: <a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke">P/Invoke requires a single attribute added to an extern method definition</a>;</li>
 <li><strong>Python</strong>: <a href="https://docs.python.org/2/extending/extending.html">ctypes module, cffi library or native/CPython extensions</a>;</li>
@@ -139,100 +138,80 @@ to spend so much time on mastering C.</p>
 <li><strong>Go</strong>: <a href="https://golang.org/cmd/cgo/">cgo</a> or <a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">&ldquo;C&rdquo; pseudo package</a>;</li>
 <li><strong>C/C++</strong>: just reuse API exported from Rust natively.</li>
 </ul>
-
 <p>The Go language is interesting because it could expose C ABI as well, but it has GC, a bigger runtime and the native
 boundary is expensive (e.g. <a href="https://dave.cheney.net/2016/01/18/cgo-is-not-go">1</a>, <a href="https://news.ycombinator.com/item?id=17165179">2</a>).
 So despite the fact that many consider Go to be the main Rust competitor for writing complete programs,
 Go cannot be used as a low-level C alternative.</p>
-
 <h2 id="rust-shared-lib">Rust shared lib</h2>
-
 <p>In this part 1, we will combine three native libraries, call methods that return their versions, combine
 the versions and return the combined version string via C API to any external consumer.</p>
-
 <p>The output should be (the last line is printed only in debug build):</p>
-<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">LMDB: 0.9.70
-Blosc: 1.15.2.dev
-SQLite: 3.29.0
-Rust string is dropped</code></pre></div>
-<p>This task is trivial, but does combine the functionality of three native languages in Rust code, returns
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1">1</a></span><span class="cl">LMDB: 0.9.70
+</span></span><span class="line"><span class="ln" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2">2</a></span><span class="cl">Blosc: 1.15.2.dev
+</span></span><span class="line"><span class="ln" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3">3</a></span><span class="cl">SQLite: 3.29.0
+</span></span><span class="line"><span class="ln" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4">4</a></span><span class="cl">Rust string is dropped
+</span></span></code></pre></div><p>This task is trivial, but does combine the functionality of three native languages in Rust code, returns
 a string owned by Rust and exposes a method to free the string from other languages.</p>
-
 <h3 id="initial-setup">Initial setup</h3>
-
 <p>Get a stable rust version from <a href="https://rustup.rs/">https://rustup.rs/</a> if you do not have it already (1.36 as of this writing).
 Install VSCode <a href="https://marketplace.visualstudio.com/items?itemName=rust-lang.rust">Rust (rls) extension</a>
 and <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack">Remote Development Extension Pack</a>.</p>
-
 <p>All code below is written on Windows with MSVC toolchain and inside the default Rust Docker container (<code>rust:1</code>)
 using <a href="https://code.visualstudio.com/docs/remote/containers">VSCode Remote - Containers extension</a>.</p>
-
 <p>Create the following folder structure (<a href="https://github.com/buybackoff/RustTheNewC/tree/8cc6f5f53eefcd213b34f08c58b281c74051bd61">git commit</a>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">src/
-    [client languages folders]/
-    rust/
-        .cargo/
-            config
-        corelib/            # Run `cargo init --lib` in this folder
-            ...             # Generated by `cargo init`
-        Cargo.toml          # Rust Workspace
-.gitignore</code></pre></div>
-<p>Our main focus is on the <code>src/rust</code> folder now. Add <code>Cargo.toml</code> file for Rust workspace
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a></span><span class="cl">src/
+</span></span><span class="line"><span class="ln" id="hl-1-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-2">2</a></span><span class="cl">    [client languages folders]/
+</span></span><span class="line"><span class="ln" id="hl-1-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-3">3</a></span><span class="cl">    rust/
+</span></span><span class="line"><span class="ln" id="hl-1-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-4">4</a></span><span class="cl">        .cargo/
+</span></span><span class="line"><span class="ln" id="hl-1-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-5">5</a></span><span class="cl">            config
+</span></span><span class="line"><span class="ln" id="hl-1-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-6">6</a></span><span class="cl">        corelib/            # Run `cargo init --lib` in this folder
+</span></span><span class="line"><span class="ln" id="hl-1-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-7">7</a></span><span class="cl">            ...             # Generated by `cargo init`
+</span></span><span class="line"><span class="ln" id="hl-1-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-8">8</a></span><span class="cl">        Cargo.toml          # Rust Workspace
+</span></span><span class="line"><span class="ln" id="hl-1-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-9">9</a></span><span class="cl">.gitignore
+</span></span></code></pre></div><p>Our main focus is on the <code>src/rust</code> folder now. Add <code>Cargo.toml</code> file for Rust workspace
 that will contain any crates we will develop next. Initially it contains only the main <code>corelib</code>
 that will expose functionality to other languages.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Toml" data-lang="Toml"><span class="p">[</span><span class="nx">workspace</span><span class="p">]</span>
-<span class="nx">members</span> <span class="p">=</span> <span class="p">[</span>
-    <span class="s2">&#34;corelib&#34;</span>
-<span class="p">]</span></code></pre></div>
-<p>Add <code>rust/.cargo/</code> folder with a <code>config</code> file:</p>
-
-<pre><code>[target.x86_64-pc-windows-msvc]
-rustflags = [&quot;-C&quot;, &quot;target-feature=+crt-static&quot;]
-
-[target.x86_64-pc-windows-gnu]
-rustflags = [&quot;-C&quot;, &quot;target-feature=+crt-static&quot;]
-</code></pre>
-
-<p>This configuration instructs the Rust compiler to statically link C runtime library on Windows.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="ln" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a></span><span class="cl"><span class="p">[</span><span class="nx">workspace</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-2-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-2">2</a></span><span class="cl"><span class="nx">members</span> <span class="p">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln" id="hl-2-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-3">3</a></span><span class="cl">    <span class="s2">&#34;corelib&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-2-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-4">4</a></span><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Add <code>rust/.cargo/</code> folder with a <code>config</code> file:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a></span><span class="cl"><span class="k">[target.x86_64-pc-windows-msvc]</span>
+</span></span><span class="line"><span class="ln" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a></span><span class="cl"><span class="na">rustflags</span> <span class="o">=</span> <span class="s">[&#34;-C&#34;, &#34;target-feature=+crt-static&#34;]</span>
+</span></span><span class="line"><span class="ln" id="hl-3-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-3">3</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-3-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-4">4</a></span><span class="cl"><span class="k">[target.x86_64-pc-windows-gnu]</span>
+</span></span><span class="line"><span class="ln" id="hl-3-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-5">5</a></span><span class="cl"><span class="na">rustflags</span> <span class="o">=</span> <span class="s">[&#34;-C&#34;, &#34;target-feature=+crt-static&#34;]</span>
+</span></span></code></pre></div><p>This configuration instructs the Rust compiler to statically link C runtime library on Windows.
 The effect of these settings on the binary size is quite small (around 80kb for an empty lib) but
 it simplifies the deployment of shared libraries produced on Windows. You could see the difference
 using <a href="https://github.com/lucasg/Dependencies">Dependencies</a> utility, which is a rewrite of a
 legacy <a href="http://www.dependencywalker.com/">DependencyWalker</a>. This tool is useful during developing
 a shared native library with exported methods. E.g. when something doesn&rsquo;t work as expected in
 a weird way it&rsquo;s good to ensure that at least the methods are exported to rule out this issue.</p>
-
 <p>Finally, run <code>cargo init --lib</code> in <code>rust/corelib/</code> folder to create an empty Rust library.
 Run <code>cargo build</code> and <code>cargo test</code> from the <code>rust</code> folder to ensure everything works. Binary
 artifacts will be placed into <code>rust/target</code> folder for all workspace crates from <code>rust/Cargo.toml</code>
 config file.</p>
-
 <blockquote>
 <p>Important: open <code>src/rust</code> folder in a separate VSCode instance and work with Rust code from there.
 Even though you could run cargo commands from the terminal just by navigating to the folder (<code>cd src/rust</code>),
 Rust Language Service extension requires <code>Cargo.toml</code> at the root for autocomplete to work.</p>
 </blockquote>
-
 <h3 id="add-native-dependencies">Add native dependencies</h3>
-
 <p>We are going to build all native dependencies ourselves instead of relying on existing cargo crates.
 Remember that the goal of this exercise is to use Rust as a glue for native libs that we would
 otherwise combine using C/C++ into a reusable shared library with C interface. We are not going
 to sacrifice total control over C build flags and even source code.</p>
-
 <p>For example, we want LMDB key size as large as possible instead of the default 511 bytes,
 we want to expose some internal methods from Blosc to simplify build process and avoid building
 several compressors manually, and we want to build SQLite amalgamation from a custom branch and
 set flags that are significantly different from the ones Rusqlite crate uses.</p>
-
 <p>In the end, we want to have a shared library with a C interface that exposes only methods
 relevant for our application. We do not care much about public API and bindings of
 intermediate libraries. We just need all native APIs available during design time
 (with autocomplete and signature hints).</p>
-
 <h4 id="lmdb">LMDB</h4>
-
 <p>To add LMDB dependency first do the initial setup steps:</p>
-
 <ul>
 <li>Add <code>rust/lmdb-sys</code> folder;</li>
 <li>Run <code>cargo init --lib</code> inside it;</li>
@@ -240,128 +219,119 @@ intermediate libraries. We just need all native APIs available during design tim
 <li>Clone <a href="https://github.com/LMDB/lmdb/">the upstream repository</a> as git submodule inside
 <code>rust/lmdb-sys</code> folder.</li>
 </ul>
-
 <p>The folder layout and workspace config file after this step should look like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">rust/
-    .cargo/
-    corelib/
-    lmdb-sys/           # Run `cargo init --lib` in this folder
-        lmdb            # git submodule with LMDB source from upstream
-        ...             # Generated by `cargo init`
-    Cargo.toml          # Rust Workspace: add lmdb-sys</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-Toml" data-lang="Toml"><span class="p">[</span><span class="nx">workspace</span><span class="p">]</span>
-<span class="nx">members</span> <span class="p">=</span> <span class="p">[</span>
-    <span class="s2">&#34;corelib&#34;</span><span class="p">,</span>
-    <span class="s2">&#34;lmdb-sys&#34;</span><span class="p">,</span>
-<span class="p">]</span></code></pre></div>
-<p>To actually build LMDB library and generate Rust binding to it, edit
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln" id="hl-4-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-1">1</a></span><span class="cl">rust/
+</span></span><span class="line"><span class="ln" id="hl-4-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-2">2</a></span><span class="cl">    .cargo/
+</span></span><span class="line"><span class="ln" id="hl-4-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-3">3</a></span><span class="cl">    corelib/
+</span></span><span class="line"><span class="ln" id="hl-4-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-4">4</a></span><span class="cl">    lmdb-sys/           # Run `cargo init --lib` in this folder
+</span></span><span class="line"><span class="ln" id="hl-4-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-5">5</a></span><span class="cl">        lmdb            # git submodule with LMDB source from upstream
+</span></span><span class="line"><span class="ln" id="hl-4-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-6">6</a></span><span class="cl">        ...             # Generated by `cargo init`
+</span></span><span class="line"><span class="ln" id="hl-4-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-7">7</a></span><span class="cl">    Cargo.toml          # Rust Workspace: add lmdb-sys
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Toml" data-lang="Toml"><span class="line"><span class="ln" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1">1</a></span><span class="cl"><span class="p">[</span><span class="nx">workspace</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2">2</a></span><span class="cl"><span class="nx">members</span> <span class="p">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln" id="hl-5-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-3">3</a></span><span class="cl">    <span class="s2">&#34;corelib&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-5-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-4">4</a></span><span class="cl">    <span class="s2">&#34;lmdb-sys&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-5-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-5">5</a></span><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>To actually build LMDB library and generate Rust binding to it, edit
 <code>lmdb-sys/Cargo.toml</code> file and add <a href="https://crates.io/crates/cc">cc</a> and <a href="https://crates.io/crates/bindgen">bindgen</a>
 crates as <code>build-dependencies</code> and <a href="https://crates.io/crates/libc">libc</a> crate as a normal dependency.
 The file should look like this after the edits:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Toml" data-lang="Toml"><span class="p">[</span><span class="nx">package</span><span class="p">]</span>
-<span class="nx">name</span> <span class="p">=</span> <span class="s2">&#34;lmdb-sys&#34;</span>
-<span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;0.1.0&#34;</span>
-<span class="nx">authors</span> <span class="p">=</span> <span class="p">[</span><span class="s2">&#34;Victor Baybekov &lt;vbaybekov@gmail.com&gt;&#34;</span><span class="p">]</span>
-<span class="nx">publish</span> <span class="p">=</span> <span class="kc">false</span>
-<span class="nx">edition</span> <span class="p">=</span> <span class="s2">&#34;2018&#34;</span>
-<span class="nx">build</span> <span class="p">=</span> <span class="s2">&#34;build.rs&#34;</span>
-
-<span class="p">[</span><span class="nx">lib</span><span class="p">]</span>
-<span class="nx">name</span> <span class="p">=</span> <span class="s2">&#34;lmdb_sys&#34;</span>
-
-<span class="p">[</span><span class="nx">build</span><span class="err">-</span><span class="nx">dependencies</span><span class="p">]</span>
-<span class="nx">cc</span> <span class="p">=</span> <span class="s2">&#34;1.0&#34;</span>
-<span class="nx">bindgen</span> <span class="p">=</span> <span class="s2">&#34;0.50&#34;</span>
-
-<span class="p">[</span><span class="nx">dependencies</span><span class="p">]</span>
-<span class="nx">libc</span> <span class="p">=</span> <span class="s2">&#34;0.2&#34;</span></code></pre></div>
-<p>Note the <code>build = &quot;build.rs&quot;</code> line - we will add this build script next. Create a file
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Toml" data-lang="Toml"><span class="line"><span class="ln" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1"> 1</a></span><span class="cl"><span class="p">[</span><span class="nx">package</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2"> 2</a></span><span class="cl"><span class="nx">name</span> <span class="p">=</span> <span class="s2">&#34;lmdb-sys&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-3"> 3</a></span><span class="cl"><span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;0.1.0&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-4"> 4</a></span><span class="cl"><span class="nx">authors</span> <span class="p">=</span> <span class="p">[</span><span class="s2">&#34;Victor Baybekov &lt;vbaybekov@gmail.com&gt;&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-6-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-5"> 5</a></span><span class="cl"><span class="nx">publish</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln" id="hl-6-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-6"> 6</a></span><span class="cl"><span class="nx">edition</span> <span class="p">=</span> <span class="s2">&#34;2018&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-7"> 7</a></span><span class="cl"><span class="nx">build</span> <span class="p">=</span> <span class="s2">&#34;build.rs&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-8"> 8</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-6-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-9"> 9</a></span><span class="cl"><span class="p">[</span><span class="nx">lib</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-6-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-10">10</a></span><span class="cl"><span class="nx">name</span> <span class="p">=</span> <span class="s2">&#34;lmdb_sys&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-11">11</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-6-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-12">12</a></span><span class="cl"><span class="p">[</span><span class="nx">build-dependencies</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-6-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-13">13</a></span><span class="cl"><span class="nx">cc</span> <span class="p">=</span> <span class="s2">&#34;1.0&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-14">14</a></span><span class="cl"><span class="nx">bindgen</span> <span class="p">=</span> <span class="s2">&#34;0.50&#34;</span>
+</span></span><span class="line"><span class="ln" id="hl-6-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-15">15</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-6-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-16">16</a></span><span class="cl"><span class="p">[</span><span class="nx">dependencies</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-6-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-17">17</a></span><span class="cl"><span class="nx">libc</span> <span class="p">=</span> <span class="s2">&#34;0.2&#34;</span>
+</span></span></code></pre></div><p>Note the <code>build = &quot;build.rs&quot;</code> line - we will add this build script next. Create a file
 <code>build.rs</code> next to the <code>Cargo.toml</code> file with the following content:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">cc</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">env</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">path</span>::<span class="n">PathBuf</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">lmdb</span>: <span class="nc">PathBuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PathBuf</span>::<span class="n">from</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span>::<span class="n">var</span><span class="p">(</span><span class="s">&#34;CARGO_MANIFEST_DIR&#34;</span><span class="p">).</span><span class="n">unwrap</span><span class="p">());</span><span class="w">
-</span><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;lmdb&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;libraries&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;liblmdb&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="n">cc</span>::<span class="n">Build</span>::<span class="n">new</span><span class="p">()</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">file</span><span class="p">(</span><span class="n">lmdb</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;mdb.c&#34;</span><span class="p">))</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">file</span><span class="p">(</span><span class="n">lmdb</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;midl.c&#34;</span><span class="p">))</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">define</span><span class="p">(</span><span class="s">&#34;MDB_MAXKEYSIZE&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="s">&#34;0&#34;</span><span class="p">))</span><span class="w"> </span><span class="c1">// Set max key size to max computed value instead of default 511
-</span><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">opt_level</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c1">// https://github.com/LMDB/lmdb/blob/LMDB_0.9.21/libraries/liblmdb/Makefile#L25
-</span><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">static_crt</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#34;liblmdb.a&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bindgen</span>::<span class="n">Builder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">header</span><span class="p">(</span><span class="s">&#34;wrapper.h&#34;</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">generate_comments</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">use_core</span><span class="p">()</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">ctypes_prefix</span><span class="p">(</span><span class="s">&#34;libc&#34;</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">whitelist_function</span><span class="p">(</span><span class="s">&#34;mdb_.*&#34;</span><span class="p">)</span><span class="w"> </span><span class="c1">// it adds recursively all used types so the next line in this case changes nothing for this particular case
-</span><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">whitelist_type</span><span class="p">(</span><span class="s">&#34;mdb_.*&#34;</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">prepend_enum_name</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">constified_enum_module</span><span class="p">(</span><span class="s">&#34;MDB_cursor_op&#34;</span><span class="p">)</span><span class="w"> </span><span class="c1">// allows access to enum values as MDB_cursor_op.MDB_NEXT
-</span><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">generate</span><span class="p">()</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&#34;Unable to generate bindings&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="c1">// Write the bindings to src folder to make rls autocomplete work.
-</span><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">out_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PathBuf</span>::<span class="n">from</span><span class="p">(</span><span class="s">&#34;src&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="n">bindings</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">out_path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;bindings.rs&#34;</span><span class="p">))</span><span class="w">
-</span><span class="w">        </span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&#34;Couldn&#39;t write bindings!&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="c1">// Tell cargo to tell rustc to link the lmdb library.
-</span><span class="c1"></span><span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;cargo:rustc-link-lib=static=lmdb&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>I will not go through the basic usage of <code>cc</code> and <code>bindgen</code> crates since their documentation
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="ln" id="hl-7-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-1"> 1</a></span><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">cc</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-2"> 2</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-3"> 3</a></span><span class="cl"><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">env</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-4"> 4</a></span><span class="cl"><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">path</span>::<span class="n">PathBuf</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-5"> 5</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-6"> 6</a></span><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-7"> 7</a></span><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">lmdb</span>: <span class="nc">PathBuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PathBuf</span>::<span class="n">from</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span>::<span class="n">var</span><span class="p">(</span><span class="s">&#34;CARGO_MANIFEST_DIR&#34;</span><span class="p">).</span><span class="n">unwrap</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-8"> 8</a></span><span class="cl"><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;lmdb&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-9"> 9</a></span><span class="cl"><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;libraries&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-10">10</a></span><span class="cl"><span class="w">    </span><span class="n">lmdb</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#34;liblmdb&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-11">11</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-12">12</a></span><span class="cl"><span class="w">    </span><span class="n">cc</span>::<span class="n">Build</span>::<span class="n">new</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-13">13</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">file</span><span class="p">(</span><span class="n">lmdb</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;mdb.c&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-14">14</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">file</span><span class="p">(</span><span class="n">lmdb</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;midl.c&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-15">15</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">define</span><span class="p">(</span><span class="s">&#34;MDB_MAXKEYSIZE&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="s">&#34;0&#34;</span><span class="p">))</span><span class="w"> </span><span class="c1">// Set max key size to max computed value instead of default 511
+</span></span></span><span class="line"><span class="ln" id="hl-7-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-16">16</a></span><span class="cl"><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">opt_level</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c1">// https://github.com/LMDB/lmdb/blob/LMDB_0.9.21/libraries/liblmdb/Makefile#L25
+</span></span></span><span class="line"><span class="ln" id="hl-7-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-17">17</a></span><span class="cl"><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">static_crt</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-18">18</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#34;liblmdb.a&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-19">19</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-20">20</a></span><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bindgen</span>::<span class="n">Builder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-21">21</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">header</span><span class="p">(</span><span class="s">&#34;wrapper.h&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-22">22</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">generate_comments</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-23">23</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">use_core</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-24">24</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">ctypes_prefix</span><span class="p">(</span><span class="s">&#34;libc&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-25">25</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">whitelist_function</span><span class="p">(</span><span class="s">&#34;mdb_.*&#34;</span><span class="p">)</span><span class="w"> </span><span class="c1">// it adds recursively all used types so the next line in this case changes nothing for this particular case
+</span></span></span><span class="line"><span class="ln" id="hl-7-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-26">26</a></span><span class="cl"><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">whitelist_type</span><span class="p">(</span><span class="s">&#34;mdb_.*&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-27">27</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">prepend_enum_name</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-28">28</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">constified_enum_module</span><span class="p">(</span><span class="s">&#34;MDB_cursor_op&#34;</span><span class="p">)</span><span class="w"> </span><span class="c1">// allows access to enum values as MDB_cursor_op.MDB_NEXT
+</span></span></span><span class="line"><span class="ln" id="hl-7-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-29">29</a></span><span class="cl"><span class="c1"></span><span class="w">        </span><span class="p">.</span><span class="n">generate</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-30">30</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&#34;Unable to generate bindings&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-31">31</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-32">32</a></span><span class="cl"><span class="w">    </span><span class="c1">// Write the bindings to src folder to make rls autocomplete work.
+</span></span></span><span class="line"><span class="ln" id="hl-7-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-33">33</a></span><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">out_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PathBuf</span>::<span class="n">from</span><span class="p">(</span><span class="s">&#34;src&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-34">34</a></span><span class="cl"><span class="w">    </span><span class="n">bindings</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-35">35</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">out_path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34;bindings.rs&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-36">36</a></span><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&#34;Couldn&#39;t write bindings!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-37">37</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-38">38</a></span><span class="cl"><span class="w">    </span><span class="c1">// Tell cargo to tell rustc to link the lmdb library.
+</span></span></span><span class="line"><span class="ln" id="hl-7-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-39">39</a></span><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;cargo:rustc-link-lib=static=lmdb&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-7-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-40">40</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>I will not go through the basic usage of <code>cc</code> and <code>bindgen</code> crates since their documentation
 is good and important things are commented in the snippet.</p>
-
 <p>However, some aspects of bindgen setup require some explanation. First, <code>wrapper.h</code>
 file is the standard bindgen header file that includes all symbols for which we want
 to generate bindings. In this case, the file contains a single line:</p>
-<div class="highlight"><pre class="chroma"><code class="language-C" data-lang="C"><span class="cp">#include</span> <span class="cpf">&#34;lmdb/libraries/liblmdb/lmdb.h&#34;</span></code></pre></div>
-<p>Second, we always generate bindings on the fly and do not edit them manually,
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C" data-lang="C"><span class="line"><span class="ln" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1">1</a></span><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;lmdb/libraries/liblmdb/lmdb.h&#34;</span><span class="cp">
+</span></span></span></code></pre></div><p>Second, we always generate bindings on the fly and do not edit them manually,
 as many <code>-sys</code> library do. We do not care
 about clean and concise bindings API and only need to access native API from <code>corelib</code>.
 But to reduce noise we add <code>whitelist_function(&quot;mdb_.*&quot;)</code> line that forces bindgen to
 generate only functions that contain <code>mdb_</code> substring and all types that are used by
 such functions.</p>
-
 <p>Third, we write the generated bindings into <code>lmdb-sys/src/</code> folder instead of
 <code>OUT_DIR</code> folder as many <a href="https://rust-lang.github.io/rust-bindgen/tutorial-4.html">examples</a> recommend.
 This is done to make the bindings
 available to RLS and to make autocomplete work. The current version of RLS does
 not recognize bindings included via <code>include!</code> macro (at least on my machine).</p>
-
 <p>To export the bindings add the following code to the main <code>lmdb-sys/src/lib.rs</code> file:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="cp">#![allow(non_upper_case_globals)]</span><span class="w">
-</span><span class="w"></span><span class="cp">#![allow(non_camel_case_types)]</span><span class="w">
-</span><span class="w"></span><span class="cp">#![allow(non_snake_case)]</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c1">// We could generate bindings into OUT_DIR and it will work,
-</span><span class="c1">// but VSCode RLS does not see that, so we generate the file
-</span><span class="c1">// inside the src folder and export everything from bindings
-</span><span class="c1">// module. This also help to easily find the file instead
-</span><span class="c1">// of searching inside target/build/... folder.
-</span><span class="c1">// include!(concat!(env!(&#34;OUT_DIR&#34;), &#34;/bindings.rs&#34;));
-</span><span class="c1"></span><span class="k">pub</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">bindings</span>::<span class="o">*</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="k">mod</span> <span class="nn">bindings</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="p">...</span><span class="w">
-</span></code></pre></div>
-<p>At this point, the local <code>lmdb-sys</code> package is ready for consumption by our <code>corelib</code>.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-9-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-1"> 1</a></span><span class="cl"><span class="cp">#![allow(non_upper_case_globals)]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-2"> 2</a></span><span class="cl"><span class="w"></span><span class="cp">#![allow(non_camel_case_types)]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-3"> 3</a></span><span class="cl"><span class="w"></span><span class="cp">#![allow(non_snake_case)]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-4"> 4</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-5"> 5</a></span><span class="cl"><span class="w"></span><span class="c1">// We could generate bindings into OUT_DIR and it will work,
+</span></span></span><span class="line"><span class="ln" id="hl-9-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-6"> 6</a></span><span class="cl"><span class="c1">// but VSCode RLS does not see that, so we generate the file
+</span></span></span><span class="line"><span class="ln" id="hl-9-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-7"> 7</a></span><span class="cl"><span class="c1">// inside the src folder and export everything from bindings
+</span></span></span><span class="line"><span class="ln" id="hl-9-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-8"> 8</a></span><span class="cl"><span class="c1">// module. This also help to easily find the file instead
+</span></span></span><span class="line"><span class="ln" id="hl-9-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-9"> 9</a></span><span class="cl"><span class="c1">// of searching inside target/build/... folder.
+</span></span></span><span class="line"><span class="ln" id="hl-9-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-10">10</a></span><span class="cl"><span class="c1">// include!(concat!(env!(&#34;OUT_DIR&#34;), &#34;/bindings.rs&#34;));
+</span></span></span><span class="line"><span class="ln" id="hl-9-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-11">11</a></span><span class="cl"><span class="c1"></span><span class="k">pub</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">bindings</span>::<span class="o">*</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-12">12</a></span><span class="cl"><span class="w"></span><span class="k">mod</span> <span class="nn">bindings</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-13">13</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-9-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-14">14</a></span><span class="cl"><span class="w"></span><span class="o">..</span><span class="p">.</span><span class="w">
+</span></span></span></code></pre></div><p>At this point, the local <code>lmdb-sys</code> package is ready for consumption by our <code>corelib</code>.
 Run <code>cargo test</code> to ensure that build works and all auto-generated tests pass.</p>
-
 <p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/2132ec9d9bdad41adb611acc9eb260d094381e93/src/rust/lmdb-sys">Browse repository at this point</a>).</p>
-
 <h4 id="blosc">Blosc</h4>
-
 <p>To add Blosc dependency first do the initial setup steps:</p>
-
 <ul>
 <li>Add <code>rust/blosc-sys</code> folder;</li>
 <li>Run <code>cargo init --lib</code> inside it;</li>
@@ -369,444 +339,355 @@ Run <code>cargo test</code> to ensure that build works and all auto-generated te
 <li>Clone <a href="https://github.com/Spreads/c-blosc/tree/spreads">the upstream repository (<code>spreads</code> branch)</a> as git submodule inside
 <code>rust/blosc-sys</code> folder.</li>
 </ul>
-
 <p>We will be using <a href="https://github.com/Spreads/c-blosc/tree/spreads">Spreads fork</a> of the <a href="https://github.com/Blosc/c-blosc">upstream Blosc repository</a>.
 The fork has <a href="https://github.com/Spreads/c-blosc/commit/e34dddbad70aa2b270e2d991a9baee44c95ed175">minimal changes</a>
 and exports LZ4/Zstd/Zlib compress/decompress routines. The compressor libraries are already present in Blosc
 and it&rsquo;s much more convenient to just export the needed pieces instead of building every library manually.</p>
-
 <p>Bindgen <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/wrapper.h"><code>wrapper.h</code></a> contains definitions
 copied from Blosc. I do not remember why exactly in this case I copied rather than included the headers in <a href="https://github.com/Spreads/Spreads.Native/tree/master/rs/spreads-blosc-sys">Spreads.Native</a> library, but this is also a valid approach, which sometimes is more convenient than including raw source header and allows for greater control
 and less work with whitelisting only required functions and types.</p>
-
 <p>Blosc uses CMake and Rust has <a href="https://crates.io/crates/cmake">cmake</a> crate that allows to build CMake projects
 as easily as the <a href="https://crates.io/crates/cc">cc</a> we used for <a href="#lmdb">lmdb-sys</a>.
 The <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs"><code>build.rs</code></a>
 file is self-explanatory. One interesting thing is defining a custom generator for Windows GNU target on <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs#L29">this line</a>.</p>
-
 <p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys">Browse repository at this point</a>).</p>
-
 <h4 id="sqlite">SQLite</h4>
-
 <p>SQLite is a very stable library, but it&rsquo;s development branches have some interesting features.
 Particularly the <code>begin-concurrent-pnu-wal2</code> branch has <a href="https://www.sqlite.org/cgi/src/doc/wal2/doc/wal2.md">wal2 mode</a>
 and <a href="https://www.sqlite.org/cgi/src/doc/begin-concurrent/doc/begin_concurrent.md">BEGIN CONCURRENT</a> enhancement.
 These features improve the performance of concurrent access to a database.</p>
-
 <p>To build SQLite we need to create an <a href="https://www.sqlite.org/amalgamation.html">amalgamation</a> from the source. Download the source
 code from the required branch as zip archive (e.g. from <a href="https://www.sqlite.org/cgi/src/info/627b428fc8ca0f23">here</a>)
 and unpack to any folder, e.g. <code>G:/temp/sqlite_scr</code>. Then open the folder inside <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux</a>
 and run the following commands:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ini" data-lang="ini"><span class="na">cd /mnt/g/temp/sqlite_src</span>
-<span class="na">./configure</span>
-<span class="na">make sqlite3.c</span></code></pre></div>
-<p>Create  <code>rust/sqlite-sys/</code> folder and run <code>cargo init --lib</code> inside it. Copy <code>sqlite3.c</code> and <code>sqlite3.h</code>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln" id="hl-10-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-1">1</a></span><span class="cl"><span class="na">cd /mnt/g/temp/sqlite_src</span>
+</span></span><span class="line"><span class="ln" id="hl-10-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-2">2</a></span><span class="cl"><span class="na">./configure</span>
+</span></span><span class="line"><span class="ln" id="hl-10-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-3">3</a></span><span class="cl"><span class="na">make sqlite3.c</span>
+</span></span></code></pre></div><p>Create  <code>rust/sqlite-sys/</code> folder and run <code>cargo init --lib</code> inside it. Copy <code>sqlite3.c</code> and <code>sqlite3.h</code>
 files to <code>rust/sqlite-sys/sqlite/</code> folder and create <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/wrapper.h">wrapper.h</a>
 and <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/build.rs">build.rs</a> files similar to LMDB ones. Add build and compile dependencies
 to <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/Cargo.toml">Cargo.toml</a>.</p>
-
 <p>Note that the <code>build.rs</code> file has many custom define symbols to modify SQLite defaults.</p>
-
 <p>At this point, the local <code>sqlite-sys</code> package is ready for consumption by our <code>corelib</code>.</p>
-
 <p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys">Browse repository at this point</a>).</p>
-
 <h3 id="test-dependencies">Test dependencies</h3>
-
 <p>Now all three native dependencies are ready to use from <code>corelib</code>.</p>
-
 <p>Add the following lines to <code>rust/corelib/Cargo.toml</code> to add the local packages as dependencies:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Toml" data-lang="Toml"><span class="p">[</span><span class="nx">dependencies</span><span class="p">]</span>
-<span class="nx">lmdb</span><span class="err">-</span><span class="nx">sys</span> <span class="p">=</span> <span class="err">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../lmdb-sys&#34;</span> <span class="err">}</span>
-<span class="nx">blosc</span><span class="err">-</span><span class="nx">sys</span> <span class="p">=</span> <span class="err">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../blosc-sys&#34;</span> <span class="err">}</span>
-<span class="nx">sqlite</span><span class="err">-</span><span class="nx">sys</span> <span class="p">=</span> <span class="err">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../sqlite-sys&#34;</span> <span class="err">}</span>
-<span class="nx">libc</span> <span class="p">=</span> <span class="err">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;0.2&#34;</span><span class="err">}</span></code></pre></div>
-<p>Then in <code>rust/corelib/src/lib.rs</code> add functions that return version strings of our native libs.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Toml" data-lang="Toml"><span class="line"><span class="ln" id="hl-11-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-1">1</a></span><span class="cl"><span class="p">[</span><span class="nx">dependencies</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln" id="hl-11-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-2">2</a></span><span class="cl"><span class="nx">lmdb-sys</span> <span class="p">=</span> <span class="p">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../lmdb-sys&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-11-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-3">3</a></span><span class="cl"><span class="nx">blosc-sys</span> <span class="p">=</span> <span class="p">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../blosc-sys&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-11-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-4">4</a></span><span class="cl"><span class="nx">sqlite-sys</span> <span class="p">=</span> <span class="p">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> <span class="nx">path</span> <span class="p">=</span> <span class="s2">&#34;../sqlite-sys&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-11-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-5">5</a></span><span class="cl"><span class="nx">libc</span> <span class="p">=</span> <span class="p">{</span> <span class="nx">version</span> <span class="p">=</span> <span class="s2">&#34;0.2&#34;</span><span class="p">}</span>
+</span></span></code></pre></div><p>Then in <code>rust/corelib/src/lib.rs</code> add functions that return version strings of our native libs.
 These functions are public but not <code>extern</code> and only available from other Rust packages and tests.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">blosc_sys</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">lmdb_sys</span><span class="p">;</span><span class="w">
-</span><span class="w"></span><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">sqlite_sys</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">libc</span>::<span class="o">*</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">lmdb_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">major</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">minor</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">patch</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="n">lmdb_sys</span>::<span class="n">mdb_version</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">major</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">patch</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">format</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;{}.{}.{}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">major</span><span class="p">,</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="n">patch</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">blosc_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blosc_sys</span>::<span class="n">blosc_get_version_string</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CStr</span>::<span class="n">from_ptr</span><span class="p">(</span><span class="n">cptr</span><span class="p">).</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">to_owned</span><span class="p">();</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">sqlite_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite_sys</span>::<span class="n">sqlite3_libversion</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CStr</span>::<span class="n">from_ptr</span><span class="p">(</span><span class="n">cptr</span><span class="p">).</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">to_owned</span><span class="p">();</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Then add tests in the same file:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="cp">#[cfg(test)]</span><span class="w">
-</span><span class="w"></span><span class="k">mod</span> <span class="nn">tests</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="cp">#[test]</span><span class="w">
-</span><span class="w">    </span><span class="k">fn</span> <span class="nf">lmdb_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="n">assert_eq</span><span class="o">!</span><span class="p">(</span><span class="k">super</span>::<span class="n">lmdb_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;0.9.70&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="cp">#[test]</span><span class="w">
-</span><span class="w">    </span><span class="k">fn</span> <span class="nf">blosc_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">            </span><span class="n">blosc_sys</span>::<span class="n">blosc_set_nthreads</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span><span class="w">
-</span><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blosc_sys</span>::<span class="n">blosc_get_nthreads</span><span class="p">();</span><span class="w">
-</span><span class="w">            </span><span class="n">assert_eq</span><span class="o">!</span><span class="p">(</span><span class="n">threads</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span><span class="w">
-</span><span class="w">            </span><span class="n">assert_eq</span><span class="o">!</span><span class="p">(</span><span class="k">super</span>::<span class="n">blosc_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;1.15.2.dev&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="p">}</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="cp">#[test]</span><span class="w">
-</span><span class="w">    </span><span class="k">fn</span> <span class="nf">sqlite_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="n">assert_eq</span><span class="o">!</span><span class="p">(</span><span class="k">super</span>::<span class="n">sqlite_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;3.29.0&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>View the <code>rust/corelib/src/lib.rs</code> after these changes <a href="https://github.com/buybackoff/RustTheNewC/blob/09fedf20a6da4d547d386c678f57c9ef06cf0d9f/src/rust/corelib/src/lib.rs">here</a>.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-12-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-1"> 1</a></span><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">blosc_sys</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-2"> 2</a></span><span class="cl"><span class="w"></span><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">lmdb_sys</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-3"> 3</a></span><span class="cl"><span class="w"></span><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">sqlite_sys</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-4"> 4</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-5"> 5</a></span><span class="cl"><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">libc</span>::<span class="o">*</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-6"> 6</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-7"> 7</a></span><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">lmdb_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-8"> 8</a></span><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-9"> 9</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">major</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-10">10</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">minor</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-11">11</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">patch</span>: <span class="nc">c_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Default</span>::<span class="n">default</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-12">12</a></span><span class="cl"><span class="w">        </span><span class="n">lmdb_sys</span>::<span class="n">mdb_version</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">major</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">patch</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-13">13</a></span><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="fm">format!</span><span class="p">(</span><span class="s">&#34;{}.{}.{}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">major</span><span class="p">,</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="n">patch</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-14">14</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-15">15</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-16">16</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-17">17</a></span><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">blosc_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-18">18</a></span><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-19">19</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blosc_sys</span>::<span class="n">blosc_get_version_string</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-20">20</a></span><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CStr</span>::<span class="n">from_ptr</span><span class="p">(</span><span class="n">cptr</span><span class="p">).</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">to_owned</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-21">21</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-22">22</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-23">23</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-24">24</a></span><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">sqlite_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-25">25</a></span><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-26">26</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite_sys</span>::<span class="n">sqlite3_libversion</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-27">27</a></span><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CStr</span>::<span class="n">from_ptr</span><span class="p">(</span><span class="n">cptr</span><span class="p">).</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">to_owned</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-28">28</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-12-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-29">29</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Then add tests in the same file:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-13-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-1"> 1</a></span><span class="cl"><span class="cp">#[cfg(test)]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-2"> 2</a></span><span class="cl"><span class="w"></span><span class="k">mod</span> <span class="nn">tests</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-3"> 3</a></span><span class="cl"><span class="w">    </span><span class="cp">#[test]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-4"> 4</a></span><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">lmdb_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-5"> 5</a></span><span class="cl"><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="k">super</span>::<span class="n">lmdb_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;0.9.70&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-6"> 6</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-7"> 7</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-8"> 8</a></span><span class="cl"><span class="w">    </span><span class="cp">#[test]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-9"> 9</a></span><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">blosc_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-10">10</a></span><span class="cl"><span class="w">        </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-11">11</a></span><span class="cl"><span class="w">            </span><span class="n">blosc_sys</span>::<span class="n">blosc_set_nthreads</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-12">12</a></span><span class="cl"><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blosc_sys</span>::<span class="n">blosc_get_nthreads</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-13">13</a></span><span class="cl"><span class="w">            </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="n">threads</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-14">14</a></span><span class="cl"><span class="w">            </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="k">super</span>::<span class="n">blosc_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;1.15.2.dev&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-15">15</a></span><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-16">16</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-17">17</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-18">18</a></span><span class="cl"><span class="w">    </span><span class="cp">#[test]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-19">19</a></span><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">sqlite_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-20">20</a></span><span class="cl"><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="k">super</span>::<span class="n">sqlite_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;3.29.0&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-21">21</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-13-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-22">22</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>View the <code>rust/corelib/src/lib.rs</code> after these changes <a href="https://github.com/buybackoff/RustTheNewC/blob/09fedf20a6da4d547d386c678f57c9ef06cf0d9f/src/rust/corelib/src/lib.rs">here</a>.</p>
 <p>Run <code>cargo test</code> to ensure that everything works.</p>
-
 <h3 id="debug-locally-and-in-containers">Debug locally and in containers</h3>
-
 <p>Debugging Rust (especially on Windows with MSVC target) used to be hard or impossible quite recently, but now it is very simple and &ldquo;just works&rdquo;.</p>
-
 <p>To simplify debugging we need an executable with a custom entry point (since I couldn&rsquo;t find a way to easily debug an individual unit test).</p>
-
 <p>Add a <code>sandbox</code> package to the workspace that depends on <code>corelib</code> and put the following lines in its <code>main.rs</code> file:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">corelib</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;LMDB: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">lmdb_version</span><span class="p">());</span><span class="w">
-</span><span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Blosc: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">blosc_version</span><span class="p">());</span><span class="w">
-</span><span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;SQLite: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">sqlite_version</span><span class="p">());</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p><a href="https://github.com/buybackoff/RustTheNewC/commit/bc120b66f52ca62f529dd93d0f27c589a9f04e63">Browse the changes in git commit</a>.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-14-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-1">1</a></span><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">corelib</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-2">2</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-3">3</a></span><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-4">4</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;LMDB: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">lmdb_version</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-5">5</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Blosc: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">blosc_version</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-6">6</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;SQLite: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">sqlite_version</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-14-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-7">7</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p><a href="https://github.com/buybackoff/RustTheNewC/commit/bc120b66f52ca62f529dd93d0f27c589a9f04e63">Browse the changes in git commit</a>.</p>
 <h4 id="local-debug-with-msvc-target">Local debug with MSVC target</h4>
-
 <p>Add C/C++ extension to VSCode if it is not there already. Then select the Debug tab at the left bar
 and select &ldquo;Add configuration&hellip;&rdquo; option from the dropdown box next to the green &ldquo;Run&rdquo; icon.
 Then select &ldquo;C/C++: (Windows) launch&rdquo; command. It will populate <code>.vscode/launch.json</code> file with
 a debug config template. The only line to change there is <code>&quot;program&quot;</code>. The entire config section
 should look like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Rust Sandbox Win&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;cppvsdbg&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;request&#34;</span><span class="p">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;${workspaceFolder}/target/debug/sandbox.exe&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;args&#34;</span><span class="p">:</span> <span class="p">[],</span>
-  <span class="nt">&#34;stopAtEntry&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-  <span class="nt">&#34;cwd&#34;</span><span class="p">:</span> <span class="s2">&#34;${workspaceFolder}&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;environment&#34;</span><span class="p">:</span> <span class="p">[],</span>
-  <span class="nt">&#34;externalConsole&#34;</span><span class="p">:</span> <span class="kc">false</span>
-<span class="p">}</span></code></pre></div>
-<p>After saving the file we could set breakpoints in <code>sandbox/src/main.rs</code> file or
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="ln" id="hl-15-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-1"> 1</a></span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-15-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-2"> 2</a></span><span class="cl">  <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Rust Sandbox Win&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-3"> 3</a></span><span class="cl">  <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;cppvsdbg&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-4"> 4</a></span><span class="cl">  <span class="nt">&#34;request&#34;</span><span class="p">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-5"> 5</a></span><span class="cl">  <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;${workspaceFolder}/target/debug/sandbox.exe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-6"> 6</a></span><span class="cl">  <span class="nt">&#34;args&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="ln" id="hl-15-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-7"> 7</a></span><span class="cl">  <span class="nt">&#34;stopAtEntry&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-8"> 8</a></span><span class="cl">  <span class="nt">&#34;cwd&#34;</span><span class="p">:</span> <span class="s2">&#34;${workspaceFolder}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln" id="hl-15-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-9"> 9</a></span><span class="cl">  <span class="nt">&#34;environment&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="ln" id="hl-15-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-10">10</a></span><span class="cl">  <span class="nt">&#34;externalConsole&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln" id="hl-15-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-11">11</a></span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>After saving the file we could set breakpoints in <code>sandbox/src/main.rs</code> file or
 any <code>corelib</code> file and launch a debugging session. See this <a href="https://www.forrestthewoods.com/blog/how-to-debug-rust-with-visual-studio-code/">blog post</a>
 for more details and instructions for OS X / Linux.</p>
-
 <h4 id="debugging-in-containers">Debugging in containers</h4>
-
 <blockquote>
 <p>This requires Docker and for Windows this, unfortunately, means only Windows Pro version. Maybe there is a way to debug Rust in
 Docker running in WSL but it is out of the scope of this post. I believe upgrading to Pro is simpler and cheaper in the long run if one
 develops software mainly on Window but needs containers.</p>
 </blockquote>
-
 <p>Debugging Rust code in Docker containers is surprisingly easy. See a <a href="https://code.visualstudio.com/docs/remote/containers">VSCode tutorial</a> on the subject.</p>
-
 <p>There is a Rust sample at <a href="https://github.com/microsoft/vscode-remote-try-rust">https://github.com/microsoft/vscode-remote-try-rust</a> that works fine
 for simple Rust code. In our case with native dependencies we have to modify the <a href="https://github.com/microsoft/vscode-remote-try-rust/blob/master/.devcontainer/Dockerfile">original <code>Dockerfile</code></a> to install <code>clang</code> and <code>cmake</code>:</p>
-
-<pre><code>...
-# Install clang
-# From https://gist.github.com/twlz0ne/9faf00346a2acf10044c54f9ba0b9805#file-dockerfile
-&amp;&amp; apt-get update &amp;&amp; apt-get install -y gnupg wget software-properties-common \
-&amp;&amp; wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
-&amp;&amp; apt-add-repository &quot;deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-6.0 main&quot; \
-&amp;&amp; apt-get update &amp;&amp; apt-get install -y clang-6.0 \
-#
-# Install CMake
-&amp;&amp; wget https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.sh \
-&amp;&amp; mkdir /opt/cmake \
-&amp;&amp; sh cmake-3.8.2-Linux-x86_64.sh --prefix=/opt/cmake --skip-license \
-&amp;&amp; ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake \
-...
-</code></pre>
-
-<p>To run the debugger in a container click on the green <span style="background: green; color:white;"> &gt;&lt;</span> icon
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln" id="hl-16-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-1"> 1</a></span><span class="cl">...
+</span></span><span class="line"><span class="ln" id="hl-16-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-2"> 2</a></span><span class="cl"># Install clang
+</span></span><span class="line"><span class="ln" id="hl-16-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-3"> 3</a></span><span class="cl"># From https://gist.github.com/twlz0ne/9faf00346a2acf10044c54f9ba0b9805#file-dockerfile
+</span></span><span class="line"><span class="ln" id="hl-16-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-4"> 4</a></span><span class="cl">&amp;&amp; apt-get update &amp;&amp; apt-get install -y gnupg wget software-properties-common \
+</span></span><span class="line"><span class="ln" id="hl-16-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-5"> 5</a></span><span class="cl">&amp;&amp; wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
+</span></span><span class="line"><span class="ln" id="hl-16-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-6"> 6</a></span><span class="cl">&amp;&amp; apt-add-repository &#34;deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-6.0 main&#34; \
+</span></span><span class="line"><span class="ln" id="hl-16-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-7"> 7</a></span><span class="cl">&amp;&amp; apt-get update &amp;&amp; apt-get install -y clang-6.0 \
+</span></span><span class="line"><span class="ln" id="hl-16-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-8"> 8</a></span><span class="cl">#
+</span></span><span class="line"><span class="ln" id="hl-16-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-9"> 9</a></span><span class="cl"># Install CMake
+</span></span><span class="line"><span class="ln" id="hl-16-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-10">10</a></span><span class="cl">&amp;&amp; wget https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.sh \
+</span></span><span class="line"><span class="ln" id="hl-16-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-11">11</a></span><span class="cl">&amp;&amp; mkdir /opt/cmake \
+</span></span><span class="line"><span class="ln" id="hl-16-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-12">12</a></span><span class="cl">&amp;&amp; sh cmake-3.8.2-Linux-x86_64.sh --prefix=/opt/cmake --skip-license \
+</span></span><span class="line"><span class="ln" id="hl-16-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-13">13</a></span><span class="cl">&amp;&amp; ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake \
+</span></span><span class="line"><span class="ln" id="hl-16-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-14">14</a></span><span class="cl">...
+</span></span></code></pre></div><p>To run the debugger in a container click on the green <span style="background: green; color:white;"> &gt;&laquo;/span&gt; icon
 (at the left-bottom corner of VSCode window in the status bar) and run &ldquo;Remote-Containers: Reopen Folder in Container&rdquo; command.
 The first run is slow because Docker needs to create a container from the <code>Dockerfile</code>, but subsequent runs are quite fast.</p>
-
-<p>When the container is ready we could start the debugger with the <a href="https://github.com/buybackoff/RustTheNewC/blob/1ef295873864c6c5c49d40c3bcce49911460f657/src/rust/.vscode/launch.json#L19-L35">&ldquo;Run Sandbox Container&rdquo; configuration</a>. Or we could execute cargo commands in the container in a new terminal (<code>Ctrl+Shift+`</code>).</p>
-
+<p>When the container is ready we could start the debugger with the <a href="https://github.com/buybackoff/RustTheNewC/blob/1ef295873864c6c5c49d40c3bcce49911460f657/src/rust/.vscode/launch.json#L19-L35">&ldquo;Run Sandbox Container&rdquo; configuration</a>. Or we could execute cargo commands in the container in a new terminal (<code>Ctrl+Shift+` </code>).</p>
 <p>All changes required for container debugging are in <a href="https://github.com/buybackoff/RustTheNewC/commit/1ef295873864c6c5c49d40c3bcce49911460f657">this commit</a>.</p>
-
 <h3 id="speed-up-build">Speed up build</h3>
-
 <p>We do not need to regenerate bindings on every build. The generation step
 takes noticeable time, especially for SQLite. After we have checked that
 all dependencies work from the shared corelib we could just comment out
 the binding generation step in <code>build.rs</code> files.</p>
-
 <p>Probably there is a cleaner solution using features or something else.
 But bindings could only change after we update the source code or change
 build logic inside <code>build.rs</code> files, so keeping generation code commented out
 in the build script is a quick fix. After doing so only <code>corelib</code> is
 incrementally recompiled.</p>
-
 <p><a href="https://github.com/buybackoff/RustTheNewC/commit/5bddc1fd467a844999bcb0826ef0952ceea46291">Git commit</a></p>
-
 <h3 id="simple-c-method">Simple C method</h3>
-
 <p>We start with the simplest C API from Rust library: just return a string with versions
 of native dependencies. This method calls methods from each native dependency so
 technically it does combine native functionality using Rust and exposes it as if
 we were doing so in C.</p>
-
 <p>But even such a simple method has complications. Rust <code>String</code> is not a C string (a pointer to null-terminated chars),
 so we need to convert it to owned <code>CString</code>. But the memory behind the <code>CString</code> is owned by Rust and
 we need to leak it first before returning it to the external world and to destroy the object later.</p>
-
 <p>Add the following methods to <code>rust/corelib/src/lib.rs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span><span class="p">;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
-</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">native_versions_get</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="n">c_char</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">format</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;LMDB: {}\nBlosc: {}\nSQLite: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">lmdb_version</span><span class="p">(),</span><span class="w"> </span><span class="n">blosc_version</span><span class="p">(),</span><span class="w"> </span><span class="n">sqlite_version</span><span class="p">());</span><span class="w">
-</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CString</span>::<span class="n">new</span><span class="p">(</span><span class="n">s</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
-</span><span class="w">    </span><span class="n">cs</span><span class="p">.</span><span class="n">into_raw</span><span class="p">()</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
-</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">native_versions_free</span><span class="p">(</span><span class="n">c</span>: <span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="n">c_char</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w">    </span><span class="c1">// CString is dropped automatically when does out of scope
-</span><span class="c1"></span><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w">    </span><span class="c1">// Print diagnostics in debug build
-</span><span class="c1"></span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">cfg</span><span class="o">!</span><span class="p">(</span><span class="n">debug_assertions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Rust string is dropped&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>And a test:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="cp">#[test]</span><span class="w">
-</span><span class="w"></span><span class="k">fn</span> <span class="nf">native_versions_get_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">unsafe</span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">nv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">super</span>::<span class="n">native_versions_get</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="n">assert_eq</span><span class="o">!</span><span class="p">(</span><span class="n">cs</span><span class="p">.</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;LMDB: 0.9.70\nBlosc: 1.15.2.dev\nSQLite: 3.29.0&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">forget</span><span class="p">(</span><span class="n">cs</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="k">super</span>::<span class="n">native_versions_free</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Update sandbox main method to this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="k">unsafe</span><span class="p">{</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">nv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">native_versions_get</span><span class="p">();</span><span class="w">
-</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
-</span><span class="w">        </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;{}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">cs</span><span class="p">.</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">());</span><span class="w">
-</span><span class="w">        </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">forget</span><span class="p">(</span><span class="n">cs</span><span class="p">);</span><span class="w"> </span><span class="c1">// Do not drop, we need to return it back to destructor to simulate desired behavior
-</span><span class="c1"></span><span class="w">        </span><span class="n">corelib</span>::<span class="n">native_versions_free</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
-</span><span class="w">    </span><span class="p">}</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Run <code>cargo test</code> and <code>cargo run</code> to ensure that everything work.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-17-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-1"> 1</a></span><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-2"> 2</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-3"> 3</a></span><span class="cl"><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-4"> 4</a></span><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">native_versions_get</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="n">c_char</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-5"> 5</a></span><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">format!</span><span class="p">(</span><span class="s">&#34;LMDB: {}\nBlosc: {}\nSQLite: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">lmdb_version</span><span class="p">(),</span><span class="w"> </span><span class="n">blosc_version</span><span class="p">(),</span><span class="w"> </span><span class="n">sqlite_version</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-6"> 6</a></span><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CString</span>::<span class="n">new</span><span class="p">(</span><span class="n">s</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-7"> 7</a></span><span class="cl"><span class="w">    </span><span class="n">cs</span><span class="p">.</span><span class="n">into_raw</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-8"> 8</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-9"> 9</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-10">10</a></span><span class="cl"><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-11">11</a></span><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">native_versions_free</span><span class="p">(</span><span class="n">c</span>: <span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="n">c_char</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-12">12</a></span><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-13">13</a></span><span class="cl"><span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-14">14</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-15">15</a></span><span class="cl"><span class="w">    </span><span class="c1">// CString is dropped automatically when does out of scope
+</span></span></span><span class="line"><span class="ln" id="hl-17-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-16">16</a></span><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-17">17</a></span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-18">18</a></span><span class="cl"><span class="w">    </span><span class="c1">// Print diagnostics in debug build
+</span></span></span><span class="line"><span class="ln" id="hl-17-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-19">19</a></span><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="fm">cfg!</span><span class="p">(</span><span class="n">debug_assertions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-20">20</a></span><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Rust string is dropped&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-21">21</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-17-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-22">22</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>And a test:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-18-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-1"> 1</a></span><span class="cl"><span class="cp">#[test]</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-2"> 2</a></span><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">native_versions_get_works</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-3"> 3</a></span><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-4"> 4</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">nv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">super</span>::<span class="n">native_versions_get</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-5"> 5</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-6"> 6</a></span><span class="cl"><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="n">cs</span><span class="p">.</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;LMDB: 0.9.70\nBlosc: 1.15.2.dev\nSQLite: 3.29.0&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-7"> 7</a></span><span class="cl"><span class="w">        </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">forget</span><span class="p">(</span><span class="n">cs</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-8"> 8</a></span><span class="cl"><span class="w">        </span><span class="k">super</span>::<span class="n">native_versions_free</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-9"> 9</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-18-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-18-10">10</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Update sandbox main method to this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-19-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-1">1</a></span><span class="cl"><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-2">2</a></span><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-3">3</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">nv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">native_versions_get</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-4">4</a></span><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">cs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">ffi</span>::<span class="n">CString</span>::<span class="n">from_raw</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-5">5</a></span><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;{}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">cs</span><span class="p">.</span><span class="n">to_str</span><span class="p">().</span><span class="n">unwrap</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-6">6</a></span><span class="cl"><span class="w">        </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">forget</span><span class="p">(</span><span class="n">cs</span><span class="p">);</span><span class="w"> </span><span class="c1">// Do not drop, we need to return it back to destructor to simulate desired behavior
+</span></span></span><span class="line"><span class="ln" id="hl-19-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-7">7</a></span><span class="cl"><span class="c1"></span><span class="w">        </span><span class="n">corelib</span>::<span class="n">native_versions_free</span><span class="p">(</span><span class="n">nv</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-8">8</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-19-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-9">9</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Run <code>cargo test</code> and <code>cargo run</code> to ensure that everything work.</p>
 <p><a href="https://github.com/buybackoff/RustTheNewC/commit/5c8352ebc920c7558addf3bcbf3b631a3ac5a260">Git commit</a></p>
-
 <h3 id="release-build">Release build</h3>
-
 <p>Add the following lines to <code>rust/Cargo.toml</code> for explicit control over build parameters:</p>
-
-<pre><code>[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = true
-debug-assertions = false
-panic = 'abort'
-</code></pre>
-
-<p>Run <code>cargo build --release</code>.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln" id="hl-20-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-1">1</a></span><span class="cl">[profile.release]
+</span></span><span class="line"><span class="ln" id="hl-20-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-2">2</a></span><span class="cl">opt-level = 3
+</span></span><span class="line"><span class="ln" id="hl-20-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-3">3</a></span><span class="cl">debug = false
+</span></span><span class="line"><span class="ln" id="hl-20-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-4">4</a></span><span class="cl">rpath = false
+</span></span><span class="line"><span class="ln" id="hl-20-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-5">5</a></span><span class="cl">lto = true
+</span></span><span class="line"><span class="ln" id="hl-20-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-6">6</a></span><span class="cl">debug-assertions = false
+</span></span><span class="line"><span class="ln" id="hl-20-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-7">7</a></span><span class="cl">panic = &#39;abort&#39;
+</span></span></code></pre></div><p>Run <code>cargo build --release</code>.</p>
 <p>The final shared library is <code>rust/target/release/corelib.dll</code>. Open that file
 with <a href="https://github.com/lucasg/Dependencies">Dependencies</a> utility to make sure
 that the two methods <code>native_versions_get</code> and <code>native_versions_free</code> are exported.</p>
-
 <p>The shared library is ready for consumption from other languages.</p>
-
 <p><a href="https://github.com/buybackoff/RustTheNewC/commit/6e2a37f27c1b99a1ce9250f2eb9c6252a6ad8f99">Git commit</a></p>
-
 <h2 id="clients">Clients</h2>
-
 <h3 id="net-core">.NET Core</h3>
-
 <blockquote>
 <p>Install .NET Core SDK from <a href="https://dotnet.microsoft.com/download/dotnet-core">here</a>. This example
 uses the LTS version 2.1.</p>
 </blockquote>
-
 <p>.NET has probably the easiest way to use native dependencies via P/Invoke. Open
 <a href="https://github.com/buybackoff/RustTheNewC/tree/master/src/dotnet"><code>dotnet</code></a> folder
 in a separate VSCode window and run <code>dotnet init console</code> in the terminal.
 Rename <code>dotnet.csproj</code> to <code>RustTheNewC</code> (optional, just to match this example).</p>
-
 <p>Add the following piece to the <a href="https://github.com/buybackoff/RustTheNewC/blob/b036a69dbfe07e547abc16e8583e2b0ef346c776/src/dotnet/RustTheNewC.csproj">project file</a>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;ItemGroup&gt;</span>
-  <span class="nt">&lt;None</span> <span class="na">Include=</span><span class="s">&#34;..\rust\target\$(Configuration)\corelib.dll&#34;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Pack&gt;</span>true<span class="nt">&lt;/Pack&gt;</span>
-    <span class="nt">&lt;PackagePath&gt;</span>runtimes/win-x64/native<span class="nt">&lt;/PackagePath&gt;</span>
-    <span class="nt">&lt;CopyToOutputDirectory&gt;</span>PreserveNewest<span class="nt">&lt;/CopyToOutputDirectory&gt;</span>
-  <span class="nt">&lt;/None&gt;</span>
-<span class="nt">&lt;/ItemGroup&gt;</span></code></pre></div>
-<p>The part <code>$(Configuration)</code> is replaced by either <code>Debug</code> or <code>Release</code> depending on dotnet build configuration. This matches nicely
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="ln" id="hl-21-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-1">1</a></span><span class="cl"><span class="nt">&lt;ItemGroup&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-2">2</a></span><span class="cl">  <span class="nt">&lt;None</span> <span class="na">Include=</span><span class="s">&#34;..\rust\target\$(Configuration)\corelib.dll&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-3">3</a></span><span class="cl">    <span class="nt">&lt;Pack&gt;</span>true<span class="nt">&lt;/Pack&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-4">4</a></span><span class="cl">    <span class="nt">&lt;PackagePath&gt;</span>runtimes/win-x64/native<span class="nt">&lt;/PackagePath&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-5">5</a></span><span class="cl">    <span class="nt">&lt;CopyToOutputDirectory&gt;</span>PreserveNewest<span class="nt">&lt;/CopyToOutputDirectory&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-6">6</a></span><span class="cl">  <span class="nt">&lt;/None&gt;</span>
+</span></span><span class="line"><span class="ln" id="hl-21-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-7">7</a></span><span class="cl"><span class="nt">&lt;/ItemGroup&gt;</span>
+</span></span></code></pre></div><p>The part <code>$(Configuration)</code> is replaced by either <code>Debug</code> or <code>Release</code> depending on dotnet build configuration. This matches nicely
 to the <code>rust/target</code> output folder layout and uses the fact that the file path is case-insensitive on Windows.</p>
-
 <p>The line <code>&lt;Pack&gt;true&lt;/Pack&gt;</code> adds the native library to a NuGet package
 that could be produced by <code>dotnet pack -c Release</code> command.</p>
-
 <p>The line <code>&lt;PackagePath&gt;runtimes/win-x64/native&lt;/PackagePath&gt;</code> places the native library to a special
 location inside the package so that the library is automatically loaded.</p>
-
 <p>The line <code>&lt;CopyToOutputDirectory&gt;PreserveNewest&lt;/CopyToOutputDirectory&gt;</code> is needed to copy the native library
 to the binary output folder so that this example could find it.</p>
-
 <p>Replace the content of <code>Program.cs</code> with the following code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
-<span class="k">using</span> <span class="nn">System.Runtime.InteropServices</span><span class="p">;</span>
-<span class="k">using</span> <span class="nn">System.Text</span><span class="p">;</span>
-
-<span class="k">namespace</span> <span class="nn">RustTheNewC</span>
-<span class="p">{</span>
-    <span class="k">internal</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">Program</span>
-    <span class="p">{</span>
-        <span class="k">private</span> <span class="k">const</span> <span class="kt">string</span> <span class="n">NativeLibraryName</span> <span class="p">=</span> <span class="s">&#34;corelib&#34;</span><span class="p">;</span><span class="na">
-</span><span class="na">
-</span><span class="na">        [DllImport(NativeLibraryName, CallingConvention = CallingConvention.Cdecl)]</span>
-        <span class="k">public</span> <span class="k">static</span> <span class="k">extern</span> <span class="n">IntPtr</span> <span class="n">native_versions_get</span><span class="p">();</span><span class="na">
-</span><span class="na">
-</span><span class="na">        [DllImport(NativeLibraryName, CallingConvention = CallingConvention.Cdecl)]</span>
-        <span class="k">public</span> <span class="k">static</span> <span class="k">extern</span> <span class="k">void</span> <span class="n">native_versions_free</span><span class="p">(</span><span class="n">IntPtr</span> <span class="n">cString</span><span class="p">);</span>
-
-        <span class="k">private</span> <span class="k">static</span> <span class="k">void</span> <span class="n">Main</span><span class="p">(</span><span class="kt">string</span><span class="na">[]</span> <span class="n">args</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="kt">var</span> <span class="n">cStringPtr</span> <span class="p">=</span> <span class="n">native_versions_get</span><span class="p">();</span>
-            <span class="k">try</span>
-            <span class="p">{</span>
-                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">PtrToStringUtf8</span><span class="p">(</span><span class="n">cStringPtr</span><span class="p">));</span>
-            <span class="p">}</span>
-            <span class="k">finally</span>
-            <span class="p">{</span>
-                <span class="n">native_versions_free</span><span class="p">(</span><span class="n">cStringPtr</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="k">private</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">PtrToStringUtf8</span><span class="p">(</span><span class="n">IntPtr</span> <span class="n">ptr</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">ptr</span> <span class="p">==</span> <span class="n">IntPtr</span><span class="p">.</span><span class="n">Zero</span><span class="p">)</span>
-            <span class="p">{</span>
-                <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
-            <span class="p">}</span>
-
-            <span class="kt">var</span> <span class="n">i</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
-            <span class="k">while</span> <span class="p">(</span><span class="n">Marshal</span><span class="p">.</span><span class="n">ReadByte</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="p">)</span>
-            <span class="p">{</span>
-                <span class="n">i</span><span class="p">++;</span>
-            <span class="p">}</span>
-
-            <span class="kt">var</span> <span class="n">bytes</span> <span class="p">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="na">[i]</span><span class="p">;</span>
-            <span class="n">Marshal</span><span class="p">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-
-            <span class="k">return</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetString</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>Run <code>dotnet run</code> (debug build) or <code>dotnet run -c Release</code>. These two builds use different
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="line"><span class="ln" id="hl-22-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-1"> 1</a></span><span class="cl"><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-2"> 2</a></span><span class="cl"><span class="k">using</span> <span class="nn">System.Runtime.InteropServices</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-3"> 3</a></span><span class="cl"><span class="k">using</span> <span class="nn">System.Text</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-4"> 4</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-5"> 5</a></span><span class="cl"><span class="k">namespace</span> <span class="nn">RustTheNewC</span>
+</span></span><span class="line"><span class="ln" id="hl-22-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-6"> 6</a></span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-7"> 7</a></span><span class="cl">    <span class="k">internal</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">Program</span>
+</span></span><span class="line"><span class="ln" id="hl-22-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-8"> 8</a></span><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-9"> 9</a></span><span class="cl">        <span class="k">private</span> <span class="k">const</span> <span class="kt">string</span> <span class="n">NativeLibraryName</span> <span class="p">=</span> <span class="s">&#34;corelib&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-10">10</a></span><span class="cl"><span class="na">
+</span></span></span><span class="line"><span class="ln" id="hl-22-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-11">11</a></span><span class="cl"><span class="na">        [DllImport(NativeLibraryName, CallingConvention = CallingConvention.Cdecl)]</span>
+</span></span><span class="line"><span class="ln" id="hl-22-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-12">12</a></span><span class="cl">        <span class="k">public</span> <span class="k">static</span> <span class="k">extern</span> <span class="n">IntPtr</span> <span class="n">native_versions_get</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln" id="hl-22-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-13">13</a></span><span class="cl"><span class="na">
+</span></span></span><span class="line"><span class="ln" id="hl-22-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-14">14</a></span><span class="cl"><span class="na">        [DllImport(NativeLibraryName, CallingConvention = CallingConvention.Cdecl)]</span>
+</span></span><span class="line"><span class="ln" id="hl-22-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-15">15</a></span><span class="cl">        <span class="k">public</span> <span class="k">static</span> <span class="k">extern</span> <span class="k">void</span> <span class="n">native_versions_free</span><span class="p">(</span><span class="n">IntPtr</span> <span class="n">cString</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-22-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-16">16</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-17">17</a></span><span class="cl">        <span class="k">private</span> <span class="k">static</span> <span class="k">void</span> <span class="n">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-22-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-18">18</a></span><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-19">19</a></span><span class="cl">            <span class="kt">var</span> <span class="n">cStringPtr</span> <span class="p">=</span> <span class="n">native_versions_get</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln" id="hl-22-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-20">20</a></span><span class="cl">            <span class="k">try</span>
+</span></span><span class="line"><span class="ln" id="hl-22-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-21">21</a></span><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-22">22</a></span><span class="cl">                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">PtrToStringUtf8</span><span class="p">(</span><span class="n">cStringPtr</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln" id="hl-22-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-23">23</a></span><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-24">24</a></span><span class="cl">            <span class="k">finally</span>
+</span></span><span class="line"><span class="ln" id="hl-22-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-25">25</a></span><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-26">26</a></span><span class="cl">                <span class="n">native_versions_free</span><span class="p">(</span><span class="n">cStringPtr</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-22-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-27">27</a></span><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-28">28</a></span><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-29">29</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-30">30</a></span><span class="cl">        <span class="k">private</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">PtrToStringUtf8</span><span class="p">(</span><span class="n">IntPtr</span> <span class="n">ptr</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-22-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-31">31</a></span><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-32">32</a></span><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">ptr</span> <span class="p">==</span> <span class="n">IntPtr</span><span class="p">.</span><span class="n">Zero</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-22-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-33">33</a></span><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-34">34</a></span><span class="cl">                <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-35">35</a></span><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-36">36</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-37">37</a></span><span class="cl">            <span class="kt">var</span> <span class="n">i</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-38">38</a></span><span class="cl">            <span class="k">while</span> <span class="p">(</span><span class="n">Marshal</span><span class="p">.</span><span class="n">ReadByte</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-22-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-39">39</a></span><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-22-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-40">40</a></span><span class="cl">                <span class="n">i</span><span class="p">++;</span>
+</span></span><span class="line"><span class="ln" id="hl-22-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-41">41</a></span><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-42">42</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-43"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-43">43</a></span><span class="cl">            <span class="kt">var</span> <span class="n">bytes</span> <span class="p">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln" id="hl-22-44"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-44">44</a></span><span class="cl">            <span class="n">Marshal</span><span class="p">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-22-45"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-45">45</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-22-46"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-46">46</a></span><span class="cl">            <span class="k">return</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetString</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-22-47"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-47">47</a></span><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-48"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-48">48</a></span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-22-49"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-49">49</a></span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Run <code>dotnet run</code> (debug build) or <code>dotnet run -c Release</code>. These two builds use different
 native libraries. The Rust debug library has this part in the string destructor:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="k">if</span><span class="w"> </span><span class="n">cfg</span><span class="o">!</span><span class="p">(</span><span class="n">debug_assertions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Rust string is dropped&#34;</span><span class="p">);</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>You should see that line printed after the native library versions in dotnet debug build.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Rust" data-lang="Rust"><span class="line"><span class="ln" id="hl-23-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-23-1">1</a></span><span class="cl"><span class="k">if</span><span class="w"> </span><span class="fm">cfg!</span><span class="p">(</span><span class="n">debug_assertions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-23-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-23-2">2</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Rust string is dropped&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="ln" id="hl-23-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-23-3">3</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>You should see that line printed after the native library versions in dotnet debug build.</p>
 <p><a href="https://github.com/buybackoff/RustTheNewC/commit/b036a69dbfe07e547abc16e8583e2b0ef346c776">Git commit</a></p>
-
 <h3 id="other-languages">Other languages</h3>
-
 <p>To be done in part 2.</p>
-
 <h2 id="conclusion">Conclusion</h2>
-
 <p>So far Rust feels quite solid and stable. Cargo + build.rs + cc/cmake/bindgen are much better
 than manual work with Makefiles and CMakeList.txt. ML-like syntax is great, previous F# experience makes it feel natural.
 C# 7 <code>ref readonly</code> and <code>ref</code> are somewhat close to <code>&amp;</code> and <code>&amp;mut</code> from mental model perspective,
 previous experience with unsafe and by ref C# also helps. Rust obsession with safety and borrow
 checker are nice to have for complex threaded code, but they could be worked around with <code>unsafe</code> for
 simple glue code.</p>
-
-<p>I will publish part 2 and 3 hopefully this summer.</p>
+<p><del>I will publish part 2 and 3 hopefully this summer.</del></p>
+<blockquote>
+<p>2024 update: that year I was busy relocating to France - new country, new job, new covid, new war&hellip; It&rsquo;s now irrelevant to continue on this subject.</p>
+</blockquote>
 
 </div>
 
         <footer class="post-footer clearfix">
-    
         <p class="post-tags">
             <span>Tagged:</span>
-            
-            
                 <a href="/tags/rust/">Rust</a>, 
-            
                 <a href="/tags/ffi/">ffi</a>
-            
         </p>
-    
-
     <div class="share">
-        
-            <a class="icon-twitter" href="https://twitter.com/share?text=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f"
-                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                <i class="fa fa-twitter"></i>
-                <span class="hidden">Twitter</span>
+            <a class="icon-twitter" href="https://twitter.com/share?text=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" aria-label="Share on Twitter">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
             </a>
-        
-
-        
-            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f"
-                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                <i class="fa fa-facebook"></i>
-                <span class="hidden">Facebook</span>
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f&summary=Evaluating%20Rust%20as%20the%20common%20denominator%20of%20modern%20development"
+               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;" aria-label="Share on LinkedIn">
+               <i class="fa fa-linkedin" aria-hidden="true"></i>
             </a>
-        
-
-        
-        
-            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=http%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f&summary=Evaluating%20Rust%20as%20the%20common%20denominator%20of%20modern%20development"
-               onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;">
-               <i class="fa fa-linkedin"></i>
-               <span class="hidden">LinkedIn</span>
-            </a>
-        
     </div>
 </footer>
 
@@ -814,7 +695,7 @@ simple glue code.</p>
 <div class="comments">
     <div id="disqus_thread"></div>
     <script type="text/javascript">
-        var disqus_identifier = 'http:\/\/hotforknowledge.com\/2019\/07\/14\/6-rust-the-new-c\/';
+        var disqus_identifier = 'https:\/\/hotforknowledge.com\/2019\/07\/14\/6-rust-the-new-c\/';
 
         (function () {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -845,12 +726,14 @@ simple glue code.</p>
     <div class="container">
         <div class="site-title-wrapper">
             <h1 class="site-title">
-                <a title="Hot For Knowledge" href="http://hotforknowledge.com/">Hot For Knowledge</a>
+                        <a href="https://hotforknowledge.com/">Hot For Knowledge</a>
             </h1>
-            <a class="button-square" href="http://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
+                    <a class="button-square button-jump-top js-jump-top" href="#" aria-label="Back to Top">
+                        <i class="fa fa-angle-up" aria-hidden="true"></i>
+            <a class="button-square" href="https://hotforknowledge.com/index.xml"><i class="fa fa-rss"></i></a>
             <a name="footer"></a>
             
-            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:vbaybekov@gmail.com">
+            <a class="button-square" title="&#xFEFF;Email&#xFEFF;" href="mailto:blog@hotforknowledge.com">
                 <i class="fa fa-envelope"></i>
             </a>
             
@@ -860,14 +743,6 @@ simple glue code.</p>
             </a>
             
             
-            <a class="button-square" title="&#xFEFF;Facebook&#xFEFF;" href="https://www.facebook.com/buybackoff/">
-                <i class="fa fa-facebook-official"></i>
-            </a>
-            
-            
-            <a class="button-square" title="&#xFEFF;Instagram&#xFEFF;" href="https://www.instagram.com/buybackoff/">
-                <i class="fa fa-instagram"></i>
-            </a>
             
             
             
@@ -893,7 +768,7 @@ simple glue code.</p>
         </div>
 
         <p class="footer-copyright">
-            <span>&copy; 2015-2019 Victor Baybekov </span>
+            <span>&copy; 2015-2024 Victor Baybekov </span>
         </p>
         <p class="footer-copyright">
             <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
@@ -906,15 +781,12 @@ simple glue code.</p>
     </div>
 </footer>
 
-<script src="http://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
-<script src="http://hotforknowledge.com/js/jquery.fitvids.js"></script>
+<script src="https://hotforknowledge.com/js/jquery-1.11.3.min.js"></script>
+<script src="https://hotforknowledge.com/js/jquery.fitvids.js"></script>
 
-<script src="http://hotforknowledge.com/js/highlight.pack.js"></script>
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
-<script src="http://hotforknowledge.com/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+<script src="https://hotforknowledge.com/js/scripts.js"></script>
+        
 </body>
 
 </html>

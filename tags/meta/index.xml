@@ -1,33 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>meta on Hot For Knowledge</title>
-    <link>http://hotforknowledge.com/tags/meta/</link>
+    <link>https://hotforknowledge.com/tags/meta/</link>
     <description>Recent content in meta on Hot For Knowledge</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate>
-    
-	<atom:link href="http://hotforknowledge.com/tags/meta/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sat, 15 Oct 2016 15:00:12 +0300</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/meta/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Migrating to Hugo Engine</title>
-      <link>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</link>
+      <link>https://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</link>
       <pubDate>Sat, 15 Oct 2016 15:00:12 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
+      <guid>https://hotforknowledge.com/2016/10/15/3-hugo-website-engine/</guid>
       <description>I have migrated my WordPress blog to Hugo. Since I am not a web publishing expert, I have nothing to say other than the experience was very nice and flexibility is awesome. Markdown + VS Code + git rule them all!
 I didn&amp;rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago. WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything because the entire setup looked fragile.</description>
     </item>
     
     <item>
       <title>My “hacker” background</title>
-      <link>http://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
+      <link>https://hotforknowledge.com/2015/08/23/0-hacker-background/</link>
       <pubDate>Sun, 23 Aug 2015 17:41:56 +0300</pubDate>
       
-      <guid>http://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
+      <guid>https://hotforknowledge.com/2015/08/23/0-hacker-background/</guid>
       <description>On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there or I am not very active there recently. Or this is a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts.</description>
     </item>
     
