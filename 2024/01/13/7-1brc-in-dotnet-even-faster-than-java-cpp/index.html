@@ -111,8 +111,8 @@ in the case of generic data.</p>
 and in yellow background the overall top results <em>by dataset</em>.</p>
 <p><img src="results_summary.png" alt="Results summary"></p>
 <p><a href="results_details.png">Detailed avg/min/max/sigma results</a></p>
-<p>Probably as expected, C++ is the fastest for the default dataset. However, the small difference between C++ and .NET is something less expected even by me. 
-I did expect to beat Java though. It is not the first time .NET has beaten Java. In 2016, Aeron.NET client v.1.0 <a href="https://twitter.com/mjpt777/status/762756320374231040">was faster than Java</a> and <a href="https://github.com/AdaptiveConsulting/Aeron.NET/commits?author=buybackoff">I was there when that happened</a>.</p>
+<p>Probably as expected, C++ is the fastest for the default dataset. However, the small difference between C++ and both .NET and Java is something less expected even by me. 
+I did expect .NET to beat Java though. It is not for the first time it happens. In 2016, Aeron.NET client v.1.0 <a href="https://twitter.com/mjpt777/status/762756320374231040">was faster than Java</a> and <a href="https://github.com/AdaptiveConsulting/Aeron.NET/commits?author=buybackoff">I was there when that happened</a>.</p>
 <p>As for Rust, it will very likely be the leader overall. We just need to wait until the implementation is correct. At the time of writing, <a href="https://github.com/RagnarGrootKoerkamp/1brc/issues/2#issuecomment-1890408828">it was not</a>.</p>
 <p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and the code is very simple.</p>
 <h2 id="extended-dataset">Extended dataset</h2>
@@ -124,7 +124,7 @@ allow for many extreme performance gains. However, the specs say that there may 
 </blockquote>
 <p>To make a fairer comparison I used two datasets:</p>
 <ul>
-<li>The original default one generated with <a href="https://github.com/gunnarmorling/1brc/blob/main/create_measurements.sh">create_measurements.sh</a>. It is 12+GB in size. This dataset has only 416 station names of max length 26 chars.</li>
+<li>The original default one was generated with <a href="https://github.com/gunnarmorling/1brc/blob/main/create_measurements.sh">create_measurements.sh</a>. It is 12+GB in size. This dataset has only 416 station names with a max length of 26 chars.</li>
 <li>The extended dataset with 10K random weather station names that could be as long as the specs allow. It is generated with <a href="https://github.com/gunnarmorling/1brc/blob/main/create_measurements3.sh">create_measurements3.sh</a> and is 17+GB in size. See the quote with the link above for details.</li>
 </ul>
 <p>At the bottom of the table, you can see a separate section for results that perform well on the default dataset but cannot handle the 10K
