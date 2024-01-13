@@ -238,7 +238,7 @@ neither for performance nor for readability. E.g. in the actual first commit the
 because it was easier to think about, but when it was done it was copy-pasted to the <code>.Aggregate()</code> method.</p>
 <p>I was surprised that some people were ready to argue about the mere usage of (P/)LINQ just because they have heard that 
 it&rsquo;s slow. They obviously do not know .NET well and do not distinguish between the hot and the cold paths.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a></span><span class="cl"><span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="n">SplitIntoMemoryChunks</span><span class="p">()</span> <span class="c1">// Break the entire mmap into equals chunks for each CPU</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a></span><span class="cl"><span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="n">SplitIntoMemoryChunks</span><span class="p">()</span> <span class="c1">// Break the entire mmap into equal chunks for each CPU</span>
 </span></span><span class="line"><span class="ln" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a></span><span class="cl">    <span class="p">.</span><span class="n">AsParallel</span><span class="p">().</span><span class="n">WithDegreeOfParallelism</span><span class="p">(</span><span class="n">_threads</span><span class="p">)</span> <span class="c1">// Distribute to all CPU cores</span>
 </span></span><span class="line"><span class="ln" id="hl-3-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-3">3</a></span><span class="cl">    <span class="p">.</span><span class="n">Select</span><span class="p">((</span><span class="n">tuple</span> <span class="p">=&gt;</span> <span class="n">ProcessChunk</span><span class="p">(</span><span class="n">tuple</span><span class="p">.</span><span class="n">start</span><span class="p">,</span> <span class="n">tuple</span><span class="p">.</span><span class="n">length</span><span class="p">)))</span> <span class="c1">// Do ProcessChunk work on each CPU.</span>
 </span></span><span class="line"><span class="ln" id="hl-3-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-4">4</a></span><span class="cl">    <span class="p">.</span><span class="n">Aggregate</span><span class="p">((</span><span class="n">result</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="cm">/* Merge results ... */</span> <span class="p">})</span>
@@ -392,7 +392,7 @@ the temperature is between -99.9 and 99.9 (<code>[-]?[0-9]?[0-9][.][0-9]</code>)
 | Time: 3.693 / 8.604 (10K)
 </tt></p>
 <p>In the native world, it&rsquo;s normal to use <code>size_t</code> native size type for offset and length, because CPUs are faster to work with native words.
-In .NET most public APIs accept a 32-but <code>int</code> for that. CPUs have to expand it to <code>nint</code> every time. But internally .NET itself uses
+In .NET most public APIs accept a 32-bit <code>int</code> for that. CPUs have to expand it to <code>nint</code> every time. But internally .NET itself uses
 native integers.</p>
 <p>E.g. here is the code with comments for <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/SpanHelpers.Byte.cs,760"><code>SpanHelpers.SequenceEqual</code></a>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1">1</a></span><span class="cl"><span class="c1">// Optimized byte-based SequenceEquals. The &#34;length&#34; parameter for this one </span>
@@ -466,7 +466,7 @@ E.g. <a href="https://github.com/fsharp/fslang-design/blob/main/FSharp-6.0/FS-10
 <p>Here it’s impossible for me not to mention that I also improved F# performance a lot by <a href="https://github.com/dotnet/fsharp/pull/10188">making</a>
 its core <code>Map</code>and <code>Set</code> data structures (AVL-tree internally) substantially faster 
 in a <a href="https://github.com/dotnet/fsharp/commits?author=buybackoff">series</a> of commits in 2020.</p>
-<p>Of course, Frank Krueger&rsquo;s F# implementation is far from idiomatic functional F# code, as the author admits. 
+<p>Of course, <a href="https://github.com/praeclarum/1brc">Frank Krueger&rsquo;s F# implementation</a> is far from idiomatic functional F# code, as the author admits. 
 But if you are already using F# code and do not want to touch C#, you could write C-like code in F# as well.
 Just do not overdose, hide it inside a pure function and tell no one. 😉</p>
 <h1 id="high-performance-net-code-as-a-daily-routine-aka-come-work-with-us">High-performance .NET code as a daily routine, aka come work with us</h1>
