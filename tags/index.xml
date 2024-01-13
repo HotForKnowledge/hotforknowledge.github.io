@@ -7,22 +7,58 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Victor Baybekov</copyright>
-    <lastBuildDate>Sun, 14 Jul 2019 16:12:00 +0300</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 13 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ffi</title>
-      <link>https://hotforknowledge.com/tags/ffi/</link>
-      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      <title>.NET</title>
+      <link>https://hotforknowledge.com/tags/.net/</link>
+      <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://hotforknowledge.com/tags/ffi/</guid>
+      <guid>https://hotforknowledge.com/tags/.net/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>https://hotforknowledge.com/tags/c&#43;&#43;/</link>
+      <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://hotforknowledge.com/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>https://hotforknowledge.com/tags/java/</link>
+      <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://hotforknowledge.com/tags/java/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>performance</title>
+      <link>https://hotforknowledge.com/tags/performance/</link>
+      <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://hotforknowledge.com/tags/performance/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Rust</title>
       <link>https://hotforknowledge.com/tags/rust/</link>
-      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
       
       <guid>https://hotforknowledge.com/tags/rust/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ffi</title>
+      <link>https://hotforknowledge.com/tags/ffi/</link>
+      <pubDate>Sun, 14 Jul 2019 16:12:00 +0300</pubDate>
+      
+      <guid>https://hotforknowledge.com/tags/ffi/</guid>
       <description></description>
     </item>
     

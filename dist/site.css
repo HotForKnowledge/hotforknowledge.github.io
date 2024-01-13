@@ -27,8 +27,11 @@ a {
 }
 abbr[title] {
   border-bottom: none;
-  text-decoration: underline;
   text-decoration: underline dotted;
+}
+.reset-styles {
+  text-decoration: none !important;
+  border-bottom: none !important;
 }
 b,
 strong {
@@ -151,7 +154,7 @@ body {
   background: #fefefe;
   color: #424242;
   font-family: Open Sans, arial, sans-serif;
-  font-size: 18px;
+  font-size: 17px;
 }
 h1,
 h2,
@@ -412,7 +415,7 @@ table tr {
   text-align: center;
   text-transform: uppercase;
 }
-.post-header{
+.post-header {
   text-align: center;
 }
 .page-title,

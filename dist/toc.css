@@ -27,7 +27,7 @@
 }
 
 .toc {
-  overflow-y: auto;
+  overflow-y: auto;  
 }
 .toc > .toc-list {
   overflow: hidden;
