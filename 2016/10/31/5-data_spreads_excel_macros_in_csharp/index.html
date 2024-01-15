@@ -101,19 +101,19 @@ files containing orders of Christmas trees. It was his seasonal business every e
 for a long time, and old orders back to 2006 were kept in quite a free form so that I myself 
 as a human had difficulties to grasp the structure of the worksheets. However, the goal was 
 to export the data into a CRM system, to identify clients who made regular orders and to call them and try selling trees this year as well.</p>
-<p>I have been working on a desktop app that will integrate my <a href="https://github.com/Spreads/Spreads">Spreads</a> library,
-Excel, R and .NET coding into a single real-time universe of data, called <a href="http://dataspreads.com/">Data Spreads</a>. This work is still in progress,
+<p>I have been working on a desktop app that will integrate my <a href="https://github.com/Spreads/Spreads" target="_blank" >Spreads</a> library,
+Excel, R and .NET coding into a single real-time universe of data, called <a href="http://dataspreads.com/" target="_blank" >Data Spreads</a>. This work is still in progress,
 but the Christmas trees story forced me to pack at least the scripting feature I had 
 and distribute it to my friend. So that instead of repacking an XLL add-in every time
 on my side, I could send him a C# script as a text file and interactively (e.g. via a remote desktop) adjust its behavior if needed.</p>
-<p>The scripting feature was &ldquo;nice to have&rdquo; initially for <em>Data Spreads</em>. I started playing with the <a href="https://github.com/lukebuehler/CShell">CShell</a>,
+<p>The scripting feature was &ldquo;nice to have&rdquo; initially for <em>Data Spreads</em>. I started playing with the <a href="https://github.com/lukebuehler/CShell" target="_blank" >CShell</a>,
 but it was rather overloaded from GUI and internal modular architecture perspectives, yet the editing experience 
 was not very great compared to what Visual Studio or VS Code offers. Then I stumbled upon
-<a href="https://github.com/aelij/RoslynPad">RoslynPad</a>, and it surprised me with its elegant simplicity and very pleasant editing experience powered
+<a href="https://github.com/aelij/RoslynPad" target="_blank" >RoslynPad</a>, and it surprised me with its elegant simplicity and very pleasant editing experience powered
 by Roslyn. At some point, I found myself keeping it open for writing small snippets and using it 
 instead of the heavyweight VS for quick data parsing and similar tasks. 
 Integrating RoslynPad with Excel was quite easy with another great
-open-source library <a href="https://github.com/Excel-DNA/ExcelDna">ExcelDna</a>. All I had to do
+open-source library <a href="https://github.com/Excel-DNA/ExcelDna" target="_blank" >ExcelDna</a>. All I had to do
 was to rewrite the RP hosting functionality to run in the same process and AppDomain where Excel add-in runs,
 and hook up some events to register UDFs and macros marked with the relevant ExcelDna attributes. 
 Then it just worked(TM)☺</p>
@@ -281,7 +281,7 @@ and no longer needs it (more on this in the next section).
 <h1 id="excel-model-and-xlresult">Excel Model and XlResult</h1>
 <p>While quickly writing the parsing code above, I made a very common mistake that I was aware of,
 but still assigned a COM object to a static field and did not release a reference to it. That issue is described 
-in details in <a href="http://stackoverflow.com/questions/158706/how-to-properly-clean-up-excel-interop-objects?noredirect=1&amp;lq=1">this SO question</a>.
+in details in <a href="http://stackoverflow.com/questions/158706/how-to-properly-clean-up-excel-interop-objects?noredirect=1&amp;lq=1" target="_blank" >this SO question</a>.
 The simple rule of thumb is to never ever call C or COM Excel API outside of the main thread,
 never use 2 dots with com objects, do not 
 store COM objects for longer than they are needed and always release them with <code>Marshal.ReleaseComObject</code>.</p>
@@ -291,10 +291,10 @@ a TaskComletionSource, there will be a deadlock. Always following the rules in a
 repeating the same boilerplate code, and I wrote a helper class that works similarly to <code>Task</code>, but always 
 executes on the main Excel thread, is awaitable from C# <code>async</code> methods using the <code>await</code> keyword, supports
 composition of functions and adds very little overheads. The code is quite long to place it here inline and is available
-on <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs">GitHub</a>. 
-The main work happens in the  <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L80"><code>GetResult</code> method</a>.</p>
-<p>We then could rewrite the Status example above using <code>XlResult</code> and <code>await</code> keyword. C# could <a href="https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-anything/">await anything</a> 
-that has <code>GetAwaiter</code> method, and we just use <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L113"><code>TaskComletionSource.Task</code></a> for this.</p>
+on <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs" target="_blank" >GitHub</a>. 
+The main work happens in the  <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L80" target="_blank" ><code>GetResult</code> method</a>.</p>
+<p>We then could rewrite the Status example above using <code>XlResult</code> and <code>await</code> keyword. C# could <a href="https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-anything/" target="_blank" >await anything</a> 
+that has <code>GetAwaiter</code> method, and we just use <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs#L113" target="_blank" ><code>TaskComletionSource.Task</code></a> for this.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="line"><span class="ln" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1"> 1</a></span><span class="cl">
 </span></span><span class="line"><span class="ln" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2"> 2</a></span><span class="cl"><span class="k">public</span> <span class="k">static</span> <span class="n">XlResult</span><span class="p">&lt;</span><span class="n">Range</span><span class="p">&gt;</span> <span class="n">ReferenceToRange</span><span class="p">(</span><span class="n">ExcelReference</span> <span class="n">xlRef</span><span class="p">)</span>
 </span></span><span class="line"><span class="ln" id="hl-5-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-3"> 3</a></span><span class="cl"><span class="p">{</span>
@@ -330,20 +330,20 @@ example, we chain three functions:</p>
 </span></span></code></pre></div><p>Accessing COM object and C API only from the main thread should work &ldquo;as expected&rdquo; even without
 explicit releasing via <code>Marshal</code> methods, as was written somewhere on ExcelDna forum/mailing list (cannot find a link).
 Using <code>XlResult</code> helps to stay on the main thread and follow the rules.</p>
-<p>The <a href="https://github.com/DataSpreads/ExcelModel">ExcelModel</a> library also contains some code from GitHub, where 
+<p>The <a href="https://github.com/DataSpreads/ExcelModel" target="_blank" >ExcelModel</a> library also contains some code from GitHub, where 
 the author tried to achieve the similar result - to avoid using COM objects while working with a similar 
 object model. However, it is not thread-safe now and I will gradually rewrite frequently used methods
 with the <code>XlResult</code> async pattern.</p>
 <h1 id="install-and-usage">Install and usage</h1>
-<p>To install the <em>Data Spreads</em> app, please download <a href="http://downloads.dataspreads.com/Setup.exe">Setup.exe</a> or 
-<a href="http://downloads.dataspreads.com/Setup.msi">Setup.msi</a> files*, which are packed with <a href="https://github.com/Squirrel/Squirrel.Windows">Squirrel</a>
+<p>To install the <em>Data Spreads</em> app, please download <a href="http://downloads.dataspreads.com/Setup.exe" target="_blank" >Setup.exe</a> or 
+<a href="http://downloads.dataspreads.com/Setup.msi" target="_blank" >Setup.msi</a> files*, which are packed with <a href="https://github.com/Squirrel/Squirrel.Windows" target="_blank" >Squirrel</a>
 and will automatically update when I add new functionality. When the Setup process finishes, you will have 
 a tray icon with three commands: <em>Excel Add-In</em>, which starts Excel and loads the add-in, <em>Script Editor</em>, which loads 
 a standalone editor, and <em>Exit</em>.</p>
 <p><img src="/img/christmas_trees/tray_icon.png#aboutimage" alt="Tray icon"></p>
 <p>In Excel, you will have <em>Data Spreads</em> tab with a <em>Script Editor</em> button. You may find a basic self-explanatory
 sample and the Christmas trees sample in the <code>Samples\Data Spreads\Excel</code> folder. An Excel file that actually uses the functions from the
-Christmas sample is <a href="/excel/christmas_trees_sample.xlsx">here</a>.</p>
+Christmas sample is <a href="/excel/christmas_trees_sample.xlsx" >here</a>.</p>
 <p><img src="/img/christmas_trees/ribbon.png#aboutimage" alt="Ribbon"></p>
 <p>If you get some error related to Excel version or bitness, you may find the <code>.xll</code> files in the 
 <code>C:\Users\%USERNAME%\AppData\Local\DataSpreads\app-X.Y.Z\Excel</code> directory and start the one 
@@ -377,15 +377,15 @@ main thread, which could be seen by adding <code>Thread.CurrentThread.ManagedThr
 In the async case, the execution is never on the main thread but on a .NET thread-pool, and one should keep in mind the COM interop issues
 and use the XlResult pattern when working with COM/C APIs.</p>
 <h1 id="contributing--roadmap">Contributing &amp; roadmap</h1>
-<p><a href="https://github.com/aelij/RoslynPad"><strong>RoslynPad</strong></a>: I made almost no changes to the RoslynPad core functionality - its <em>Common</em>, <em>Roslyn</em> and <em>RoslynEditor</em> <a href="https://github.com/aelij/RoslynPad/tree/master/src">projects</a> 
+<p><a href="https://github.com/aelij/RoslynPad" target="_blank" ><strong>RoslynPad</strong></a>: I made almost no changes to the RoslynPad core functionality - its <em>Common</em>, <em>Roslyn</em> and <em>RoslynEditor</em> <a href="https://github.com/aelij/RoslynPad/tree/master/src" target="_blank" >projects</a> 
 are practically unchanged. Therefore, all kudos and contributions related to the code editing experience 
-should go to the <a href="https://github.com/aelij/RoslynPad">original project</a>.
+should go to the <a href="https://github.com/aelij/RoslynPad" target="_blank" >original project</a>.
 My changes to hosting and GUI are very small and do not deserve a separate project; instead, I will try
 to push them upstream.</p>
-<p><a href="https://github.com/Excel-DNA/ExcelDna"><strong>ExcelDna</strong></a>: This is a very mature and well-documented project. The fact that I could use it from the script editor 
-without any single change just proves its reliability. Please go to <a href="https://github.com/Excel-DNA/ExcelDna">its repo</a> for details.</p>
-<p><a href="https://github.com/DataSpreads/ExcelModel/"><strong>ExcelModel</strong></a>: This is my small library for Excel utilities, with a goal to make a thread-safe API
-using .NET types over Excel&rsquo;s C or COM API. Currently it contains <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs"><code>XlResult&lt;TResult&gt;</code></a>
+<p><a href="https://github.com/Excel-DNA/ExcelDna" target="_blank" ><strong>ExcelDna</strong></a>: This is a very mature and well-documented project. The fact that I could use it from the script editor 
+without any single change just proves its reliability. Please go to <a href="https://github.com/Excel-DNA/ExcelDna" target="_blank" >its repo</a> for details.</p>
+<p><a href="https://github.com/DataSpreads/ExcelModel/" target="_blank" ><strong>ExcelModel</strong></a>: This is my small library for Excel utilities, with a goal to make a thread-safe API
+using .NET types over Excel&rsquo;s C or COM API. Currently it contains <a href="https://github.com/DataSpreads/ExcelModel/blob/master/src/DataSpreads.ExcelModel/XlResult.cs" target="_blank" ><code>XlResult&lt;TResult&gt;</code></a>
 helper type that is described 
 in the <em>Excel Model</em> section above, and some legacy code from GitHub. At first, I
 will add data dumping features, such as charts and tables, and utility functions scattered among my private projects 
@@ -395,12 +395,12 @@ from Excel, will be updated frequently and is <em>open for any contributions</em
 I will continue to polish it and contribute to upstream repos, but it is already quite good for the real job of Excel scripting</p>
 <ul>
 <li>thanks to the awesome open-source libraries. I do no plan to charge anything for offline features of <em>Data Spreads</em> such as this Script Editor, while similar solutions
-cost much more (and currently provide more features, e.g. <a href="http://fcell.io/">http://fcell.io/</a> costs $1k per annum). My goal is to 
+cost much more (and currently provide more features, e.g. <a href="http://fcell.io/" target="_blank" >http://fcell.io/</a> costs $1k per annum). My goal is to 
 make the standalone application useful for number crunching and data science even without internet connection. 
 So please stay tuned and share your feedback and features you need the most!</li>
 </ul>
 <blockquote>
-<p>P.S. If you are in Moscow and need a Christmas tree, don&rsquo;t think twice and just go to <a href="http://elki-shop.ru/">http://elki-shop.ru/</a>,
+<p>P.S. If you are in Moscow and need a Christmas tree, don&rsquo;t think twice and just go to <a href="http://elki-shop.ru/" target="_blank" >http://elki-shop.ru/</a>,
 the shop has the best ones in the city and 10+ years track record with happy customers! ☺</p>
 </blockquote>
 <hr>

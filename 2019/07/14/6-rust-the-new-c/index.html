@@ -100,22 +100,22 @@
 of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API
 from a Rust library via C ABI. Then I will consume the same exported Rust methods from a number of
 modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</p>
-<p>I&rsquo;ve already done this with C# and <a href="https://github.com/Blosc/c-blosc/">C-Blosc</a> as a part of
-<a href="https://github.com/Spreads/Spreads.Native">Spreads.Native</a> library. But in that project, I&rsquo;ve only re-exported
+<p>I&rsquo;ve already done this with C# and <a href="https://github.com/Blosc/c-blosc/" target="_blank" >C-Blosc</a> as a part of
+<a href="https://github.com/Spreads/Spreads.Native" target="_blank" >Spreads.Native</a> library. But in that project, I&rsquo;ve only re-exported
 existing C methods and used Rust Cargo build system to automate CMake build, which for me was more convenient than
 working with CMake directly. The lack of convenient C/C++ package manager and build systems is
 a good enough reason on its own to investigate Rust and Cargo. But here (part 3) I will focus more on the code.
 The post is inspired by my struggles with building and integrating native libraries with .NET in a cross-platform
-and repeatable way and was finally triggered by this awesome talk by Ashley Mannix (<a href="https://twitter.com/KodrAus">@KodrAus</a>) <a href="https://www.youtube.com/watch?v=0B1U3fVCIX0">https://www.youtube.com/watch?v=0B1U3fVCIX0</a></p>
+and repeatable way and was finally triggered by this awesome talk by Ashley Mannix (<a href="https://twitter.com/KodrAus" target="_blank" >@KodrAus</a>) <a href="https://www.youtube.com/watch?v=0B1U3fVCIX0" target="_blank" >https://www.youtube.com/watch?v=0B1U3fVCIX0</a></p>
 <p>A not primary but important goal of this exercise is to achieve easy debugging experience
-for all listed languages from VS Code on Windows directly and/or via <a href="https://code.visualstudio.com/docs/remote/containers">containers</a>.</p>
+for all listed languages from VS Code on Windows directly and/or via <a href="https://code.visualstudio.com/docs/remote/containers" target="_blank" >containers</a>.</p>
 <p>I started writing this post before writing a single line of code. It will mainly serve as a walk-through
 guide to my future self, but I hope that you will find it interesting.</p>
 <p><em>In this part 1</em>, I will only build native libraries from source using Rust tools, combine them in a trivial way,
 expose the combined code from Rust <code>cdylib</code> as C API, debug the code locally from <code>windows-msvc</code> and remotely in Docker container,
 and consume the combined functionality from .NET Core.</p>
 <p><em>In part 2</em>, I will add other languages that consume the simple API.</p>
-<p><em>In part 3</em>, I will write some concurrent code (a very simplified version of what my <a href="https://github.com/DataSpreads/DataSpreads">DataSpreads</a> does)
+<p><em>In part 3</em>, I will write some concurrent code (a very simplified version of what my <a href="https://github.com/DataSpreads/DataSpreads" target="_blank" >DataSpreads</a> does)
 and multi-language clients that work on the same data from different processes simultaneously.</p>
 <h2 id="c-abi">C ABI</h2>
 <p>The C language is the lowest level &ldquo;normal&rdquo; programmers could probably deal with ever. By normal I mean
@@ -130,16 +130,16 @@ and very dangerous to write important code in C without multiple years of experi
 to spend so much time on mastering C.</p>
 <p>We could consume C ABI practically from any programming language:</p>
 <ul>
-<li><strong>.NET (C#, F#)</strong>: <a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke">P/Invoke requires a single attribute added to an extern method definition</a>;</li>
-<li><strong>Python</strong>: <a href="https://docs.python.org/2/extending/extending.html">ctypes module, cffi library or native/CPython extensions</a>;</li>
-<li><strong>Nodejs</strong>: <a href="https://nodejs.org/api/n-api.html">N-API addons</a> or <a href="https://github.com/node-ffi/node-ffi"><code>node-ffi</code> module</a>;</li>
-<li><strong>R</strong>: <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html">R native extensions</a> or <a href="https://github.com/RcppCore/Rcpp">Rcpp</a>;</li>
-<li><strong>Java</strong>: <a href="https://en.wikipedia.org/wiki/Java_Native_Interface">Java Native Interface (JNI)</a>;</li>
-<li><strong>Go</strong>: <a href="https://golang.org/cmd/cgo/">cgo</a> or <a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">&ldquo;C&rdquo; pseudo package</a>;</li>
+<li><strong>.NET (C#, F#)</strong>: <a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke" target="_blank" >P/Invoke requires a single attribute added to an extern method definition</a>;</li>
+<li><strong>Python</strong>: <a href="https://docs.python.org/2/extending/extending.html" target="_blank" >ctypes module, cffi library or native/CPython extensions</a>;</li>
+<li><strong>Nodejs</strong>: <a href="https://nodejs.org/api/n-api.html" target="_blank" >N-API addons</a> or <a href="https://github.com/node-ffi/node-ffi" target="_blank" ><code>node-ffi</code> module</a>;</li>
+<li><strong>R</strong>: <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html" target="_blank" >R native extensions</a> or <a href="https://github.com/RcppCore/Rcpp" target="_blank" >Rcpp</a>;</li>
+<li><strong>Java</strong>: <a href="https://en.wikipedia.org/wiki/Java_Native_Interface" target="_blank" >Java Native Interface (JNI)</a>;</li>
+<li><strong>Go</strong>: <a href="https://golang.org/cmd/cgo/" target="_blank" >cgo</a> or <a href="https://karthikkaranth.me/blog/calling-c-code-from-go/" target="_blank" >&ldquo;C&rdquo; pseudo package</a>;</li>
 <li><strong>C/C++</strong>: just reuse API exported from Rust natively.</li>
 </ul>
 <p>The Go language is interesting because it could expose C ABI as well, but it has GC, a bigger runtime and the native
-boundary is expensive (e.g. <a href="https://dave.cheney.net/2016/01/18/cgo-is-not-go">1</a>, <a href="https://news.ycombinator.com/item?id=17165179">2</a>).
+boundary is expensive (e.g. <a href="https://dave.cheney.net/2016/01/18/cgo-is-not-go" target="_blank" >1</a>, <a href="https://news.ycombinator.com/item?id=17165179" target="_blank" >2</a>).
 So despite the fact that many consider Go to be the main Rust competitor for writing complete programs,
 Go cannot be used as a low-level C alternative.</p>
 <h2 id="rust-shared-lib">Rust shared lib</h2>
@@ -153,12 +153,12 @@ the versions and return the combined version string via C API to any external co
 </span></span></code></pre></div><p>This task is trivial, but does combine the functionality of three native languages in Rust code, returns
 a string owned by Rust and exposes a method to free the string from other languages.</p>
 <h3 id="initial-setup">Initial setup</h3>
-<p>Get a stable rust version from <a href="https://rustup.rs/">https://rustup.rs/</a> if you do not have it already (1.36 as of this writing).
-Install VSCode <a href="https://marketplace.visualstudio.com/items?itemName=rust-lang.rust">Rust (rls) extension</a>
-and <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack">Remote Development Extension Pack</a>.</p>
+<p>Get a stable rust version from <a href="https://rustup.rs/" target="_blank" >https://rustup.rs/</a> if you do not have it already (1.36 as of this writing).
+Install VSCode <a href="https://marketplace.visualstudio.com/items?itemName=rust-lang.rust" target="_blank" >Rust (rls) extension</a>
+and <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack" target="_blank" >Remote Development Extension Pack</a>.</p>
 <p>All code below is written on Windows with MSVC toolchain and inside the default Rust Docker container (<code>rust:1</code>)
-using <a href="https://code.visualstudio.com/docs/remote/containers">VSCode Remote - Containers extension</a>.</p>
-<p>Create the following folder structure (<a href="https://github.com/buybackoff/RustTheNewC/tree/8cc6f5f53eefcd213b34f08c58b281c74051bd61">git commit</a>):</p>
+using <a href="https://code.visualstudio.com/docs/remote/containers" target="_blank" >VSCode Remote - Containers extension</a>.</p>
+<p>Create the following folder structure (<a href="https://github.com/buybackoff/RustTheNewC/tree/8cc6f5f53eefcd213b34f08c58b281c74051bd61" target="_blank" >git commit</a>):</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a></span><span class="cl">src/
 </span></span><span class="line"><span class="ln" id="hl-1-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-2">2</a></span><span class="cl">    [client languages folders]/
 </span></span><span class="line"><span class="ln" id="hl-1-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-3">3</a></span><span class="cl">    rust/
@@ -184,8 +184,8 @@ that will expose functionality to other languages.</p>
 </span></span></code></pre></div><p>This configuration instructs the Rust compiler to statically link C runtime library on Windows.
 The effect of these settings on the binary size is quite small (around 80kb for an empty lib) but
 it simplifies the deployment of shared libraries produced on Windows. You could see the difference
-using <a href="https://github.com/lucasg/Dependencies">Dependencies</a> utility, which is a rewrite of a
-legacy <a href="http://www.dependencywalker.com/">DependencyWalker</a>. This tool is useful during developing
+using <a href="https://github.com/lucasg/Dependencies" target="_blank" >Dependencies</a> utility, which is a rewrite of a
+legacy <a href="http://www.dependencywalker.com/" target="_blank" >DependencyWalker</a>. This tool is useful during developing
 a shared native library with exported methods. E.g. when something doesn&rsquo;t work as expected in
 a weird way it&rsquo;s good to ensure that at least the methods are exported to rule out this issue.</p>
 <p>Finally, run <code>cargo init --lib</code> in <code>rust/corelib/</code> folder to create an empty Rust library.
@@ -216,7 +216,7 @@ intermediate libraries. We just need all native APIs available during design tim
 <li>Add <code>rust/lmdb-sys</code> folder;</li>
 <li>Run <code>cargo init --lib</code> inside it;</li>
 <li>Add &ldquo;lmdb-sys&rdquo; to the workspace <code>Cargo.toml</code>;</li>
-<li>Clone <a href="https://github.com/LMDB/lmdb/">the upstream repository</a> as git submodule inside
+<li>Clone <a href="https://github.com/LMDB/lmdb/" target="_blank" >the upstream repository</a> as git submodule inside
 <code>rust/lmdb-sys</code> folder.</li>
 </ul>
 <p>The folder layout and workspace config file after this step should look like:</p>
@@ -233,8 +233,8 @@ intermediate libraries. We just need all native APIs available during design tim
 </span></span><span class="line"><span class="ln" id="hl-5-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-4">4</a></span><span class="cl">    <span class="s2">&#34;lmdb-sys&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="ln" id="hl-5-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-5">5</a></span><span class="cl"><span class="p">]</span>
 </span></span></code></pre></div><p>To actually build LMDB library and generate Rust binding to it, edit
-<code>lmdb-sys/Cargo.toml</code> file and add <a href="https://crates.io/crates/cc">cc</a> and <a href="https://crates.io/crates/bindgen">bindgen</a>
-crates as <code>build-dependencies</code> and <a href="https://crates.io/crates/libc">libc</a> crate as a normal dependency.
+<code>lmdb-sys/Cargo.toml</code> file and add <a href="https://crates.io/crates/cc" target="_blank" >cc</a> and <a href="https://crates.io/crates/bindgen" target="_blank" >bindgen</a>
+crates as <code>build-dependencies</code> and <a href="https://crates.io/crates/libc" target="_blank" >libc</a> crate as a normal dependency.
 The file should look like this after the edits:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Toml" data-lang="Toml"><span class="line"><span class="ln" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1"> 1</a></span><span class="cl"><span class="p">[</span><span class="nx">package</span><span class="p">]</span>
 </span></span><span class="line"><span class="ln" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2"> 2</a></span><span class="cl"><span class="nx">name</span> <span class="p">=</span> <span class="s2">&#34;lmdb-sys&#34;</span>
@@ -308,7 +308,7 @@ But to reduce noise we add <code>whitelist_function(&quot;mdb_.*&quot;)</code> l
 generate only functions that contain <code>mdb_</code> substring and all types that are used by
 such functions.</p>
 <p>Third, we write the generated bindings into <code>lmdb-sys/src/</code> folder instead of
-<code>OUT_DIR</code> folder as many <a href="https://rust-lang.github.io/rust-bindgen/tutorial-4.html">examples</a> recommend.
+<code>OUT_DIR</code> folder as many <a href="https://rust-lang.github.io/rust-bindgen/tutorial-4.html" target="_blank" >examples</a> recommend.
 This is done to make the bindings
 available to RLS and to make autocomplete work. The current version of RLS does
 not recognize bindings included via <code>include!</code> macro (at least on my machine).</p>
@@ -329,47 +329,47 @@ not recognize bindings included via <code>include!</code> macro (at least on my 
 </span></span></span><span class="line"><span class="ln" id="hl-9-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-14">14</a></span><span class="cl"><span class="w"></span><span class="o">..</span><span class="p">.</span><span class="w">
 </span></span></span></code></pre></div><p>At this point, the local <code>lmdb-sys</code> package is ready for consumption by our <code>corelib</code>.
 Run <code>cargo test</code> to ensure that build works and all auto-generated tests pass.</p>
-<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/2132ec9d9bdad41adb611acc9eb260d094381e93/src/rust/lmdb-sys">Browse repository at this point</a>).</p>
+<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/2132ec9d9bdad41adb611acc9eb260d094381e93/src/rust/lmdb-sys" target="_blank" >Browse repository at this point</a>).</p>
 <h4 id="blosc">Blosc</h4>
 <p>To add Blosc dependency first do the initial setup steps:</p>
 <ul>
 <li>Add <code>rust/blosc-sys</code> folder;</li>
 <li>Run <code>cargo init --lib</code> inside it;</li>
 <li>Add &ldquo;blosc-sys&rdquo; to the workspace <code>Cargo.toml</code>;</li>
-<li>Clone <a href="https://github.com/Spreads/c-blosc/tree/spreads">the upstream repository (<code>spreads</code> branch)</a> as git submodule inside
+<li>Clone <a href="https://github.com/Spreads/c-blosc/tree/spreads" target="_blank" >the upstream repository (<code>spreads</code> branch)</a> as git submodule inside
 <code>rust/blosc-sys</code> folder.</li>
 </ul>
-<p>We will be using <a href="https://github.com/Spreads/c-blosc/tree/spreads">Spreads fork</a> of the <a href="https://github.com/Blosc/c-blosc">upstream Blosc repository</a>.
-The fork has <a href="https://github.com/Spreads/c-blosc/commit/e34dddbad70aa2b270e2d991a9baee44c95ed175">minimal changes</a>
+<p>We will be using <a href="https://github.com/Spreads/c-blosc/tree/spreads" target="_blank" >Spreads fork</a> of the <a href="https://github.com/Blosc/c-blosc" target="_blank" >upstream Blosc repository</a>.
+The fork has <a href="https://github.com/Spreads/c-blosc/commit/e34dddbad70aa2b270e2d991a9baee44c95ed175" target="_blank" >minimal changes</a>
 and exports LZ4/Zstd/Zlib compress/decompress routines. The compressor libraries are already present in Blosc
 and it&rsquo;s much more convenient to just export the needed pieces instead of building every library manually.</p>
-<p>Bindgen <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/wrapper.h"><code>wrapper.h</code></a> contains definitions
-copied from Blosc. I do not remember why exactly in this case I copied rather than included the headers in <a href="https://github.com/Spreads/Spreads.Native/tree/master/rs/spreads-blosc-sys">Spreads.Native</a> library, but this is also a valid approach, which sometimes is more convenient than including raw source header and allows for greater control
+<p>Bindgen <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/wrapper.h" target="_blank" ><code>wrapper.h</code></a> contains definitions
+copied from Blosc. I do not remember why exactly in this case I copied rather than included the headers in <a href="https://github.com/Spreads/Spreads.Native/tree/master/rs/spreads-blosc-sys" target="_blank" >Spreads.Native</a> library, but this is also a valid approach, which sometimes is more convenient than including raw source header and allows for greater control
 and less work with whitelisting only required functions and types.</p>
-<p>Blosc uses CMake and Rust has <a href="https://crates.io/crates/cmake">cmake</a> crate that allows to build CMake projects
-as easily as the <a href="https://crates.io/crates/cc">cc</a> we used for <a href="#lmdb">lmdb-sys</a>.
-The <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs"><code>build.rs</code></a>
-file is self-explanatory. One interesting thing is defining a custom generator for Windows GNU target on <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs#L29">this line</a>.</p>
-<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys">Browse repository at this point</a>).</p>
+<p>Blosc uses CMake and Rust has <a href="https://crates.io/crates/cmake" target="_blank" >cmake</a> crate that allows to build CMake projects
+as easily as the <a href="https://crates.io/crates/cc" target="_blank" >cc</a> we used for <a href="#lmdb" >lmdb-sys</a>.
+The <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs" target="_blank" ><code>build.rs</code></a>
+file is self-explanatory. One interesting thing is defining a custom generator for Windows GNU target on <a href="https://github.com/buybackoff/RustTheNewC/blob/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys/build.rs#L29" target="_blank" >this line</a>.</p>
+<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/d3b3f1f2fec5e8507f897696537c10593f1dabfa/src/rust/blosc-sys" target="_blank" >Browse repository at this point</a>).</p>
 <h4 id="sqlite">SQLite</h4>
 <p>SQLite is a very stable library, but it&rsquo;s development branches have some interesting features.
-Particularly the <code>begin-concurrent-pnu-wal2</code> branch has <a href="https://www.sqlite.org/cgi/src/doc/wal2/doc/wal2.md">wal2 mode</a>
-and <a href="https://www.sqlite.org/cgi/src/doc/begin-concurrent/doc/begin_concurrent.md">BEGIN CONCURRENT</a> enhancement.
+Particularly the <code>begin-concurrent-pnu-wal2</code> branch has <a href="https://www.sqlite.org/cgi/src/doc/wal2/doc/wal2.md" target="_blank" >wal2 mode</a>
+and <a href="https://www.sqlite.org/cgi/src/doc/begin-concurrent/doc/begin_concurrent.md" target="_blank" >BEGIN CONCURRENT</a> enhancement.
 These features improve the performance of concurrent access to a database.</p>
-<p>To build SQLite we need to create an <a href="https://www.sqlite.org/amalgamation.html">amalgamation</a> from the source. Download the source
-code from the required branch as zip archive (e.g. from <a href="https://www.sqlite.org/cgi/src/info/627b428fc8ca0f23">here</a>)
-and unpack to any folder, e.g. <code>G:/temp/sqlite_scr</code>. Then open the folder inside <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux</a>
+<p>To build SQLite we need to create an <a href="https://www.sqlite.org/amalgamation.html" target="_blank" >amalgamation</a> from the source. Download the source
+code from the required branch as zip archive (e.g. from <a href="https://www.sqlite.org/cgi/src/info/627b428fc8ca0f23" target="_blank" >here</a>)
+and unpack to any folder, e.g. <code>G:/temp/sqlite_scr</code>. Then open the folder inside <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" target="_blank" >Windows Subsystem for Linux</a>
 and run the following commands:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln" id="hl-10-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-1">1</a></span><span class="cl"><span class="na">cd /mnt/g/temp/sqlite_src</span>
 </span></span><span class="line"><span class="ln" id="hl-10-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-2">2</a></span><span class="cl"><span class="na">./configure</span>
 </span></span><span class="line"><span class="ln" id="hl-10-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-3">3</a></span><span class="cl"><span class="na">make sqlite3.c</span>
 </span></span></code></pre></div><p>Create  <code>rust/sqlite-sys/</code> folder and run <code>cargo init --lib</code> inside it. Copy <code>sqlite3.c</code> and <code>sqlite3.h</code>
-files to <code>rust/sqlite-sys/sqlite/</code> folder and create <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/wrapper.h">wrapper.h</a>
-and <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/build.rs">build.rs</a> files similar to LMDB ones. Add build and compile dependencies
-to <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/Cargo.toml">Cargo.toml</a>.</p>
+files to <code>rust/sqlite-sys/sqlite/</code> folder and create <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/wrapper.h" target="_blank" >wrapper.h</a>
+and <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/build.rs" target="_blank" >build.rs</a> files similar to LMDB ones. Add build and compile dependencies
+to <a href="https://github.com/buybackoff/RustTheNewC/blob/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys/Cargo.toml" target="_blank" >Cargo.toml</a>.</p>
 <p>Note that the <code>build.rs</code> file has many custom define symbols to modify SQLite defaults.</p>
 <p>At this point, the local <code>sqlite-sys</code> package is ready for consumption by our <code>corelib</code>.</p>
-<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys">Browse repository at this point</a>).</p>
+<p>(<a href="https://github.com/buybackoff/RustTheNewC/tree/df35bf425f69ace9dc8d996b16b3932a2cfedd71/src/rust/sqlite-sys" target="_blank" >Browse repository at this point</a>).</p>
 <h3 id="test-dependencies">Test dependencies</h3>
 <p>Now all three native dependencies are ready to use from <code>corelib</code>.</p>
 <p>Add the following lines to <code>rust/corelib/Cargo.toml</code> to add the local packages as dependencies:</p>
@@ -432,7 +432,7 @@ These functions are public but not <code>extern</code> and only available from o
 </span></span></span><span class="line"><span class="ln" id="hl-13-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-20">20</a></span><span class="cl"><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="k">super</span>::<span class="n">sqlite_version</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;3.29.0&#34;</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-13-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-21">21</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-13-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-22">22</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
-</span></span></span></code></pre></div><p>View the <code>rust/corelib/src/lib.rs</code> after these changes <a href="https://github.com/buybackoff/RustTheNewC/blob/09fedf20a6da4d547d386c678f57c9ef06cf0d9f/src/rust/corelib/src/lib.rs">here</a>.</p>
+</span></span></span></code></pre></div><p>View the <code>rust/corelib/src/lib.rs</code> after these changes <a href="https://github.com/buybackoff/RustTheNewC/blob/09fedf20a6da4d547d386c678f57c9ef06cf0d9f/src/rust/corelib/src/lib.rs" target="_blank" >here</a>.</p>
 <p>Run <code>cargo test</code> to ensure that everything works.</p>
 <h3 id="debug-locally-and-in-containers">Debug locally and in containers</h3>
 <p>Debugging Rust (especially on Windows with MSVC target) used to be hard or impossible quite recently, but now it is very simple and &ldquo;just works&rdquo;.</p>
@@ -445,7 +445,7 @@ These functions are public but not <code>extern</code> and only available from o
 </span></span></span><span class="line"><span class="ln" id="hl-14-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-5">5</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Blosc: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">blosc_version</span><span class="p">());</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-14-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-6">6</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;SQLite: {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">corelib</span>::<span class="n">sqlite_version</span><span class="p">());</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-14-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-7">7</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
-</span></span></span></code></pre></div><p><a href="https://github.com/buybackoff/RustTheNewC/commit/bc120b66f52ca62f529dd93d0f27c589a9f04e63">Browse the changes in git commit</a>.</p>
+</span></span></span></code></pre></div><p><a href="https://github.com/buybackoff/RustTheNewC/commit/bc120b66f52ca62f529dd93d0f27c589a9f04e63" target="_blank" >Browse the changes in git commit</a>.</p>
 <h4 id="local-debug-with-msvc-target">Local debug with MSVC target</h4>
 <p>Add C/C++ extension to VSCode if it is not there already. Then select the Debug tab at the left bar
 and select &ldquo;Add configuration&hellip;&rdquo; option from the dropdown box next to the green &ldquo;Run&rdquo; icon.
@@ -464,7 +464,7 @@ should look like:</p>
 </span></span><span class="line"><span class="ln" id="hl-15-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-10">10</a></span><span class="cl">  <span class="nt">&#34;externalConsole&#34;</span><span class="p">:</span> <span class="kc">false</span>
 </span></span><span class="line"><span class="ln" id="hl-15-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-11">11</a></span><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>After saving the file we could set breakpoints in <code>sandbox/src/main.rs</code> file or
-any <code>corelib</code> file and launch a debugging session. See this <a href="https://www.forrestthewoods.com/blog/how-to-debug-rust-with-visual-studio-code/">blog post</a>
+any <code>corelib</code> file and launch a debugging session. See this <a href="https://www.forrestthewoods.com/blog/how-to-debug-rust-with-visual-studio-code/" target="_blank" >blog post</a>
 for more details and instructions for OS X / Linux.</p>
 <h4 id="debugging-in-containers">Debugging in containers</h4>
 <blockquote>
@@ -472,9 +472,9 @@ for more details and instructions for OS X / Linux.</p>
 Docker running in WSL but it is out of the scope of this post. I believe upgrading to Pro is simpler and cheaper in the long run if one
 develops software mainly on Window but needs containers.</p>
 </blockquote>
-<p>Debugging Rust code in Docker containers is surprisingly easy. See a <a href="https://code.visualstudio.com/docs/remote/containers">VSCode tutorial</a> on the subject.</p>
-<p>There is a Rust sample at <a href="https://github.com/microsoft/vscode-remote-try-rust">https://github.com/microsoft/vscode-remote-try-rust</a> that works fine
-for simple Rust code. In our case with native dependencies we have to modify the <a href="https://github.com/microsoft/vscode-remote-try-rust/blob/master/.devcontainer/Dockerfile">original <code>Dockerfile</code></a> to install <code>clang</code> and <code>cmake</code>:</p>
+<p>Debugging Rust code in Docker containers is surprisingly easy. See a <a href="https://code.visualstudio.com/docs/remote/containers" target="_blank" >VSCode tutorial</a> on the subject.</p>
+<p>There is a Rust sample at <a href="https://github.com/microsoft/vscode-remote-try-rust" target="_blank" >https://github.com/microsoft/vscode-remote-try-rust</a> that works fine
+for simple Rust code. In our case with native dependencies we have to modify the <a href="https://github.com/microsoft/vscode-remote-try-rust/blob/master/.devcontainer/Dockerfile" target="_blank" >original <code>Dockerfile</code></a> to install <code>clang</code> and <code>cmake</code>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln" id="hl-16-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-1"> 1</a></span><span class="cl">...
 </span></span><span class="line"><span class="ln" id="hl-16-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-2"> 2</a></span><span class="cl"># Install clang
 </span></span><span class="line"><span class="ln" id="hl-16-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-3"> 3</a></span><span class="cl"># From https://gist.github.com/twlz0ne/9faf00346a2acf10044c54f9ba0b9805#file-dockerfile
@@ -492,8 +492,8 @@ for simple Rust code. In our case with native dependencies we have to modify the
 </span></span></code></pre></div><p>To run the debugger in a container click on the green <span style="background: green; color:white;"> &gt;&laquo;/span&gt; icon
 (at the left-bottom corner of VSCode window in the status bar) and run &ldquo;Remote-Containers: Reopen Folder in Container&rdquo; command.
 The first run is slow because Docker needs to create a container from the <code>Dockerfile</code>, but subsequent runs are quite fast.</p>
-<p>When the container is ready we could start the debugger with the <a href="https://github.com/buybackoff/RustTheNewC/blob/1ef295873864c6c5c49d40c3bcce49911460f657/src/rust/.vscode/launch.json#L19-L35">&ldquo;Run Sandbox Container&rdquo; configuration</a>. Or we could execute cargo commands in the container in a new terminal (<code>Ctrl+Shift+` </code>).</p>
-<p>All changes required for container debugging are in <a href="https://github.com/buybackoff/RustTheNewC/commit/1ef295873864c6c5c49d40c3bcce49911460f657">this commit</a>.</p>
+<p>When the container is ready we could start the debugger with the <a href="https://github.com/buybackoff/RustTheNewC/blob/1ef295873864c6c5c49d40c3bcce49911460f657/src/rust/.vscode/launch.json#L19-L35" target="_blank" >&ldquo;Run Sandbox Container&rdquo; configuration</a>. Or we could execute cargo commands in the container in a new terminal (<code>Ctrl+Shift+` </code>).</p>
+<p>All changes required for container debugging are in <a href="https://github.com/buybackoff/RustTheNewC/commit/1ef295873864c6c5c49d40c3bcce49911460f657" target="_blank" >this commit</a>.</p>
 <h3 id="speed-up-build">Speed up build</h3>
 <p>We do not need to regenerate bindings on every build. The generation step
 takes noticeable time, especially for SQLite. After we have checked that
@@ -504,7 +504,7 @@ But bindings could only change after we update the source code or change
 build logic inside <code>build.rs</code> files, so keeping generation code commented out
 in the build script is a quick fix. After doing so only <code>corelib</code> is
 incrementally recompiled.</p>
-<p><a href="https://github.com/buybackoff/RustTheNewC/commit/5bddc1fd467a844999bcb0826ef0952ceea46291">Git commit</a></p>
+<p><a href="https://github.com/buybackoff/RustTheNewC/commit/5bddc1fd467a844999bcb0826ef0952ceea46291" target="_blank" >Git commit</a></p>
 <h3 id="simple-c-method">Simple C method</h3>
 <p>We start with the simplest C API from Rust library: just return a string with versions
 of native dependencies. This method calls methods from each native dependency so
@@ -558,7 +558,7 @@ we need to leak it first before returning it to the external world and to destro
 </span></span></span><span class="line"><span class="ln" id="hl-19-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-8">8</a></span><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-19-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-19-9">9</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p>Run <code>cargo test</code> and <code>cargo run</code> to ensure that everything work.</p>
-<p><a href="https://github.com/buybackoff/RustTheNewC/commit/5c8352ebc920c7558addf3bcbf3b631a3ac5a260">Git commit</a></p>
+<p><a href="https://github.com/buybackoff/RustTheNewC/commit/5c8352ebc920c7558addf3bcbf3b631a3ac5a260" target="_blank" >Git commit</a></p>
 <h3 id="release-build">Release build</h3>
 <p>Add the following lines to <code>rust/Cargo.toml</code> for explicit control over build parameters:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln" id="hl-20-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-1">1</a></span><span class="cl">[profile.release]
@@ -570,21 +570,21 @@ we need to leak it first before returning it to the external world and to destro
 </span></span><span class="line"><span class="ln" id="hl-20-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-20-7">7</a></span><span class="cl">panic = &#39;abort&#39;
 </span></span></code></pre></div><p>Run <code>cargo build --release</code>.</p>
 <p>The final shared library is <code>rust/target/release/corelib.dll</code>. Open that file
-with <a href="https://github.com/lucasg/Dependencies">Dependencies</a> utility to make sure
+with <a href="https://github.com/lucasg/Dependencies" target="_blank" >Dependencies</a> utility to make sure
 that the two methods <code>native_versions_get</code> and <code>native_versions_free</code> are exported.</p>
 <p>The shared library is ready for consumption from other languages.</p>
-<p><a href="https://github.com/buybackoff/RustTheNewC/commit/6e2a37f27c1b99a1ce9250f2eb9c6252a6ad8f99">Git commit</a></p>
+<p><a href="https://github.com/buybackoff/RustTheNewC/commit/6e2a37f27c1b99a1ce9250f2eb9c6252a6ad8f99" target="_blank" >Git commit</a></p>
 <h2 id="clients">Clients</h2>
 <h3 id="net-core">.NET Core</h3>
 <blockquote>
-<p>Install .NET Core SDK from <a href="https://dotnet.microsoft.com/download/dotnet-core">here</a>. This example
+<p>Install .NET Core SDK from <a href="https://dotnet.microsoft.com/download/dotnet-core" target="_blank" >here</a>. This example
 uses the LTS version 2.1.</p>
 </blockquote>
 <p>.NET has probably the easiest way to use native dependencies via P/Invoke. Open
-<a href="https://github.com/buybackoff/RustTheNewC/tree/master/src/dotnet"><code>dotnet</code></a> folder
+<a href="https://github.com/buybackoff/RustTheNewC/tree/master/src/dotnet" target="_blank" ><code>dotnet</code></a> folder
 in a separate VSCode window and run <code>dotnet init console</code> in the terminal.
 Rename <code>dotnet.csproj</code> to <code>RustTheNewC</code> (optional, just to match this example).</p>
-<p>Add the following piece to the <a href="https://github.com/buybackoff/RustTheNewC/blob/b036a69dbfe07e547abc16e8583e2b0ef346c776/src/dotnet/RustTheNewC.csproj">project file</a>:</p>
+<p>Add the following piece to the <a href="https://github.com/buybackoff/RustTheNewC/blob/b036a69dbfe07e547abc16e8583e2b0ef346c776/src/dotnet/RustTheNewC.csproj" target="_blank" >project file</a>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="ln" id="hl-21-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-1">1</a></span><span class="cl"><span class="nt">&lt;ItemGroup&gt;</span>
 </span></span><span class="line"><span class="ln" id="hl-21-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-2">2</a></span><span class="cl">  <span class="nt">&lt;None</span> <span class="na">Include=</span><span class="s">&#34;..\rust\target\$(Configuration)\corelib.dll&#34;</span><span class="nt">&gt;</span>
 </span></span><span class="line"><span class="ln" id="hl-21-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-21-3">3</a></span><span class="cl">    <span class="nt">&lt;Pack&gt;</span>true<span class="nt">&lt;/Pack&gt;</span>
@@ -656,7 +656,7 @@ native libraries. The Rust debug library has this part in the string destructor:
 </span></span></span><span class="line"><span class="ln" id="hl-23-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-23-2">2</a></span><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Rust string is dropped&#34;</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="ln" id="hl-23-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-23-3">3</a></span><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p>You should see that line printed after the native library versions in dotnet debug build.</p>
-<p><a href="https://github.com/buybackoff/RustTheNewC/commit/b036a69dbfe07e547abc16e8583e2b0ef346c776">Git commit</a></p>
+<p><a href="https://github.com/buybackoff/RustTheNewC/commit/b036a69dbfe07e547abc16e8583e2b0ef346c776" target="_blank" >Git commit</a></p>
 <h3 id="other-languages">Other languages</h3>
 <p>To be done in part 2.</p>
 <h2 id="conclusion">Conclusion</h2>

@@ -113,25 +113,25 @@ performance, native interop, and (at this moment) .NET Core interop.</p>
 <p>Recently I have bought the very top model of MacBook Air with 8 Gb of RAM for development. Specifically,
 for F# development, because IDE experience was always slower than C#. But even on this machine,
 the IDE is still not responsive and compilation is slow. While C# projects fly on this machine even with R#, 
-F# ones crawl and creep even for such a small project as <a href="https://github.com/Spreads/Spreads/tree/master/src/Spreads.Collections">Spreads.Collections</a>.</p>
+F# ones crawl and creep even for such a small project as <a href="https://github.com/Spreads/Spreads/tree/master/src/Spreads.Collections" target="_blank" >Spreads.Collections</a>.</p>
 <p><strong>Refactoring</strong> and simple edits take a very noticeable pause for type inference to finish and for IDE to become responsive, and this pause grows non-linearly with a project size. I understand 
 that type inference is expensive and it is almost a recompilation step, but when refactoring is done
 frequently it takes too much time.</p>
 <p><strong>Project recompilation</strong> happens on every build, even if there are no changes in the code. And it is slow. 
-I searched for a solution in the <a href="http://stackoverflow.com/questions/4697771/f-compiling-too-slow">Internet</a>, but it didn&rsquo;t
+I searched for a solution in the <a href="http://stackoverflow.com/questions/4697771/f-compiling-too-slow" target="_blank" >Internet</a>, but it didn&rsquo;t
 help. The recompilation happened on all my 4 machines over the past couple of years. And the funny thing is 
 that F# projects do not see changes in referenced C# projects when compiled separately, not as a part of a solution.</p>
 <p>Each problem is minor in isolation, but when this happens very often, then most of the development time is spent on tooling,
 not coding. In a workflow when I make many small refactorings, add tests and run microbenchmarks to see 
 the results of the changes - the total time costs become too significant. It is similar to a program with garbage collection 
 that takes most of the execution time. In the era when live editing and reload is a norm, slow recompilation significantly 
-<a href="http://xkcd.com/303/">impedes productivity</a>. On the same machine, strongly-typed Angular2 (TypeScript) with WebPack
+<a href="http://xkcd.com/303/" target="_blank" >impedes productivity</a>. On the same machine, strongly-typed Angular2 (TypeScript) with WebPack
 reloads in just several seconds, while VS Code also flies. I wonder why F# compilation couldn&rsquo;t be slower than C#&rsquo;s just by several percents, not times!?</p>
 <blockquote>
 <p>They say that Russian programmers used to be very good because they lacked frequent access to machines in the 80s and 
 they had to think a lot and to perfect their code before a chance to actually run it. That contrasts to modern
 days when people start with opening an editor/IDE and think over a blank screen like a writer thinks over a blank sheet of paper.
-On my laptop, F# nearly forces me to do such <a href="https://github.com/matthiasn/talk-transcripts/blob/master/Hickey_Rich/HammockDrivenDev.md">Hammock-driven development</a>.
+On my laptop, F# nearly forces me to do such <a href="https://github.com/matthiasn/talk-transcripts/blob/master/Hickey_Rich/HammockDrivenDev.md" target="_blank" >Hammock-driven development</a>.
 This is not bad per se, and for an end product, I think this is good. For some complex algorithm development, when most of the time
 is spent on thinking about domain subject and not about generated IL, F# type inference in the background 
 is invaluable for correctness. And by my own experience, I could confirm that when F# code compiles it is very often already correct.</p>
@@ -140,31 +140,31 @@ is invaluable for correctness. And by my own experience, I could confirm that wh
 <p>Generated code performance is also an issue: to get it right in F# one has to write really ugly 
 verbose mutable code and inspect IL and run a profiler to check for implicit allocations, which are
 sometimes hidden somewhere in the compiled code. This really defeats the F# elegance and terseness.
-(Also there is an interesting discussion <a href="https://github.com/Hopac/Hopac/issues/1">here</a>).
+(Also there is an interesting discussion <a href="https://github.com/Hopac/Hopac/issues/1" target="_blank" >here</a>).
 Additions such as struct records/DU and <code>fixed</code> are kind of overdue, especially when I
-have already invested in unsafe C# as heavily as IL rewriting hack taken from <a href="https://github.com/dotnet/corefxlab/tree/master/src/System.Slices/tools">corefxlab</a>.</p>
+have already invested in unsafe C# as heavily as IL rewriting hack taken from <a href="https://github.com/dotnet/corefxlab/tree/master/src/System.Slices/tools" target="_blank" >corefxlab</a>.</p>
 <p><strong>Native interop and unsafe</strong> could be done in F#, but this is ugly and clumsy. The Recent addition of 
 <code>fixed</code> keyword is nice, but there is still no support for it in VS2015, and the <code>NativePtr</code> API
 is painful to work with compared to C-like pointers in unsafe C#.</p>
 <p><strong>Task Parallel Library</strong> is the best thing since sliced bread in .NET universe. Async/await came from F#.
 Yet, there is still a big overhead when interacting with TPL from F#, there is no native and 
-idiomatic ways to do so. I tried to use <a href="http://stackoverflow.com/questions/35762747/performance-of-async-in-f-vs-c-sharp-is-there-a-better-way-to-write-async/35766979#35766979">Task computation expressions</a> from FSharpx project, 
+idiomatic ways to do so. I tried to use <a href="http://stackoverflow.com/questions/35762747/performance-of-async-in-f-vs-c-sharp-is-there-a-better-way-to-write-async/35766979#35766979" target="_blank" >Task computation expressions</a> from FSharpx project, 
 but they explode like Galaxy S7 in <code>for/while</code> loops and other non-trivial constructs. Simple 
 <code>Bind</code> and <code>Return</code> work well with recursion, but in the end manual usage of <code>GetAwaiter</code>, 
 <code>OnComplete</code> callbacks and <code>TaskCompletionSource</code> is more reliable. I believe TPL integration
 at the core language level should be a priority to perceive of F# as a sibling on .NET platform,
 and not as an adoptee.</p>
 <p><strong>File and type ordering</strong> is an F# limitation that magically turns into blessing most of the times. But when it doesn&rsquo;t,
-<a href="http://stackoverflow.com/questions/38360616/how-to-circumvent-f-file-ordering-and-types-dependency">workarounds are awkward</a>.
+<a href="http://stackoverflow.com/questions/38360616/how-to-circumvent-f-file-ordering-and-types-dependency" target="_blank" >workarounds are awkward</a>.
 I spent some time to find a different architecture, but often recursive types across files are just the right thing.
 With the recent introduction of recursive modules and namespaces, I could put all my code in a single file,
 and sometimes I really thinking about this. #sarcasm</p>
 <p><strong>Implicit allocations and IL generation</strong> are almost fixed in latest versions and have proper attention from the core team,
 but sometimes a profiler shows unexpected results in the places where one would not expect. E.g. <code>Array.average</code>
-was <a href="https://github.com/Microsoft/visualfsharp/issues/885">allocating objects</a> just recently. After a lot of 
+was <a href="https://github.com/Microsoft/visualfsharp/issues/885" target="_blank" >allocating objects</a> just recently. After a lot of 
 work on eliminating allocations in my Spreads library, it was a surprise to find this. <em>Generated IL code</em> is not easy
 to reason about compared to C#, which is almost &ldquo;what you write is what you get&rdquo; and is to IL like C to assembly.
-F# <a href="https://github.com/Microsoft/visualfsharp/issues/558">sometimes surprises</a>.</p>
+F# <a href="https://github.com/Microsoft/visualfsharp/issues/558" target="_blank" >sometimes surprises</a>.</p>
 <p>One could say I should fix F# itself since it is open source, but for the same reasons above 
 just setting up and compiling VisualFSharp repo from a clean clone is a half-day exercise on a really 
 powerful workstation machine; and editing is slow even if it eventually compiles with tests.
@@ -184,9 +184,9 @@ It is just not there yet. Doesn&rsquo;t work with C#/F# project mix. #<strong>do
 It feels again that F# is a side project for MSFT.</p>
 <hr>
 <p>If you think this is just F# critics and rant - don&rsquo;t get me wrong. This is an open question and a call for action. 
-I am watching the development of <a href="https://github.com/dotnet/corefx">CoreFX</a> and <a href="https://github.com/dotnet/corefxlab">CoreFXLab</a> projects,
-and really like the recent trend of making C# even more performant and even <a href="https://github.com/dotnet/corefx/tree/master/src/System.Runtime.CompilerServices.Unsafe">less safe</a> 
-than existing <code>unsafe</code> keyword. It feels like all the <a href="http://joeduffyblog.com/">&ldquo;fairy tales&rdquo;</a> about C# as a system programming language 
+I am watching the development of <a href="https://github.com/dotnet/corefx" target="_blank" >CoreFX</a> and <a href="https://github.com/dotnet/corefxlab" target="_blank" >CoreFXLab</a> projects,
+and really like the recent trend of making C# even more performant and even <a href="https://github.com/dotnet/corefx/tree/master/src/System.Runtime.CompilerServices.Unsafe" target="_blank" >less safe</a> 
+than existing <code>unsafe</code> keyword. It feels like all the <a href="http://joeduffyblog.com/" target="_blank" >&ldquo;fairy tales&rdquo;</a> about C# as a system programming language 
 are slowly materializing. At the same time, C# aggressively takes the good parts from F# and is becoming 
 more and more functional (in both senses of the word). With Roslyn, it added interactive execution. If only they add <code>if</code> as expression 
 and a compiler option to disable implicit type conversions, similar to checked arithmetics&hellip; 
@@ -198,9 +198,9 @@ not be taken lightly. (I had a real bug due to implicit <code>int</code>s conver
 sanity checks to find, &ldquo;select was not broken&rdquo;). In addition to trading and analytics, there is a kind of libraries where F# shines like a supernova</p>
 <ul>
 <li>metaprogramming. I have a project that implements a very basic query language with FParsec, and it blows my mind
-how easy it is to implement a new language. (<a href="http://trelford.com/blog/post/parser.aspx">Small Basic</a> blog posts are a great start).</li>
+how easy it is to implement a new language. (<a href="http://trelford.com/blog/post/parser.aspx" target="_blank" >Small Basic</a> blog posts are a great start).</li>
 </ul>
-<p>This post started this morning from an <a href="https://github.com/Spreads/Spreads/issues/68">issue</a> on GitHub 
+<p>This post started this morning from an <a href="https://github.com/Spreads/Spreads/issues/68" target="_blank" >issue</a> on GitHub 
 after once again I was fighting with .NET Core C#/F# interop and many issues from above. But instead of bullets
 on what to change in the library I could&rsquo;d help but just started writing 
 about the issues and experiences I have had recently. I invested into F# quite a lot and tried to make
@@ -210,7 +210,7 @@ and will remain my #1 choice for end products where correctness is paramount. Oh
 such scenarios, but I still could not find a way to productively use FSI for a solution with multiple C#/F# projects
 and my workflow. <em>What I am doing wrong?</em></p>
 <blockquote>
-<p>&ldquo;Functional programming is a tool for thought, imperative programming is a tool for hacking.&rdquo; (c) <a href="https://twitter.com/buybackoff/status/689958055820333056">Erik Meijer</a></p>
+<p>&ldquo;Functional programming is a tool for thought, imperative programming is a tool for hacking.&rdquo; (c) <a href="https://twitter.com/buybackoff/status/689958055820333056" target="_blank" >Erik Meijer</a></p>
 </blockquote>
 
 </div>
