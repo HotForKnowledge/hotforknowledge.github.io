@@ -1,0 +1,49 @@
+#body-overlay {
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999998;
+}
+
+.toc-button {
+  visibility: visible;
+  background-color:rgba(0, 0, 0, 0.1);
+  width: 10px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 9999999;
+  font-size: 20px;
+}
+
+body {
+
+  &.toc-open{
+      #body-overlay {
+          display: block;
+      }
+  }
+
+  &.toc-open {
+      .toc {
+        height: 100%;
+        max-height: 100%;
+        top: 0
+      }
+      .toc.toc-left {
+        visibility: visible;
+        transform: translateX(0);
+        left: 0;
+        width: 200px;
+        top: 0
+      }
+  }
+}

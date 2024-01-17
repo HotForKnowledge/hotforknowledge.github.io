@@ -13,22 +13,22 @@
 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Rust as the new C. Part 1: building and combining native libs into C API &middot; Victor Baybekov</title>
+        <title>Rust as the new C: building and combining native libs into C API &middot; Victor Baybekov</title>
         <meta name="description" content="Evaluating Rust as the common denominator of modern development">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
         <meta name="generator" content="Hugo 0.101.0" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta property="og:title" content="Rust as the new C. Part 1: building and combining native libs into C API">
+        <meta property="og:title" content="Rust as the new C: building and combining native libs into C API">
 <meta property="og:description" content="Evaluating Rust as the common denominator of modern development">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://hotforknowledge.com/2019/07/14/6-rust-the-new-c/">
         <link rel="stylesheet" href="/dist/site.css">
         <link rel="stylesheet" href="/dist/syntax.css">
         
-        
             <link rel="stylesheet" href="/dist/toc.css">
+            <link rel="stylesheet" href="/dist/sidebar.css">
         
         
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
@@ -71,13 +71,15 @@
             <div id="container">
 
 
-<nav class="toc toc-left is-position-fixed"></nav>
+<div id="body-overlay"></div>
+<button id="toc-button" class="toc-button">›</button>
+<nav id="toc" class="toc toc-left is-position-fixed "></nav>
 
 <div class="container">
-    
+
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">Rust as the new C. Part 1: building and combining native libs into C API</h1>
+    <h1 class="post-title" itemprop="name headline">Rust as the new C: building and combining native libs into C API</h1>
     
         <p class="post-description" itemprop="description">Evaluating Rust as the common denominator of modern development</p>
     
@@ -489,7 +491,7 @@ for simple Rust code. In our case with native dependencies we have to modify the
 </span></span><span class="line"><span class="ln" id="hl-16-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-12">12</a></span><span class="cl">&amp;&amp; sh cmake-3.8.2-Linux-x86_64.sh --prefix=/opt/cmake --skip-license \
 </span></span><span class="line"><span class="ln" id="hl-16-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-13">13</a></span><span class="cl">&amp;&amp; ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake \
 </span></span><span class="line"><span class="ln" id="hl-16-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-14">14</a></span><span class="cl">...
-</span></span></code></pre></div><p>To run the debugger in a container click on the green <span style="background: green; color:white;"> &gt;&laquo;/span&gt; icon
+</span></span></code></pre></div><p>To run the debugger in a container click on the green <span style="background: green; color:white;"> &gt;&lt; </span> icon
 (at the left-bottom corner of VSCode window in the status bar) and run &ldquo;Remote-Containers: Reopen Folder in Container&rdquo; command.
 The first run is slow because Docker needs to create a container from the <code>Dockerfile</code>, but subsequent runs are quite fast.</p>
 <p>When the container is ready we could start the debugger with the <a href="https://github.com/buybackoff/RustTheNewC/blob/1ef295873864c6c5c49d40c3bcce49911460f657/src/rust/.vscode/launch.json#L19-L35" target="_blank" >&ldquo;Run Sandbox Container&rdquo; configuration</a>. Or we could execute cargo commands in the container in a new terminal (<code>Ctrl+Shift+` </code>).</p>
@@ -598,7 +600,7 @@ to the <code>rust/target</code> output folder layout and uses the fact that the 
 that could be produced by <code>dotnet pack -c Release</code> command.</p>
 <p>The line <code>&lt;PackagePath&gt;runtimes/win-x64/native&lt;/PackagePath&gt;</code> places the native library to a special
 location inside the package so that the library is automatically loaded.</p>
-<p>The line <code>&lt;CopyToOutputDirectory&gt;PreserveNewest&lt;/CopyToOutputDirectory&gt;</code> is needed to copy the native library
+<p>The line <code>&lt;CopyToOutputDirectory&gt; PreserveNewest &lt;/CopyToOutputDirectory&gt;</code> is needed to copy the native library
 to the binary output folder so that this example could find it.</p>
 <p>Replace the content of <code>Program.cs</code> with the following code:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-CSharp" data-lang="CSharp"><span class="line"><span class="ln" id="hl-22-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-22-1"> 1</a></span><span class="cl"><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
@@ -680,11 +682,11 @@ simple glue code.</p>
                 <a href="/tags/ffi/">ffi</a>
         </p>
     <div class="share">
-            <a class="icon-twitter" href="https://twitter.com/share?text=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f"
+            <a class="icon-twitter" href="https://twitter.com/share?text=Rust%20as%20the%20new%20C%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f"
                 onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" aria-label="Share on Twitter">
                 <i class="fa fa-twitter" aria-hidden="true"></i>
             </a>
-            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Rust%20as%20the%20new%20C.%20Part%201%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f&summary=Evaluating%20Rust%20as%20the%20common%20denominator%20of%20modern%20development"
+            <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&title=Rust%20as%20the%20new%20C%3a%20building%20and%20combining%20native%20libs%20into%20C%20API&url=https%3a%2f%2fhotforknowledge.com%2f2019%2f07%2f14%2f6-rust-the-new-c%2f&summary=Evaluating%20Rust%20as%20the%20common%20denominator%20of%20modern%20development"
                onclick="window.open(this.href, 'linkedin-share', 'width=554,height=481');return false;" aria-label="Share on LinkedIn">
                <i class="fa fa-linkedin" aria-hidden="true"></i>
             </a>
@@ -784,7 +786,7 @@ simple glue code.</p>
 <script src="/js/jquery-1.11.3.min.js "></script>
 <script src="/js/jquery.fitvids.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.25.0/tocbot.min.js"></script>
 <script src="/js/scripts.js"></script>
         
 </body>

@@ -9,11 +9,11 @@
     <copyright>Victor Baybekov</copyright>
     <lastBuildDate>Sat, 13 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>1BRC in .NET: even faster than in Java &amp; C&#43;&#43;</title>
-      <link>https://hotforknowledge.com/2024/01/13/7-1brc-in-dotnet-even-faster-than-java-cpp/</link>
+      <title>1BRC in .NET among fastest on Linux: My Optimization Journey</title>
+      <link>https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/</link>
       <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://hotforknowledge.com/2024/01/13/7-1brc-in-dotnet-even-faster-than-java-cpp/</guid>
+      <guid>https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/</guid>
       <description>At the start of the New Year, GitHub exploded with The One Billion Row Challenge started by Gunnar Morling. Originally it was a Java-only competition, but others wanted to have fun as well. Please read these links first if you do not know about this challenge and its rules.
 I also fell into this rabbit hole. I wrote one of the fastest managed 1BRC implementation that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.</description>
     </item>
