@@ -47,6 +47,12 @@ jQuery(function ($) {
   });
 });
 
+let collapseDepth = 3;
+if(document.title.toLowerCase().includes("1brc"))
+{
+  collapseDepth = 2;
+}
+
 tocbot.init({
   // Where to render the table of contents.
   tocSelector: ".toc",
@@ -54,7 +60,7 @@ tocbot.init({
   contentSelector: ".post-container",
   // Which headings to grab inside of the contentSelector element.
   headingSelector: "h1, h2, h3",
-  collapseDepth: 3,
+  collapseDepth: collapseDepth,
 });
 
 function hasClass(ele, cls) {

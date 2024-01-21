@@ -109,12 +109,24 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <h1 id="results">Results</h1>
 <p>In addition to my code, I&rsquo;ve set up a dedicated Linux server and invested significant effort in comparing the performance of various implementations. For .NET, I measured the performance of the same code under both JIT and AOT compilation. I did the same for Java, but only when the native image was mentioned in <a href="https://github.com/gunnarmorling/1brc/?tab=readme-ov-file#results" target="_blank" >Java results</a>. The server maintains a fixed CPU frequency, ensuring consistently stable results. Refer to the <a href="#methodology" >Methodology</a> section for further details.</p>
 <p><a id="results-table"></a></p>
-<iframe src="results_summary.html" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></iframe>
-<p><a href="results_details.html" target="_blank" >Detailed avg/min/max/sigma results</a></p>
+<div class="xtabs" id="results_tabs" style="height:650px;width:100%;">
+<ul>
+    <li><a id="tab1" class="xtabselected">Jan 21</a></li>
+    <li><a id="tab2">Jan 17</a></li>
+</ul>
+<div class="xtabscontainer" id="tab1C" >   
+<iframe src="results_summary.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
+<a href="results_details.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
+</div>
+<div class="xtabscontainer" id="tab2C">
+<iframe src="results_summary_Jan17.htm" id="results_jan17" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
+<a href="results_details_Jan17.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
+</div>
+</div>
 <blockquote>
-<p>On January 17th, the <a href="https://github.com/lehuyduc/1brc-simd" target="_blank" >C++ implementation</a> by <a href="https://github.com/lehuyduc" target="_blank" >lehuyduc</a> had its 10K timing halved and became the overall winner.</p>
+<p>On January 17th, the <a href="https://github.com/lehuyduc/1brc-simd" target="_blank" >C++ implementation</a> by <a href="https://github.com/lehuyduc" target="_blank" >lehuyduc</a> had its 10K timing halved and became the overall winner. On January 21st, the 10K timing improved but the default one regressed. Discussed this with the author in his repo.</p>
 </blockquote>
-<p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, multiple independent .NET implementations have outpaced leading Java counterparts, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
+<p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, my .NET implementation has outpaced the leading Java counterpart, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
 <p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and my code is very simple.</p>
 <h2 id="extended-dataset">Extended dataset</h2>
 <p>The default data generator has a small number of station names with a max length below the AVX vector size. Both of these properties
@@ -129,21 +141,19 @@ allow for many extreme performance gains. However, the specs say that there may 
 <li>The extended dataset with 10K random weather station names that could be as long as the specs allow. It is generated with <a href="https://github.com/gunnarmorling/1brc/blob/main/create_measurements3.sh" target="_blank" >create_measurements3.sh</a> and is 17+GB in size. See the quote with the link above for details.</li>
 </ul>
 <h2 id="yolo-optimizations">YOLO optimizations</h2>
-<p>Two results are crossed out in the table. They may work great for the default and the 10K datasets. They may even work for all weather stations in the world. However, they do not follow the specs. They assume that a hash of a station name is unique and use it for lookup, without checking for collisions.</p>
-<p><a href="https://github.com/xoofx" target="_blank" >Alexandre Mutel (xoofx)</a> calculates <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L213-L247" target="_blank" >here</a> 
+<p>Some implementations on GitHub employ overly aggressive optimizations that do not comply with the specifications. They optimize for the concrete dataset, not for the specifications. The reference Java repository <a href="https://github.com/gunnarmorling/1brc/pull/186#issuecomment-1880132600" target="_blank" >does not accept</a> such results and we cannot know how fast such over-optimized versions run.</p>
+<p>One result is crossed out in the results table. It may work great for the default and the 10K datasets. It may even work for all weather stations in the world. However, it does not follow the specs. It assumes that a hash of a station name is unique and use it for lookup, without checking for collisions.</p>
+<p><a href="https://github.com/RagnarGrootKoerkamp" target="_blank" >Ragnar Groot Koerkamp</a> wrote in Rust the fastest implementation overall. The only problem is that it would not be correct 
+if a station name is not present in the first half of the file. He does crazy impressive things, like generating a perfect hash function on the fly. But it would be trivial to make the result incorrect just by appending the input file with a new station name. And apparently, he also uses the hash-as-id trick. See the details in our <a href="https://github.com/RagnarGrootKoerkamp/1brc/issues/2#issuecomment-1890872066" target="_blank" >Support city names up to 100bytes</a> discussion.</p>
+<p>The original version by <a href="https://github.com/xoofx" target="_blank" >Alexandre Mutel (xoofx)</a> also used the 64-bit hash trick, but was recently updated and complies with the specs. He calculated <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L213-L247" target="_blank" >here</a> 
 an <a href="https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash" target="_blank" >FNV-1A hash</a> 
-touching every byte of the name, so it is not trivial to just use a prefix for hash collisions. He then uses that hash as a unique key in his measurements table <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L319-L328" target="_blank" >here</a>. He comments in the code: &ldquo;With a 64bit hash, we should avoid any collisions for <em>the entries that we have</em>.&rdquo; (emphasis is mine) This code works on a fixed set of existing weather station names. The 64-bit space is huge, and collisions are unlikely even for new stations. However, the probability of collisions is not <a href="https://crypto.stackexchange.com/a/25444" target="_blank" >negligible</a>. A collision attack would be non-infeasible if the stakes were higher, e.g., in a banking app.</p>
+touching every byte of the name, so it was not trivial to just use a prefix for hash collisions. He then used that hash as a unique key in his measurements table <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L319-L328" target="_blank" >here</a>. He commented in the code: &ldquo;With a 64bit hash, we should avoid any collisions for <em>the entries that we have</em>.&rdquo; (emphasis is mine) This code worked on a fixed set of existing weather station names. The 64-bit space is huge, and collisions were unlikely even for new stations. However, the probability of collisions was not <a href="https://crypto.stackexchange.com/a/25444" target="_blank" >negligible</a>. A collision attack would be non-infeasible if the stakes were higher, e.g., in a banking app.</p>
 <p>Below is <a href="https://github.com/xoofx/Fast1BRC/issues/1#issuecomment-1891066635" target="_blank" >our discussion</a> about that. I tend to agree if and only if the assumptions are somehow enforced (notifications about new stations and verification of the hash function after that). Though I think no one will notice a collision when it happens but only when wrong results become <a href="https://www.bbc.com/news/uk-66061488" target="_blank" >visible</a>. Assumptions are easy to forget and code <a href="https://en.wikipedia.org/wiki/Ariane_flight_V88" target="_blank" >could be reused in unexpected places</a>.</p>
 <blockquote>
 <p><strong>me:</strong> I have just read your code and the hash trick. Would you use it in a bank if the file was <code>account_holder_name;account_delta</code>?
 Frankly I did not even pay attention and would not think to cut corners like that. But it turns out many implementations did that.</p>
 <p><strong>xoofx:</strong> Nope, but these are weather stations right, so that&rsquo;s ok. 🙂 Also, in this kind of cases, you could always verify things everytime there is a new station name coming from another source (you get a notification) and verify that your hash won&rsquo;t ever collide. By the time does collide, you will be able to change your plan, use a stronger different/safer hash&hellip;etc, it will be probably in a million of years, if you have enough cities. Until then, profit.</p>
 </blockquote>
-<p><a href="https://github.com/RagnarGrootKoerkamp" target="_blank" >Ragnar Groot Koerkamp</a> wrote in Rust the fastest implementation overall. The only problem is that it would not be correct 
-if a station name is not present in the first half of the file. He does crazy impressive things, like generating a perfect hash function on the fly. But it would be trivial to make the result incorrect just by appending the input file with a new station name. And apparently, he also uses the hash-as-id trick. See the details in our <a href="https://github.com/RagnarGrootKoerkamp/1brc/issues/2#issuecomment-1890872066" target="_blank" >Support city names up to 100bytes</a> discussion.</p>
-<p>Funny enough, the last messages in both discussions in either by <a href="https://github.com/nietras" target="_blank" >@nietras</a> or link to his Tweet:</p>
-<blockquote class="twitter-tweet" data-conversation="none"><p lang="en" dir="ltr">I believe the xoofx version of 1BRC does the hash trick (comparing by hash only not by actual station name) that was deemed not acceptable in Java. That approach definitely is a lot faster as also seen in Java. <a href="https://t.co/WFQtuLZ5VK">https://t.co/WFQtuLZ5VK</a></p>&mdash; nietras 👾 (@nietras1) <a href="https://twitter.com/nietras1/status/1746162801729564812?ref_src=twsrc%5Etfw">January 13, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<p>I believe that in addition to the specs, the results from <a href="https://github.com/nietras" target="_blank" >@nietras</a> speak for themselves and remove any doubts about validity of such optimizations: he did even faster without them!</p>
 <p>For my part, I <a href="https://github.com/gunnarmorling/1brc/discussions/44#discussioncomment-8025802" target="_blank" >tried hard to write the most generic code</a> from the start. The name could be of any length, the number could be any non-scientific float, and the line endings could be <code>\r\n</code>. I was even able to beat the top Java result with such code, even if for a short period. After Java became faster again (also for a short period) I looked at the specs, but not the data. For me, the limit on the number range was the most important, but station names could still be of any length. The code would survive collisions, but there should be few of them for real-world input of <em>weather station names</em>.</p>
 <p>However, I must admit that it is possible with my implementation to create artificial data that will collide and turn <code>O(1)</code> hash table lookup into <code>O(N)</code> linear search (aka <a href="https://en.wikipedia.org/wiki/Collision_attack#Hash_flooding" target="_blank" >hash flooding</a>). But even in this case, it would still work. If I just use <code>0</code> as a hash code for all names, the code finishes in 1 minute 23 seconds for the default dataset. And for the 10K dataset I am not sure what is better: no result in the time I am patient to wait for or a wrong result.</p>
 <h2 id="methodology">Methodology</h2>
@@ -162,7 +172,7 @@ I was drinking hot tea with ginger and honey and reading Twitter. I saw a <a hre
 <p>Here and below I rerun the commits on my bench setup, the numbers are comparable to the JIT results in the table above.</p>
 <h2 id="performance-timeline">Performance timeline</h2>
 <p>The performance evolution following each change discussed in details below.</p>
-<iframe src="timeline.html" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></iframe>
+<iframe src="timeline.html" onload='javascript:(function(o){o.style.height=(o.contentWindow.document.body.scrollHeight + 10)+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></iframe>
 <h2 id="generic-version-for-any-input">Generic version for any input</h2>
 <p>At first, I did not even try to optimize for the specs. Just a name and a floating point number separated by a semicolon, with a measurement per line that ends either with <code>\n</code> on Linux or <code>\r\n</code> on Windows. Repeat 1B times.</p>
 <h3 id="key-ideas-from-the-start">Key ideas from the start</h3>
@@ -266,7 +276,7 @@ it is slow. They obviously do not know .NET well and do not distinguish between 
 </span></span></code></pre></div><h3 id="optimized-float-parsing">Optimized float parsing</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/273def1abf9c9cc365b4309a3bd8d081a3eb7951/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/f1b81f8..273def1?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 6.551 / 10.720 (10K)
+| Time: 6.551 <code>-51.4%</code> / 10.720 <code>-4.4%</code> (10K)
 </tt></p>
 <p>After profiling the code I found that <code>double.Parse()</code> took ~57% of the run time. Dictionary lookup took ~24%.</p>
 <p>I <a href="https://github.com/buybackoff/1brc/compare/f1b81f8..273def1?diff=split&amp;w=#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R203-R248" target="_blank" >added</a> a general-purpose parser for a floating point number that had a happy path but was falling back to the original on any detected irregularity. All <code>[-]?[0-9]+[.][0-9]+</code> floats would hit the happy path with this implementation.</p>
@@ -319,7 +329,7 @@ it is slow. They obviously do not know .NET well and do not distinguish between 
 </span></span></code></pre></div><h3 id="optimized-hash-function">Optimized hash function</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/e23c2bf8dace1450ad0411feaf54488795ec0fcb/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/273def1..e23c2bf?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 6.313 / 10.384  (10K)
+| Time: 6.313 <code>-3.6%</code> / 10.384 <code>-3.1%</code>  (10K)
 </tt></p>
 <p>It was no longer as lazy as in the <a href="#utf8span" >initial version</a>, it <a href="https://github.com/buybackoff/1brc/compare/273def1..e23c2bf?diff=split&amp;w=#diff-50d5d1069929df17bbf6f330e04035cfaafa17de2e48ab86ce2dbd0de338528aR47" target="_blank" >included the length</a> combined with the first bytes. More than 3% gain for free.</p>
 <p>There were some comments and measurements for the worst-case scenario if the hash is always zero and we use the linear search.</p>
@@ -356,7 +366,7 @@ the temperature is between -99.9 and 99.9 (<code>[-]?[0-9]?[0-9][.][0-9]</code>)
 <h3 id="parse-numbers-as-integers">Parse numbers as integers</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/e5d34c92a82a446d876089a1e1872da54bf64ebb/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/e23c2bf..e5d34c9?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 5.229 / 8.627 (10K)
+| Time: 5.229 <code>-17.2%</code> / 8.627 <code>-16.9%</code> (10K)
 </tt></p>
 <p>Just <a href="https://github.com/buybackoff/1brc/compare/e23c2bf..e5d34c9?diff=split&amp;w=#diff-50d5d1069929df17bbf6f330e04035cfaafa17de2e48ab86ce2dbd0de338528aR94-R130" target="_blank" >using the fact</a> that the temperature is between -99.9 and 99.9. We have only the 4 cases and could optimize for that:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1">1</a></span><span class="cl">...;-99.9
@@ -366,16 +376,18 @@ the temperature is between -99.9 and 99.9 (<code>[-]?[0-9]?[0-9][.][0-9]</code>)
 </span></span></code></pre></div><h3 id="set-dictionary-capacity">Set dictionary capacity</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/3644b251cda38abd620bda644efda12951020042/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/e5d34c9..3644b25?diff=split&amp;w=#" target="_blank" >Diff with previous</a> 
-| Time: 4.341 / 8.951 (10K)
+| Time: 4.341 <code>-17.0%</code> / 8.951 <code>+3.8%</code> (10K)
 </tt></p>
 <p>It was so dumb! But was like a canned food when I had little to eat for performance. A <a href="https://github.com/buybackoff/1brc/compare/e5d34c9..3644b25?diff=split&amp;w=#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R88" target="_blank" >single line / 5 characters change</a> for a 17% gain.</p>
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Hahaha, I&#39;m so unused to write one-off programs. Zero-alloc and high-perf in steady-state... but init time usually not that important. So in <a href="https://twitter.com/hashtag/1brc?src=hash&amp;ref_src=twsrc%5Etfw">#1brc</a> just setting big enough capacity to dictionaries is such a huge win. 🤦‍♂️🙀</p>&mdash; Victor Baybekov (@buybackoff) <a href="https://twitter.com/buybackoff/status/1743691353601585376?ref_src=twsrc%5Etfw">January 6, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <h3 id="optimized-indexof">Optimized IndexOf</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/7fdd17a755665910ecfabb4667b5bda277531e39/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/3644b25..7fdd17a?diff=split&amp;w=#diff-50d5d1069929df17bbf6f330e04035cfaafa17de2e48ab86ce2dbd0de338528aR99-R125" target="_blank" >Diff with previous</a> 
-| Time: 4.040 / 8.609 (10K)
+| Time: 4.040 <code>-6.9%</code> / 8.609 <code>-3.8%</code> (10K)
 </tt></p>
 <p>Manual AVX2 search for a byte in a span with a fallback to <code>Span.IndexOf</code> when the remaining part of a chunk is smaller than 32 bytes.</p>
+<p>This is a lazy implementation with non-elegant and non-optimal bound checks. I rewrote it later, but the main performance gain is from 
+a smaller inlined method compared to <code>Span</code> creation and <code>Span.IndexOf</code> call.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-7-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-1"> 1</a></span><span class="cl"><span class="c1">// Inside Utf8Span</span>
 </span></span><span class="line"><span class="ln" id="hl-7-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-2"> 2</a></span><span class="cl"><span class="na">[MethodImpl(MethodImplOptions.AggressiveInlining)]</span>
 </span></span><span class="line"><span class="ln" id="hl-7-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-3"> 3</a></span><span class="cl"><span class="k">internal</span> <span class="kt">int</span> <span class="n">IndexOf</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">needle</span><span class="p">)</span>
@@ -409,12 +421,12 @@ the temperature is between -99.9 and 99.9 (<code>[-]?[0-9]?[0-9][.][0-9]</code>)
 </span></span></code></pre></div><h3 id="use-native-integers-everywhere">Use native integers everywhere</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/d6c8e48b07821a05a1582f0e98f949360e3b4bd9/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/7fdd17a..d6c8e48?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 3.693 / 8.604 (10K)
+| Time: 3.693 <code>-8.6%</code> / 8.604 <code>-0.1%</code> (10K)
 </tt></p>
-<p>In the native world, it is normal to use <code>size_t</code> native size type for offset and length, because CPUs are faster to work with native words.
-In .NET most public APIs accept a 32-bit <code>int</code> for that. CPUs have to expand it to <code>nint</code> every time. But internally .NET itself uses
+<p>In the native world, it is normal to use <code>size_t</code> (native size type) for offset and length because CPUs are faster to work with native words.
+In .NET, most public APIs accept a 32-bit <code>int</code> for that. CPUs have to expand it to <code>nint</code> every time. But internally, .NET itself uses
 native integers.</p>
-<p>E.g. here is the code with comments for <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/SpanHelpers.Byte.cs,760" target="_blank" ><code>SpanHelpers.SequenceEqual</code></a>:</p>
+<p>E.g. here is some code with comments for <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/SpanHelpers.Byte.cs,760" target="_blank" ><code>SpanHelpers.SequenceEqual</code></a>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1">1</a></span><span class="cl"><span class="c1">// Optimized byte-based SequenceEquals. The &#34;length&#34; parameter for this one </span>
 </span></span><span class="line"><span class="ln" id="hl-8-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-2">2</a></span><span class="cl"><span class="c1">// is declared a nuint rather than int as we also use it for types other than byte</span>
 </span></span><span class="line"><span class="ln" id="hl-8-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-3">3</a></span><span class="cl"><span class="c1">// where the length can exceed 2Gb once scaled by sizeof(T).</span>
@@ -427,14 +439,14 @@ native integers.</p>
 </span></span></code></pre></div><h3 id="use-a-custom-dictionary">Use a custom dictionary</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/8841e83e2abfb5f57a872cbea4c979c9b9e49178/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/d6c8e48..8841e83?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 3.272 / 8.232 (10K)
+| Time: 3.272 <code>-11.4%</code> / 8.232 <code>-4.3%</code> (10K)
 </tt></p>
 <p>Up until this point, I still had the default .NET dictionary. But since the specs say there are a maximum of 10K unique names I could use this information.</p>
 <p>Details TBD</p>
 <h3 id="fast-utf8spanequals">Fast Utf8Span.Equals</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/9ed39221ec7db8f89e8e2a0702d43a184cc5e879/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/8841e83..9ed3922?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 2.773 / 6.635 (10K)
+| Time: 2.773 <code>-15.3%</code> / 6.635 <code>-19.4%</code> (10K)
 </tt></p>
 <p>I spent some effort trying to beat <code>Span.SequenceEqual</code> for small size. Tried to copy parts of the implementation and inline it, but nothing worked.
 Then I had a crazy idea to allow the code reading beyond <code>Utf8Span.Length</code>. Then I could just use an AVX2 vector, set the bytes after the length to zero,
@@ -444,7 +456,7 @@ before the end. I copy the remaining part to a memory buffer that is much bigger
 <h3 id="optimize-the-inner-loop">Optimize the inner loop</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/1051e06052d5a8a95fa0aee461e37d969532aa65/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/9ed3922..1051e06?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
-| Time: 2.204 / 4.811 (10K)
+| Time: 2.191 <code>-21.0%</code> / 4.811 <code>-27.5%</code> (10K)
 </tt></p>
 <ul>
 <li>Faster integer parsing combined with new line index calculation;</li>
@@ -452,6 +464,70 @@ before the end. I copy the remaining part to a memory buffer that is much bigger
 <li>Faster ProcessChunk loop.</li>
 </ul>
 <p>Details TBD</p>
+<h3 id="low-dictionary-load-factor">Low dictionary load factor</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/b19ccee08ac913214b20ab7d761127fa0424a5d6/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/1051e06..b19ccee?diff=split&amp;w=#diff-4eb6ec3412890a4793f491d80e808b0f847d81bb6791bc0390c2055ab8944da7R17" target="_blank" >Diff with previous</a> 
+| Time: 2.219 <code>+1.3%</code>  / 4.185 <code>-13.0%</code> (10K)
+</tt></p>
+<p>Oops, I did it again. <a href="#set-dictionary-capacity" >Above</a>, setting the capacity to 10K reduced the default time by 17%, but slightly increased the 10K time.
+The load factor for the default dataset was <code>416/10000 = 4%</code>, but for the 10K dataset it was exactly 100%. Lots of collisions and linear probing were 
+guaranteed by design. The automatic capacity is doubled when a default .NET dictionary grows and the 10K dictionary capacity was 16384. By fixing it to 10K
+above I have increased the load factor. That explains why that change made the 10K timing slightly slower.</p>
+<p>With this change, the capacity increased from 10K to 40K and the load factor is 25% for the 10K dataset. 
+For the default dataset, the load factor goes from 4% to 1% and is probably less relevant than worse data locality.</p>
+<p>This change also includes output formatting fixes and a <a href="https://twitter.com/buybackoff/status/1746512205300806111" target="_blank" >bug fix</a> that was a result of negligent experimentation. None of these changes affected performance in any way.</p>
+<h2 id="making-it-even-faster">Making it even faster</h2>
+<p>Different optimizations making hot paths and CPU caches happier.</p>
+<h3 id="faster-utf8spanequals">Faster Utf8Span.Equals</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/f34c45f93475c6683994b78b86170cf250a2ed29/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/b19ccee..f34c45f?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 2.148 <code>-3.2%</code>  / 4.052 <code>-3.2%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="better-hash-function">Better hash function</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/60ac7b31853f2985dd6f6026476a1fe4bd7e544f/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/f34c45f..60ac7b3?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 2.140 <code>-0.4%</code>  / 4.024 <code>-0.7%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="smaller-hot-path-non-inline-rare-paths">Smaller hot path, non inline rare paths</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/473d46587155f4f42e925789692643582703a0c0/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/60ac7b3..473d465?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 2.062 <code>-3.6%</code>  / 3.751 <code>-6.8%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="init-summary-during-add">Init Summary during Add</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/635b523f3e70c10ee115bc32d2bf7a68fae796d8/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/473d465..635b523?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 2.025 <code>-1.8%</code>  / 3.752 <code>0.0%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="copy-keys-to-dict-better-cache-locality">Copy keys to dict, better cache locality</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/4cdf9cd48fb0fa80abcbd8aa8f9c156b7a45decd/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/635b523..4cdf9cd?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 1.975 <code>-2.5%</code>  / 3.394 <code>-9.5%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="parseint-starts-from-semicolon">ParseInt starts from semicolon</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/94b70a5e1c15cb87092c33ed8ecfb0483f965b1f/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/4cdf9cd..94b70a5?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 1.945 <code>-1.5%</code>  / 3.406 <code>+0.4%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h3 id="break-chunks-unevenly-and-munmap-at-different-times">Break chunks unevenly and munmap at different times</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/cbe7578b4b5d08e2501e8f4ead3a0511923ffdc4/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/94b70a5..cbe7578?diff=split#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R202-R231" target="_blank" >Diff with previous</a> 
+| Time: 1.814 <code>-6.7%</code>  / 3.256 <code>-4.4%</code> (10K)
+</tt></p>
+<p>TODO</p>
+<h2 id="windows-has-slow-mmap">Windows has slow mmap</h2>
+<p>TODO Link to xoofx results</p>
+<h3 id="use-async-randomaccess-on-windows">Use async RandomAccess on Windows</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/bb9119657c76c150ce3f5e37539014536e2a0094/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/cbe7578..bb91196?diff=split#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R277-R321" target="_blank" >Diff with previous</a> 
+| Time: 2.041 <code>-21.8%</code>  / 3.598 <code>-11.5%</code> (10K)
+</tt></p>
+<p>TODO</p>
 <h1 id="net-is-very-fast">.NET is very fast</h1>
 <p>.NET is very fast. And it is becoming even faster with every new release. 
 Some people joke that the best performance optimization for .NET is just updating it - and that is probably true for the majority of its users.</p>
@@ -521,7 +597,7 @@ The .NET port of the famous high-performance inter-thread messaging library <a h
 <div class="comments">
     <div id="disqus_thread"></div>
     <script type="text/javascript">
-        var disqus_identifier = 'https:\/\/hotforknowledge.com\/2024\/01\/13\/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey\/';
+        var disqus_identifier = 'https:\/\/hotforknowledge.com\/2024\/01\/13\/7-1brc-in-dotnet-even-faster-than-java-cpp\/';
 
         (function () {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
