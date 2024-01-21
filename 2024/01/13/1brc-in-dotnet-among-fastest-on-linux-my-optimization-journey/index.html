@@ -111,14 +111,19 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <p><a id="results-table"></a></p>
 <div class="xtabs" id="results_tabs" style="height:650px;width:100%;">
 <ul>
-    <li><a id="tab1" class="xtabselected">Jan 21</a></li>
-    <li><a id="tab2">Jan 17</a></li>
+    <li><a id="tab1" class="xtabselected">Jan 21, 9PM</a></li>
+    <li><a id="tab2">Jan 21, 2PM</a></li>
+    <li><a id="tab3">Jan 17</a></li>
 </ul>
-<div class="xtabscontainer" id="tab1C" >   
+<div class="xtabscontainer" id="tab1C" >
 <iframe src="results_summary.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
-<div class="xtabscontainer" id="tab2C">
+<div class="xtabscontainer" id="tab2C" >   
+<iframe src="results_summary_Jan21_2PM.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
+<a href="results_details_Jan21_2PM.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
+</div>
+<div class="xtabscontainer" id="tab3C">
 <iframe src="results_summary_Jan17.htm" id="results_jan17" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details_Jan17.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
@@ -126,6 +131,12 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <blockquote>
 <p>On January 17th, the <a href="https://github.com/lehuyduc/1brc-simd" target="_blank" >C++ implementation</a> by <a href="https://github.com/lehuyduc" target="_blank" >lehuyduc</a> had its 10K timing halved and became the overall winner. On January 21st, the 10K timing improved but the default one regressed. Discussed this with the author in his repo.</p>
 </blockquote>
+<p><strong>Updates:</strong></p>
+<ul>
+<li><strong>Jan 17</strong>: Stable .NET and C++ results for the 10K dataset.</li>
+<li><strong>Jan 21, 2PM</strong>: My new optimizations described in <a href="#making-it-even-faster" >Making it even faster</a> section. Updated repos.</li>
+<li><strong>Jan 21, 9PM</strong>: Updated Java repo and re-run. They <a href="https://twitter.com/gunnarmorling/status/1749156816422912242" target="_blank" >decided it&rsquo;s OK to run a subprocess</a> and leave it doing <code>munmap</code>. Interestingly, JIT timings increased probably because it takes time to start another JVM subprocess. Native timings improved a lot. One of my optimizations <a href="#break-chunks-unevenly-and-munmap-at-different-times" >nearly eliminated</a> <code>munmap</code> time without a subprocess and my version is still faster.</li>
+</ul>
 <p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, my .NET implementation has outpaced the leading Java counterpart, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
 <p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and my code is very simple.</p>
 <h2 id="extended-dataset">Extended dataset</h2>
