@@ -59,7 +59,7 @@ tocbot.init({
   // Where to grab the headings to build the table of contents.
   contentSelector: ".post-container",
   // Which headings to grab inside of the contentSelector element.
-  headingSelector: "h1, h2, h3",
+  headingSelector: "h1, h2, h3, h4",
   collapseDepth: collapseDepth,
 });
 

@@ -111,19 +111,31 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <p><a id="results-table"></a></p>
 <div class="xtabs" id="results_tabs" style="height:650px;width:100%;">
 <ul>
-    <li><a id="tab1" class="xtabselected">Jan 21, 9PM</a></li>
-    <li><a id="tab2">Jan 21, 2PM</a></li>
-    <li><a id="tab3">Jan 17</a></li>
+    <li><a id="tab1" class="xtabselected">Jan 22, 9PM</a></li>
+    <!-- <li><a id="tab11">Jan 22, 9PM [14C/20T CPU]</a></li> -->
+    <li><a id="tab2">Jan 21, 9PM</a></li>
+    <li><a id="tab3">Jan 21, 2PM</a></li>
+    <li><a id="tab4">Jan 17</a></li>
 </ul>
 <div class="xtabscontainer" id="tab1C" >
 <iframe src="results_summary.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
-<div class="xtabscontainer" id="tab2C" >   
+<!-- <div class="xtabscontainer" id="tab11C" >
+
+<blockquote>Select results on 14C/20T i5-13500 processor. This processor has 6 hyper-threaded performance cores fixed at 2.5GHz and 8 efficiency cores fixed at 1.8GHz. All results presented in other places are measured only on the 6C/12T performance cores. The hybrid cores introduce a lot of noise. Some results are quite strange, e.g. artsiomkorzun's 10K runs are slower while the default ones are much faster.</blockquote>
+
+<img src="Jan22_Many_Cores.png" alt="Jan22_Many_Cores">
+</div> -->
+<div class="xtabscontainer" id="tab2C" >
+<iframe src="results_summary_Jan21_9PM.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
+<a href="results_details_Jan21_9PM.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
+</div>
+<div class="xtabscontainer" id="tab3C" >   
 <iframe src="results_summary_Jan21_2PM.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details_Jan21_2PM.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
-<div class="xtabscontainer" id="tab3C">
+<div class="xtabscontainer" id="tab4C">
 <iframe src="results_summary_Jan17.htm" id="results_jan17" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details_Jan17.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
@@ -134,8 +146,9 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <p><strong>Updates:</strong></p>
 <ul>
 <li><strong>Jan 17</strong>: Stable .NET and C++ results for the 10K dataset.</li>
-<li><strong>Jan 21, 2PM</strong>: My new optimizations described in <a href="#making-it-even-faster" >Making it even faster</a> section. Updated repos.</li>
-<li><strong>Jan 21, 9PM</strong>: Updated <a href="https://github.com/kpocza/1brc" target="_blank" >kpocza&rsquo;s repo</a>. Updated <a href="https://github.com/gunnarmorling/1brc" target="_blank" >Java repo</a> and re-run. They <a href="https://twitter.com/gunnarmorling/status/1749156816422912242" target="_blank" >decided it&rsquo;s OK to run a subprocess</a> and leave it doing <code>munmap</code>. Interestingly, JIT timings increased probably because it takes time to start another JVM subprocess. Native timings improved a lot. One of my optimizations <a href="#break-chunks-unevenly-and-munmap-at-different-times" >nearly eliminated</a> <code>munmap</code> time without a subprocess and my version is still faster.</li>
+<li><strong>Jan 21, 2PM</strong>: My new optimizations described in <a href="#making-it-even-faster" >Making it even faster</a> section. Updated xoofx&rsquo;s and Java repos.</li>
+<li><strong>Jan 21, 9PM</strong>: Updated kpocza&rsquo;s and Java repos. In Java repo, they <a href="https://twitter.com/gunnarmorling/status/1749156816422912242" target="_blank" >decided it&rsquo;s OK to run a subprocess</a> and leave it doing <code>munmap</code>. Interestingly, JIT timings increased probably because it takes time to start another JVM subprocess. AOT timings improved a lot. One of my optimizations <a href="#break-chunks-unevenly-and-munmap-at-different-times" >nearly eliminated</a> <code>munmap</code> time without cheating with a subprocess and my version is still faster.</li>
+<li><strong>Jan 22, 9PM</strong>: Added the fastest overall <a href="https://github.com/noahfalk/1brc/" target="_blank" >noahfalk&rsquo;s repo</a>. Updated my repo with some micro-optimizations.</li>
 </ul>
 <p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, my .NET implementation has outpaced the leading Java counterpart, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
 <p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and my code is very simple.</p>
@@ -173,9 +186,6 @@ Frankly I did not even pay attention and would not think to cut corners like tha
 <p><a href="https://en.wikipedia.org/wiki/LXC" target="_blank" >LXC</a> is a Linux container similar to Docker but running a full-blown OS. It has <a href="https://www.researchgate.net/figure/Performance-comparison-between-baremetal-virtual-machine-containers_fig1_327238504" target="_blank" >very</a> <a href="https://serverfault.com/questions/974013/overhead-of-lxd/974015#974015" target="_blank" >little</a> <a href="https://inria.hal.science/hal-03337920/document" target="_blank" >overheads</a> for CPU/RAM-bound tasks. <a href="https://en.wikipedia.org/wiki/Proxmox_Virtual_Environment" target="_blank" >Proxmox</a> is an open-source virtualization management platform that is very productive and addictive for homelab use cases.</p>
 </blockquote>
 <p>The timings are measured with the <code>hyperfine --warmup 1 --runs 5 './1brc path/to/file'</code>. The results are very stable since there is no noise in the system. See the link below the <a href="#results-table" >results table</a> for more min/max/sigma statistics.</p>
-<p>For my and <a href="https://github.com/CameronAavik/1brc" target="_blank" >Cameron Aavik</a> results, I ran the benchmark multiple times and 
-they are indeed ranked differently on the default data depending on JIT vs AOT. For my code AOT is slightly detrimental, 
-but for the other solution AOT improves the performance.</p>
 <h1 id="my-optimization-journey">My Optimization Journey</h1>
 <p>I&rsquo;ve been coughing for more than 2 weeks. It was so bad around the New Year that I took January 2-3 off. On January 3rd, 
 I was drinking hot tea with ginger and honey and reading Twitter. I saw a <a href="https://twitter.com/KooKiz/status/1742168051724775559" target="_blank" >tweet from Kevin Gosse</a> about this challenge and I liked the idea. But I also knew that it might be an entrance to a very deep rabbit hole, with faint memories of wasted time at its bottom.</p>
@@ -531,8 +541,15 @@ For the default dataset, the load factor goes from 4% to 1% and is probably less
 | Time: 1.814 <code>-6.7%</code>  / 3.256 <code>-4.4%</code> (10K)
 </tt></p>
 <p>TODO</p>
+<h3 id="misc-micro-optimizations">Misc micro-optimizations</h3>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/e32320c6d6831bd620683e0fb2650af9857b5f9c/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/cbe7578..e32320c?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 1.791 <code>-6.7%</code>  / 3.256 <code>-4.4%</code> (10K)
+</tt></p>
+<p>TODO</p>
 <h2 id="windows-has-slow-mmap">Windows has slow mmap</h2>
-<p>TODO Link to xoofx results</p>
+<p>Windows results by xoofx are available <a href="https://github.com/xoofx/Fast1BRC/?tab=readme-ov-file#results" target="_blank" >here</a>.</p>
+<p>TODO</p>
 <h3 id="use-async-randomaccess-on-windows">Use async RandomAccess on Windows</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/bb9119657c76c150ce3f5e37539014536e2a0094/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/cbe7578..bb91196?diff=split#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R277-R321" target="_blank" >Diff with previous</a> 
