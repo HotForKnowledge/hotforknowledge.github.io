@@ -109,7 +109,7 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <h1 id="results">Results</h1>
 <p>In addition to my code, I&rsquo;ve set up a dedicated Linux server and invested significant effort in comparing the performance of various implementations. For .NET, I measured the performance of the same code under both JIT and AOT compilation. I did the same for Java, but only when the native image was mentioned in <a href="https://github.com/gunnarmorling/1brc/?tab=readme-ov-file#results" target="_blank" >Java results</a>. The server maintains a fixed CPU frequency, ensuring consistently stable results. Refer to the <a href="#methodology" >Methodology</a> section for further details.</p>
 <p><a id="results-table"></a></p>
-<div class="xtabs" id="results_tabs" style="height:650px;width:100%;">
+<div class="xtabs" id="results_tabs" style="height:650px;width:100%;margin-bottom:40px">
 <ul>
     <li><a id="tab1" class="xtabselected">Jan 22, 9PM</a></li>
     <!-- <li><a id="tab11">Jan 22, 9PM [14C/20T CPU]</a></li> -->
@@ -140,15 +140,12 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 <a href="results_details_Jan17.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
 </div>
 </div>
-<blockquote>
-<p>On January 17th, the <a href="https://github.com/lehuyduc/1brc-simd" target="_blank" >C++ implementation</a> by <a href="https://github.com/lehuyduc" target="_blank" >lehuyduc</a> had its 10K timing halved and became the overall winner. On January 21st, the 10K timing improved but the default one regressed. Discussed this with the author in his repo.</p>
-</blockquote>
 <p><strong>Updates:</strong></p>
 <ul>
 <li><strong>Jan 17</strong>: Stable .NET and C++ results for the 10K dataset.</li>
 <li><strong>Jan 21, 2PM</strong>: My new optimizations described in <a href="#making-it-even-faster" >Making it even faster</a> section. Updated xoofx&rsquo;s and Java repos.</li>
 <li><strong>Jan 21, 9PM</strong>: Updated kpocza&rsquo;s and Java repos. In Java repo, they <a href="https://twitter.com/gunnarmorling/status/1749156816422912242" target="_blank" >decided it&rsquo;s OK to run a subprocess</a> and leave it doing <code>munmap</code>. Interestingly, JIT timings increased probably because it takes time to start another JVM subprocess. AOT timings improved a lot. One of my optimizations <a href="#break-chunks-unevenly-and-munmap-at-different-times" >nearly eliminated</a> <code>munmap</code> time without cheating with a subprocess.</li>
-<li><strong>Jan 22, 9PM</strong>: Added the fastest overall <a href="https://github.com/noahfalk/1brc/" target="_blank" >noahfalk&rsquo;s repo</a>. Updated my repo with some micro-optimizations.</li>
+<li><strong>Jan 22, 9PM</strong>: Added the fastest overall <a href="https://github.com/noahfalk/1brc/" target="_blank" >noahfalk&rsquo;s repo</a>. Updated my repo with some micro-optimizations. Updated lehuyduc&rsquo;s version as of Jan 23 morning.</li>
 </ul>
 <p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, several independent .NET implementations have outpaced leading Java counterparts, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
 <p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and my code is very simple.</p>
