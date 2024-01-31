@@ -102,7 +102,7 @@
 started by <a href="https://www.morling.dev/blog/one-billion-row-challenge/" target="_blank" >Gunnar Morling</a>. Originally it was a Java-only 
 competition, but <a href="https://github.com/gunnarmorling/1brc/discussions/categories/show-and-tell" target="_blank" >others wanted to have fun as well</a>.
 Please read these links first if you do not know about this challenge and its rules.</p>
-<p>I also fell into this rabbit hole. <a href="https://github.com/buybackoff/1brc" target="_blank" >I wrote one of the fastest managed 1BRC implementation</a> 
+<p>I also fell down this rabbit hole. <a href="https://github.com/buybackoff/1brc" target="_blank" >I wrote one of the fastest managed 1BRC implementation</a> 
 that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.
 Furthermore, at the time of writing my results were close to the C++ implementation for the default data and were faster in the case of more complex data.</p>
 <p>In the <a href="#results" >Results</a> section below I present different timings for different languages and datasets. In <a href="#my-optimization-journey" >My Optimization Journey</a>, I show the history of my optimizations step-by-step. Then I discuss why <a href="#net-is-fast" >.NET is fast</a> and easy to use for that kind of code. Finally, I describe how I write <a href="#high-performance-net-code-as-a-daily-routine-aka-come-work-with-us" >High-performance .NET code as a daily routine</a> at my work.</p>
@@ -617,31 +617,6 @@ The .NET port of the famous high-performance inter-thread messaging library <a h
             </a>
     </div>
 </footer>
-
-        
-<div class="comments">
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        var disqus_identifier = 'https:\/\/hotforknowledge.com\/2024\/01\/13\/7-1brc-in-dotnet-even-faster-than-java-cpp\/';
-
-        (function () {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            var disqus_shortname = 'hotforknowledge';
-            
-
-            
-            
-            if (window.location.hostname == "localhost")
-                return;
-
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
-            Disqus.</a></noscript>
-    <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-</div>
 
     </article>
 </div>

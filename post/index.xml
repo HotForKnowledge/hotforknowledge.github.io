@@ -15,7 +15,7 @@
       
       <guid>https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/</guid>
       <description>At the start of the New Year, GitHub exploded with The One Billion Row Challenge started by Gunnar Morling. Originally it was a Java-only competition, but others wanted to have fun as well. Please read these links first if you do not know about this challenge and its rules.
-I also fell into this rabbit hole. I wrote one of the fastest managed 1BRC implementation that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.</description>
+I also fell down this rabbit hole. I wrote one of the fastest managed 1BRC implementation that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.</description>
     </item>
     
     <item>
