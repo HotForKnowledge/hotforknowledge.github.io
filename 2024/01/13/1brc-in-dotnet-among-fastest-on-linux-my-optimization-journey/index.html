@@ -183,7 +183,7 @@ Frankly I did not even pay attention and would not think to cut corners like tha
 <p>However, I must admit that it is possible with my implementation to create artificial data that will collide and turn <code>O(1)</code> hash table lookup into <code>O(N)</code> linear search (aka <a href="https://en.wikipedia.org/wiki/Collision_attack#Hash_flooding" target="_blank" >hash flooding</a>). But even in this case, it would still work. If I just use <code>0</code> as a hash code for all names, the code finishes in 1 minute 23 seconds for the default dataset. And for the 10K dataset I am not sure what is better: no result in the time I am patient to wait for or a wrong result.</p>
 <h2 id="methodology">Methodology</h2>
 <h3 id="final-results">Final results</h3>
-<p>Final results were measured on 2 Intel / 2 AMD big x64, 1 big ARM64 and 1 small i5-13500 P-cores only machines. On AWS metal machines, I did not bother to turns off turbo boost (machines with 96/192 cores and ARM). The other two big machines have turbo off. My home machine also has turbo off and the numbers from there were published in the intermediate tables.</p>
+<p>Final results were measured on 2 Intel / 2 AMD big x64, 1 big ARM64 and 1 small i5-13500 P-cores only machines. On AWS metal machines, I did not bother to turn off turbo boost (machines with 96/192 cores and ARM). The other two big machines have turbo off. My home machine also has turbo off and the numbers from there were published in the intermediate tables.</p>
 <ul>
 <li>AMD EPYC 7R1348 (AWS Metal)</li>
 <li>Intel Xeon Platinum 8275CL (AWS Metal)</li>
