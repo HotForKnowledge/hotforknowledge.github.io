@@ -104,19 +104,23 @@ competition, but <a href="https://github.com/gunnarmorling/1brc/discussions/cate
 Please read these links first if you do not know about this challenge and its rules.</p>
 <p>I also fell down this rabbit hole. <a href="https://github.com/buybackoff/1brc" target="_blank" >I wrote one of the fastest managed 1BRC implementation</a> 
 that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.
-Furthermore, at the time of writing my results were close to the C++ implementation for the default data and were faster in the case of more complex data.</p>
-<p>In the <a href="#results" >Results</a> section below I present different timings for different languages and datasets. In <a href="#my-optimization-journey" >My Optimization Journey</a>, I show the history of my optimizations step-by-step. Then I discuss why <a href="#net-is-fast" >.NET is fast</a> and easy to use for that kind of code. Finally, I describe how I write <a href="#high-performance-net-code-as-a-daily-routine-aka-come-work-with-us" >High-performance .NET code as a daily routine</a> at my work.</p>
+Furthermore, at the initial time of writing (the post date) my results were close to the C++ implementation for the default data and were faster in the case of more complex data.</p>
+<p>In the <a href="#results" >Results</a> section below, I present different timings for different languages and datasets. In <a href="#my-optimization-journey" >My Optimization Journey</a>, I show the history of my optimizations step-by-step. Then I discuss why <a href="#net-is-fast" >.NET is fast</a> and easy to use for that kind of code. Finally, I describe how I write <a href="#high-performance-net-code-as-a-daily-routine-aka-come-work-with-us" >High-performance .NET code as a daily routine</a> at my work.</p>
 <h1 id="results">Results</h1>
-<p>In addition to my code, I&rsquo;ve set up a dedicated Linux server and invested significant effort in comparing the performance of various implementations. For .NET, I measured the performance of the same code under both JIT and AOT compilation. I did the same for Java, but only when the native image was mentioned in <a href="https://github.com/gunnarmorling/1brc/?tab=readme-ov-file#results" target="_blank" >Java results</a>. The server maintains a fixed CPU frequency, ensuring consistently stable results. Refer to the <a href="#methodology" >Methodology</a> section for further details.</p>
+<p>The final table below shows average scaled results from different CPU architectures and the number of cores. Other tabs show intermediate results measured on my local machine as well as used languages and links to the source code for each entry. Refer to the <a href="#methodology" >Methodology</a> section for further details. You could sort columns or view the <a href="https://onedrive.live.com/view.aspx?resid=B64A7F98F035FC43%21359680&amp;authkey=!AHgAJ48FKqWaUwE" target="_blank" >raw file</a> to see how the aggregation is done and to find a slice of the results that you like more.</p>
 <p><a id="results-table"></a></p>
-<div class="xtabs" id="results_tabs" style="height:650px;width:100%;margin-bottom:40px">
+<div align="center" class="xtabs" id="results_tabs" style="height:100%;width:100%;margin-bottom:40px;text-align: center;display:block;">
 <ul>
-    <li><a id="tab1" class="xtabselected">Jan 22, 9PM</a></li>
+    <li><a id="tab0" class="xtabselected">Final</a></li>
+    <li><a id="tab1">Jan 22, 9PM</a></li>
     <!-- <li><a id="tab11">Jan 22, 9PM [14C/20T CPU]</a></li> -->
     <li><a id="tab2">Jan 21, 9PM</a></li>
     <li><a id="tab3">Jan 21, 2PM</a></li>
     <li><a id="tab4">Jan 17</a></li>
 </ul>
+<div class="xtabscontainer" id="tab0C"  style="text-align:center;">
+<iframe width="620" height="435" frameborder="0" scrolling="no" src="https://onedrive.live.com/embed?resid=B64A7F98F035FC43%21359680&authkey=%21AALXT9qdyEiuAoY&em=2&ActiveCell='final'!A1&Item='final'!A1%3AE20&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"></iframe>
+</div>
 <div class="xtabscontainer" id="tab1C" >
 <iframe src="results_summary.htm" style="height:620px;width:100%;border:none;overflow:hidden;"></iframe>
 <a href="results_details.htm" target="_blank" >Detailed avg/min/max/sigma results</a>
@@ -142,13 +146,13 @@ Furthermore, at the time of writing my results were close to the C++ implementat
 </div>
 <p><strong>Updates:</strong></p>
 <ul>
+<li><strong>May 26</strong>: Final scaled results and detailed raw results in an <a href="https://1drv.ms/x/s!AkP8NfCYf0q2lfoAeAAnjwUqpZpTAQ?e=yciIVg" target="_blank" >Excel file</a>. In My Optimizations, added <a href="#final-push" >Final push</a> section and filled missing details in the previous section. In Methodology, added a section for <a href="#final-results" >Final results</a> with a link to the automated benchmark repo with results.</li>
 <li><strong>Jan 17</strong>: Stable .NET and C++ results for the 10K dataset.</li>
 <li><strong>Jan 21, 2PM</strong>: My new optimizations described in <a href="#making-it-even-faster" >Making it even faster</a> section. Updated xoofx&rsquo;s and Java repos.</li>
 <li><strong>Jan 21, 9PM</strong>: Updated kpocza&rsquo;s and Java repos. In Java repo, they <a href="https://twitter.com/gunnarmorling/status/1749156816422912242" target="_blank" >decided it&rsquo;s OK to run a subprocess</a> and leave it doing <code>munmap</code>. Interestingly, JIT timings increased probably because it takes time to start another JVM subprocess. AOT timings improved a lot. One of my optimizations <a href="#break-chunks-unevenly-and-munmap-at-different-times" >nearly eliminated</a> <code>munmap</code> time without cheating with a subprocess.</li>
 <li><strong>Jan 22, 9PM</strong>: Added the fastest overall <a href="https://github.com/noahfalk/1brc/" target="_blank" >noahfalk&rsquo;s repo</a>. Updated my repo with some micro-optimizations. Updated lehuyduc&rsquo;s version as of Jan 23 morning.</li>
 </ul>
 <p>Unsurprisingly, the native implementations yield the fastest results. Interestingly, several independent .NET implementations have outpaced leading Java counterparts, <em>even on Linux</em>. Nevertheless, the modest margin between the native and both the .NET and Java versions is worth noting and appreciating.</p>
-<p>In the end, all results should converge to some physical limit and the ideal CPU utilization. Then the interesting question will be at what price such code was developed. For me, it was quite easy to reach the current point and my code is very simple.</p>
 <h2 id="extended-dataset">Extended dataset</h2>
 <p>The default data generator has a small number of station names with a max length below the AVX vector size. Both of these properties
 allow for many extreme performance gains. However, the specs say that there may be up to 10K unique stations with up to 100 UTF8 bytes in their names.</p>
@@ -164,8 +168,8 @@ allow for many extreme performance gains. However, the specs say that there may 
 <h2 id="yolo-optimizations">YOLO optimizations</h2>
 <p>Some implementations on GitHub employ overly aggressive optimizations that do not comply with the specifications. They optimize for the concrete dataset, not for the specifications. The reference Java repository <a href="https://github.com/gunnarmorling/1brc/pull/186#issuecomment-1880132600" target="_blank" >does not accept</a> such results and we cannot know how fast such over-optimized versions run.</p>
 <p>One result is crossed out in the results table. It may work great for the default and the 10K datasets. It may even work for all weather stations in the world. However, it does not follow the specs. It assumes that a hash of a station name is unique and use it for lookup, without checking for collisions.</p>
-<p><a href="https://github.com/RagnarGrootKoerkamp" target="_blank" >Ragnar Groot Koerkamp</a> wrote in Rust the fastest implementation overall. The only problem is that it would not be correct 
-if a station name is not present in the first half of the file. He does crazy impressive things, like generating a perfect hash function on the fly. But it would be trivial to make the result incorrect just by appending the input file with a new station name. And apparently, he also uses the hash-as-id trick. See the details in our <a href="https://github.com/RagnarGrootKoerkamp/1brc/issues/2#issuecomment-1890872066" target="_blank" >Support city names up to 100bytes</a> discussion.</p>
+<p><a href="https://github.com/RagnarGrootKoerkamp" target="_blank" >Ragnar Groot Koerkamp</a> wrote in Rust one of the fastest implementation overall. The only problem is that it would not be correct 
+if a station name is not present in the first half of the file. He does impressive things, like generating a perfect hash function on the fly. But it would be trivial to make the result incorrect just by appending the input file with a new station name. And apparently, he also uses the hash-as-id trick. See the details in our <a href="https://github.com/RagnarGrootKoerkamp/1brc/issues/2#issuecomment-1890872066" target="_blank" >Support city names up to 100bytes</a> discussion.</p>
 <p>The original version by <a href="https://github.com/xoofx" target="_blank" >Alexandre Mutel (xoofx)</a> also used the 64-bit hash trick, but was recently updated and complies with the specs. He calculated <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L213-L247" target="_blank" >here</a> 
 an <a href="https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash" target="_blank" >FNV-1A hash</a> 
 touching every byte of the name, so it was not trivial to just use a prefix for hash collisions. He then used that hash as a unique key in his measurements table <a href="https://github.com/xoofx/Fast1BRC/blob/ea2569200e4a2a52f24969b8ddef2ab2c679bc03/Program.cs#L319-L328" target="_blank" >here</a>. He commented in the code: &ldquo;With a 64bit hash, we should avoid any collisions for <em>the entries that we have</em>.&rdquo; (emphasis is mine) This code worked on a fixed set of existing weather station names. The 64-bit space is huge, and collisions were unlikely even for new stations. However, the probability of collisions was not <a href="https://crypto.stackexchange.com/a/25444" target="_blank" >negligible</a>. A collision attack would be non-infeasible if the stakes were higher, e.g., in a banking app.</p>
@@ -178,16 +182,37 @@ Frankly I did not even pay attention and would not think to cut corners like tha
 <p>For my part, I <a href="https://github.com/gunnarmorling/1brc/discussions/44#discussioncomment-8025802" target="_blank" >tried hard to write the most generic code</a> from the start. The name could be of any length, the number could be any non-scientific float, and the line endings could be <code>\r\n</code>. I was even able to beat the top Java result with such code, even if for a short period. After Java became faster again (also for a short period) I looked at the specs, but not the data. For me, the limit on the number range was the most important, but station names could still be of any length. The code would survive collisions, but there should be few of them for real-world input of <em>weather station names</em>.</p>
 <p>However, I must admit that it is possible with my implementation to create artificial data that will collide and turn <code>O(1)</code> hash table lookup into <code>O(N)</code> linear search (aka <a href="https://en.wikipedia.org/wiki/Collision_attack#Hash_flooding" target="_blank" >hash flooding</a>). But even in this case, it would still work. If I just use <code>0</code> as a hash code for all names, the code finishes in 1 minute 23 seconds for the default dataset. And for the 10K dataset I am not sure what is better: no result in the time I am patient to wait for or a wrong result.</p>
 <h2 id="methodology">Methodology</h2>
-<p>The performance is measured on a quiet 6C/12T Alder Lake CPU fixed at 2.5 GHz (disabled turbo), 32GB DDR4 3200, and Debian 12 in a privileged LXC container in Proxmox. With a fixed base frequency the thermals are perfect (&lt; 35°C) and no throttling happens even under sustained 100% load.</p>
+<h3 id="final-results">Final results</h3>
+<p>Final results were measured on 2 Intel / 2 AMD big x64, 1 big ARM64 and 1 small i5-13500 P-cores only machines. On AWS metal machines, I did not bother to turns off turbo boost (machines with 96/192 cores and ARM). The other two big machines have turbo off. My home machine also has turbo off and the numbers from there were published in the intermediate tables.</p>
+<ul>
+<li>AMD EPYC 7R1348 (AWS Metal)</li>
+<li>Intel Xeon Platinum 8275CL (AWS Metal)</li>
+<li>m7g.metal (AWS Metal)</li>
+<li>AMD EPYC 9374F32 (Bare metal)</li>
+<li>Intel Xeon Gold 6444Y (Bare metal)</li>
+<li>13thGenIntelRCoreTMi5-13500 (Bare metal/LXC)</li>
+</ul>
+<p>I&rsquo;ve created a <a href="https://github.com/buybackoff/1brc-bench" target="_blank" >separate repository</a> with complex Bash scripts to automatize the benchmarking process.
+The <a href="https://github.com/buybackoff/1brc-bench/commit/41fb2bb8e42f5d54f298f684bdd820419841bd10" target="_blank" >raw output</a> has 2540 JSON files and is available on <a href="https://github.com/buybackoff/1brc-bench/tree/results/results" target="_blank" >this branch</a>. <a href="https://github.com/buybackoff/1brc/issues/19#issuecomment-1924093415" target="_blank" >Here</a> is some discussion of the results and nicely formatted tables kindly done by @dzaima.</p>
+<p>In the main repository, I added <a href="https://github.com/buybackoff/1brc/blob/main/1brc/ResultsParser.cs" target="_blank" >a results parser</a> and converted the JSONs in a CSV file and then into an Excel file with a pivot table. A deeper review of results showed some inconsistencies (mainly non-transitivity w.r.t. the number of cores) on AWS metal machines, probably due to the turbo mode not turned off. I excluded them from the average final results. However, everything is available in the <a href="https://onedrive.live.com/view.aspx?resid=B64A7F98F035FC43%21359680&amp;authkey=!AHgAJ48FKqWaUwE" target="_blank" >Excel file</a> on the summary sheet.</p>
+<p>The final numbers show only AOT-complied solution, no JIT, to reduce noise. The differences are not very conclusive on average and are visible in the intermediate tables. Differences between Intel/AMD and hyper-threading ON/OFF are more interesting. An interesting observation is that solutions that targeted AMD from the very begging, e.g. for the &ldquo;official&rdquo; benchmark server, perform notably better on AMD in general. I could think of implicit natural selection of changes that survived on the architectures where they were benchmarked.</p>
+<h3 id="intermediate-results">Intermediate results</h3>
+<p>During the competition, the intermediate results were measured on a quiet 6C/12T Alder Lake CPU fixed at 2.5 GHz (disabled turbo), 32GB DDR4 3200, and Debian 12 in a privileged LXC container in Proxmox. With a fixed base frequency the thermals are perfect (&lt; 35°C) and no throttling happens even under sustained 100% load.</p>
 <blockquote>
 <p><a href="https://en.wikipedia.org/wiki/LXC" target="_blank" >LXC</a> is a Linux container similar to Docker but running a full-blown OS. It has <a href="https://www.researchgate.net/figure/Performance-comparison-between-baremetal-virtual-machine-containers_fig1_327238504" target="_blank" >very</a> <a href="https://serverfault.com/questions/974013/overhead-of-lxd/974015#974015" target="_blank" >little</a> <a href="https://inria.hal.science/hal-03337920/document" target="_blank" >overheads</a> for CPU/RAM-bound tasks. <a href="https://en.wikipedia.org/wiki/Proxmox_Virtual_Environment" target="_blank" >Proxmox</a> is an open-source virtualization management platform that is very productive and addictive for homelab use cases.</p>
 </blockquote>
 <p>The timings are measured with the <code>hyperfine --warmup 1 --runs 5 './1brc path/to/file'</code>. The results are very stable since there is no noise in the system. See the link below the <a href="#results-table" >results table</a> for more min/max/sigma statistics.</p>
+<h2 id="notable-links-to-other-results-and-walkthroughs">Notable links to other results and walkthroughs</h2>
+<ul>
+<li>Marko Topolnik: <a href="https://questdb.io/blog/billion-row-challenge-step-by-step/" target="_blank" >1BRC - Step-by-step from 71s to 1.7s</a></li>
+<li>Artsiom Korzun: <a href="https://github.com/artsiomkorzun/1brc-walkthrough" target="_blank" >The step-by-step walkthrough over 1brc challenge.</a></li>
+<li><a href="https://github.com/gunnarmorling/1brc?tab=readme-ov-file#1brc-on-the-web" target="_blank" >1BRC on the Web</a></li>
+</ul>
 <h1 id="my-optimization-journey">My Optimization Journey</h1>
 <p>I&rsquo;ve been coughing for more than 2 weeks. It was so bad around the New Year that I took January 2-3 off. On January 3rd, 
 I was drinking hot tea with ginger and honey and reading Twitter. I saw a <a href="https://twitter.com/KooKiz/status/1742168051724775559" target="_blank" >tweet from Kevin Gosse</a> about this challenge and I liked the idea. But I also knew that it might be an entrance to a very deep rabbit hole, with faint memories of wasted time at its bottom.</p>
 <p>Yet the task was so simple. I decided to measure how much time it would take me to write a very simple yet still fast implementation. It was 1:01 PM and by 3:17 PM I had the first version that would finish in <code>13.5/18.0</code> seconds for the default/10K datasets on my bench machine. Then I started to optimize the heck out of it.</p>
-<p>Here and below I rerun the commits on my bench setup, the numbers are comparable to the JIT results in the table above.</p>
+<p>Here and below I rerun the commits on my bench setup, the numbers are comparable to the JIT results in the tables above.</p>
 <h2 id="performance-timeline">Performance timeline</h2>
 <p>The performance evolution following each change discussed in details below.</p>
 <iframe src="timeline.html" onload='javascript:(function(o){o.style.height=(o.contentWindow.document.body.scrollHeight + 10)+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></iframe>
@@ -501,58 +526,149 @@ For the default dataset, the load factor goes from 4% to 1% and is probably less
 | <a href="https://github.com/buybackoff/1brc/compare/b19ccee..f34c45f?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 2.148 <code>-3.2%</code>  / 4.052 <code>-3.2%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>Small change for more efficient Utf8Span.Equals for smaller station names.</p>
 <h3 id="better-hash-function">Better hash function</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/60ac7b31853f2985dd6f6026476a1fe4bd7e544f/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/f34c45f..60ac7b3?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 2.140 <code>-0.4%</code>  / 4.024 <code>-0.7%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>A better hash implementation, move it closer to the original FNV.</p>
 <h3 id="smaller-hot-path-non-inline-rare-paths">Smaller hot path, non inline rare paths</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/473d46587155f4f42e925789692643582703a0c0/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/60ac7b3..473d465?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 2.062 <code>-3.6%</code>  / 3.751 <code>-6.8%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>Keep only the first step covering small names inlined in <code>IndexOfSemicolon</code>.</p>
 <h3 id="init-summary-during-add">Init Summary during Add</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/635b523f3e70c10ee115bc32d2bf7a68fae796d8/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/473d465..635b523?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 2.025 <code>-1.8%</code>  / 3.752 <code>0.0%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>Reduce branching on the hot path and initialize the <code>Summary</code> struct only when its storage space is allocated.</p>
 <h3 id="copy-keys-to-dict-better-cache-locality">Copy keys to dict, better cache locality</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/4cdf9cd48fb0fa80abcbd8aa8f9c156b7a45decd/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/635b523..4cdf9cd?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 1.975 <code>-2.5%</code>  / 3.394 <code>-9.5%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>Originally the <code>FixedDictionary</code> stored <code>Utf8Spans</code> pointing directly to the memory mapped file memory. That keys 
+are located in different places of the memory and has other data between them. After this change, the keys 
+are copied to a dedicated buffer contiguously. That makes cache locality as good as possible. The performance gain
+for the 10K dataset, where we have much more station names, is huge.</p>
 <h3 id="parseint-starts-from-semicolon">ParseInt starts from semicolon</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/94b70a5e1c15cb87092c33ed8ecfb0483f965b1f/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/4cdf9cd..94b70a5?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 1.945 <code>-1.5%</code>  / 3.406 <code>+0.4%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>A small change in number parsing.</p>
 <h3 id="break-chunks-unevenly-and-munmap-at-different-times">Break chunks unevenly and munmap at different times</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/cbe7578b4b5d08e2501e8f4ead3a0511923ffdc4/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/94b70a5..cbe7578?diff=split#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R202-R231" target="_blank" >Diff with previous</a> 
 | Time: 1.814 <code>-6.7%</code>  / 3.256 <code>-4.4%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p><code>munmap</code> is slow and locks all threads. Before this change, all threads were processing equal chunks and tried to <code>munmap</code>
+at around the same time, being blocked at that time. In this change, each thread&rsquo;s chunk was split in two parts unevenly.
+The first part is unmapped by each thread at different time. Unmapping the last part is still happening at around the same 
+time, but the overall time for locking is greatly reduced.</p>
+<p>Unfortunately, the trick with a subprocess was allowed. I used it later as well. But it still does feel as cheating. 
+This change does fair unmapping but it still slower than the subprocess solution.</p>
 <h3 id="misc-micro-optimizations">Misc micro-optimizations</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/e32320c6d6831bd620683e0fb2650af9857b5f9c/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/cbe7578..e32320c?diff=split" target="_blank" >Diff with previous</a> 
 | Time: 1.791 <code>-6.7%</code>  / 3.256 <code>-4.4%</code> (10K)
 </tt></p>
-<p>TODO</p>
-<h2 id="windows-has-slow-mmap">Windows has slow mmap</h2>
-<p>Windows results by xoofx are available <a href="https://github.com/xoofx/Fast1BRC/?tab=readme-ov-file#results" target="_blank" >here</a>.</p>
-<p>TODO</p>
-<h3 id="use-async-randomaccess-on-windows">Use async RandomAccess on Windows</h3>
-<p><tt><a href="https://github.com/buybackoff/1brc/tree/bb9119657c76c150ce3f5e37539014536e2a0094/1brc" target="_blank" >Files as of commit</a> 
-| <a href="https://github.com/buybackoff/1brc/compare/cbe7578..bb91196?diff=split#diff-c23b3a4b594cd434906b503ac730336620a2a9854b42a783b2978c254b358a30R277-R321" target="_blank" >Diff with previous</a> 
-| Time: 2.041 <code>-21.8%</code>  / 3.598 <code>-11.5%</code> (10K)
+<p>Change integer parsing to the branchless variant used by other solution. I took it from @artsiomkorzun, but he mentions @merykitty, while @noahfalk mentions @RagnarGrootKoerkamp. The trace of the origin is lost.</p>
+<p>This change has some other smaller optimizations.</p>
+<h2 id="final-push">Final push</h2>
+<p><tt><a href="https://github.com/buybackoff/1brc/tree/60a121e68931ce7bee25def7e1505a3ce92b1c60/1brc" target="_blank" >Files as of commit</a> 
+| <a href="https://github.com/buybackoff/1brc/compare/e32320c..60a121e?diff=split" target="_blank" >Diff with previous</a> 
+| Time: 1.491 <code>-16.8%</code>  / 2.907 <code>-9.5%</code> (10K)
 </tt></p>
-<p>TODO</p>
+<p>Near the end of the competition, Java guys discovered that single-core parallelism gives great performance boost.
+This trick is to process multiple chunks of data on the same core at the same time and avoid CPU pipeline stall due to data dependencies.
+For my solution that also improved the results a lot.</p>
+<p>There were other changes but I am not able (do not want) to reproduce timings per commit, so here is a simple summary for each commit and 
+only the overall time change for all of them.</p>
+<h3 id="implement-subprocesshttpsgithubcombuybackoff1brccommit433a0cc92aafd47fbe4cb02ba4ba169c68567a3d"><a href="https://github.com/buybackoff/1brc/commit/433a0cc92aafd47fbe4cb02ba4ba169c68567a3d" target="_blank" >Implement subprocess</a></h3>
+<p>In .NET it&rsquo;s not trivial to run a non-child subprocess and read its output. An intermediary shell (sh/cmd) is required.</p>
+<h3 id="do-it-in-parallel-per-corehttpsgithubcombuybackoff1brccommite4c0272fe73f454bc0b5c4925d3f0da539aa55ae"><a href="https://github.com/buybackoff/1brc/commit/e4c0272fe73f454bc0b5c4925d3f0da539aa55ae" target="_blank" >Do it in parallel per core</a></h3>
+<p>That was the missing key for much better performance on non hyper-threaded CPUs. This makes HT and non-HT basically the same.
+Each thread processes two sub-chunks independently. Modern CPU pipelines are big enough to fit two flows. 
+This is what hyper-threading does: CPU core executes instructions from one HT-thread while another waits for memory access or other things.
+But this capacity is also available for a single core. Dividing thread chunks into 3 or 4 sub-chunks does not improve the 
+performance further.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-csharp" data-lang="csharp"><span class="line"><span class="ln" id="hl-9-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-1"> 1</a></span><span class="cl"><span class="na">[MethodImpl(MethodImplOptions.NoInlining)]</span>
+</span></span><span class="line"><span class="ln" id="hl-9-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-2"> 2</a></span><span class="cl"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="n">ProcessSpanX2</span><span class="p">(</span><span class="n">FixedDictionary</span><span class="p">&lt;</span><span class="n">Utf8Span</span><span class="p">,</span> <span class="n">Summary</span><span class="p">&gt;</span> <span class="n">result</span><span class="p">,</span> <span class="n">Utf8Span</span> <span class="n">chunk</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-9-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-3"> 3</a></span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-9-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-4"> 4</a></span><span class="cl">    <span class="c1">// Split evenly</span>
+</span></span><span class="line"><span class="ln" id="hl-9-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-5"> 5</a></span><span class="cl">    <span class="n">nuint</span> <span class="n">middle</span> <span class="p">=</span> <span class="n">chunk</span><span class="p">.</span><span class="n">Length</span> <span class="p">/</span> <span class="m">2</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-9-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-6"> 6</a></span><span class="cl">    <span class="c1">// Find exact middle point at a line separator</span>
+</span></span><span class="line"><span class="ln" id="hl-9-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-7"> 7</a></span><span class="cl">    <span class="n">middle</span> <span class="p">+=</span> <span class="p">(</span><span class="kt">uint</span><span class="p">)</span><span class="n">chunk</span><span class="p">.</span><span class="n">SliceUnsafe</span><span class="p">(</span><span class="n">middle</span><span class="p">).</span><span class="n">Span</span><span class="p">.</span><span class="n">IndexOf</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="sc">&#39;\n&#39;</span><span class="p">)</span> <span class="p">+</span> <span class="m">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-9-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-8"> 8</a></span><span class="cl">    <span class="kt">var</span> <span class="n">chunk0</span> <span class="p">=</span> <span class="n">chunk</span><span class="p">.</span><span class="n">SliceUnsafe</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint</span><span class="p">)</span><span class="n">middle</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-9-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-9"> 9</a></span><span class="cl">    <span class="kt">var</span> <span class="n">chunk1</span> <span class="p">=</span> <span class="n">chunk</span><span class="p">.</span><span class="n">SliceUnsafe</span><span class="p">((</span><span class="kt">uint</span><span class="p">)</span><span class="n">middle</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-9-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-10">10</a></span><span class="cl">    <span class="n">ProcessSpan</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chunk0</span><span class="p">,</span> <span class="n">chunk1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln" id="hl-9-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-11">11</a></span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-9-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-12">12</a></span><span class="cl"><span class="na">
+</span></span></span><span class="line"><span class="ln" id="hl-9-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-13">13</a></span><span class="cl"><span class="na">[MethodImpl(MethodImplOptions.AggressiveOptimization)]</span>
+</span></span><span class="line"><span class="ln" id="hl-9-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-14">14</a></span><span class="cl"><span class="k">public</span> <span class="k">static</span> <span class="k">unsafe</span> <span class="k">void</span> <span class="n">ProcessSpan</span><span class="p">(</span><span class="n">FixedDictionary</span><span class="p">&lt;</span><span class="n">Utf8Span</span><span class="p">,</span> <span class="n">Summary</span><span class="p">&gt;</span> <span class="n">result</span><span class="p">,</span> <span class="n">Utf8Span</span> <span class="n">chunk0</span><span class="p">,</span> <span class="n">Utf8Span</span> <span class="n">chunk1</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-9-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-15">15</a></span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-9-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-16">16</a></span><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="k">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-9-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-17">17</a></span><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="ln" id="hl-9-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-18">18</a></span><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">chunk0</span><span class="p">.</span><span class="n">Length</span> <span class="p">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-9-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-19">19</a></span><span class="cl">            <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-9-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-20">20</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-21">21</a></span><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">chunk1</span><span class="p">.</span><span class="n">Length</span> <span class="p">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln" id="hl-9-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-22">22</a></span><span class="cl">            <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln" id="hl-9-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-23">23</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-24">24</a></span><span class="cl">        <span class="c1">// Flows A and B are independent: a data dependency in one does not block another</span>
+</span></span><span class="line"><span class="ln" id="hl-9-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-25">25</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-26">26</a></span><span class="cl">        <span class="n">nuint</span> <span class="n">idx0</span> <span class="p">=</span> <span class="n">chunk0</span><span class="p">.</span><span class="n">IndexOfSemicolon</span><span class="p">();</span> <span class="c1">// A</span>
+</span></span><span class="line"><span class="ln" id="hl-9-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-27">27</a></span><span class="cl">        <span class="n">nuint</span> <span class="n">idx1</span> <span class="p">=</span> <span class="n">chunk1</span><span class="p">.</span><span class="n">IndexOfSemicolon</span><span class="p">();</span> <span class="c1">// B</span>
+</span></span><span class="line"><span class="ln" id="hl-9-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-28">28</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-29">29</a></span><span class="cl">        <span class="n">nint</span> <span class="n">value0</span> <span class="p">=</span> <span class="n">chunk0</span><span class="p">.</span><span class="n">ParseInt</span><span class="p">(</span><span class="n">idx0</span><span class="p">,</span> <span class="k">out</span> <span class="kt">var</span> <span class="n">nextStart0</span><span class="p">);</span> <span class="c1">// A</span>
+</span></span><span class="line"><span class="ln" id="hl-9-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-30">30</a></span><span class="cl">        <span class="n">nint</span> <span class="n">value1</span> <span class="p">=</span> <span class="n">chunk1</span><span class="p">.</span><span class="n">ParseInt</span><span class="p">(</span><span class="n">idx1</span><span class="p">,</span> <span class="k">out</span> <span class="kt">var</span> <span class="n">nextStart1</span><span class="p">);</span> <span class="c1">// B</span>
+</span></span><span class="line"><span class="ln" id="hl-9-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-31">31</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-32">32</a></span><span class="cl">        <span class="n">result</span><span class="p">.</span><span class="n">Update</span><span class="p">(</span><span class="k">new</span> <span class="n">Utf8Span</span><span class="p">(</span><span class="n">chunk0</span><span class="p">.</span><span class="n">Pointer</span><span class="p">,</span> <span class="n">idx0</span><span class="p">),</span> <span class="n">value0</span><span class="p">);</span> <span class="c1">// A</span>
+</span></span><span class="line"><span class="ln" id="hl-9-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-33">33</a></span><span class="cl">        <span class="n">result</span><span class="p">.</span><span class="n">Update</span><span class="p">(</span><span class="k">new</span> <span class="n">Utf8Span</span><span class="p">(</span><span class="n">chunk1</span><span class="p">.</span><span class="n">Pointer</span><span class="p">,</span> <span class="n">idx1</span><span class="p">),</span> <span class="n">value1</span><span class="p">);</span> <span class="c1">// B</span>
+</span></span><span class="line"><span class="ln" id="hl-9-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-34">34</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-35">35</a></span><span class="cl">        <span class="n">chunk0</span> <span class="p">=</span> <span class="n">chunk0</span><span class="p">.</span><span class="n">SliceUnsafe</span><span class="p">(</span><span class="n">nextStart0</span><span class="p">);</span> <span class="c1">// A</span>
+</span></span><span class="line"><span class="ln" id="hl-9-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-36">36</a></span><span class="cl">        <span class="n">chunk1</span> <span class="p">=</span> <span class="n">chunk1</span><span class="p">.</span><span class="n">SliceUnsafe</span><span class="p">(</span><span class="n">nextStart1</span><span class="p">);</span> <span class="c1">// B</span>
+</span></span><span class="line"><span class="ln" id="hl-9-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-37">37</a></span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln" id="hl-9-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-38">38</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-9-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-39">39</a></span><span class="cl">    <span class="c1">// Leftovers</span>
+</span></span><span class="line"><span class="ln" id="hl-9-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-40">40</a></span><span class="cl">    <span class="n">ProcessSpan</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chunk0</span><span class="p">);</span> <span class="c1">// A</span>
+</span></span><span class="line"><span class="ln" id="hl-9-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-41">41</a></span><span class="cl">    <span class="n">ProcessSpan</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chunk1</span><span class="p">);</span> <span class="c1">// B</span>
+</span></span><span class="line"><span class="ln" id="hl-9-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-42">42</a></span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="other-commits">Other commits</h3>
+<h5 id="remove-zero-extension-in-parseintbranchlesshttpsgithubcombuybackoff1brccommit0e1ba2679ab519bc5c8585c0165428d536a38ee1"><a href="https://github.com/buybackoff/1brc/commit/0e1ba2679ab519bc5c8585c0165428d536a38ee1" target="_blank" >Remove zero extension in ParseIntBranchless</a></h5>
+<p>Expanding 32 bit signed integer to 64 signed integer is slower, avoid 32-64 conversion when not necessary.</p>
+<h5 id="improve-main-loop-pipelinehttpsgithubcombuybackoff1brccommit1b746ddba5ae42e1068f442a62a10a827221fa3a"><a href="https://github.com/buybackoff/1brc/commit/1b746ddba5ae42e1068f442a62a10a827221fa3a" target="_blank" >Improve main loop pipeline</a></h5>
+<p>Move the new branchless core-heavy number parsing ahead of branchy dictionary lookup so that the pipeline is busy while we are searching for the slot.
+Note that when using the previous branchy parser in this position the performance drops a lot, while in the previous position after the lookup the perf delta was much smaller.</p>
+<h5 id="use-vector-apihttpsgithubcombuybackoff1brccommit62b68c80abc27cfbbb7bcf18ff82df1194d08757"><a href="https://github.com/buybackoff/1brc/commit/62b68c80abc27cfbbb7bcf18ff82df1194d08757" target="_blank" >Use Vector API</a></h5>
+<p>Make the code x-arch, e.g. to (slowly) work on ARM.</p>
+<h5 id="do-not-return-from-an-unlikely-branchhttpsgithubcombuybackoff1brccommit428c073d818518e13170bd32205ab31411040559"><a href="https://github.com/buybackoff/1brc/commit/428c073d818518e13170bd32205ab31411040559" target="_blank" >Do not return from an unlikely branch</a></h5>
+<p>Sometimes things such as this help.</p>
+<h5 id="use-native-ints-in-dictionary-lookup-loophttpsgithubcombuybackoff1brccommit84604107d5a311c027cc430e7a0e7bb3c6584b5d"><a href="https://github.com/buybackoff/1brc/commit/84604107d5a311c027cc430e7a0e7bb3c6584b5d" target="_blank" >Use native ints in dictionary lookup loop</a></h5>
+<p>Even though the bound checks were already eliminated here, array lookup via int causes needless back &amp; forth <code>int/nint</code> widening.</p>
+<h5 id="dictionary-save-1-bytes-on-keys-copy-do--copy-only-when-neededhttpsgithubcombuybackoff1brccommit7a9d06ad1d46a591f127fce0a75269886d89b844"><a href="https://github.com/buybackoff/1brc/commit/7a9d06ad1d46a591f127fce0a75269886d89b844" target="_blank" >Dictionary: save 1 bytes on keys copy, do <code>;</code> copy only when needed</a></h5>
+<p>Better cache locality</p>
+<h5 id="faster-utf8spanequals-4th-iterationhttpsgithubcombuybackoff1brccommit2a4eea0cf5a3dc39473ef47ab499159457b9131f"><a href="https://github.com/buybackoff/1brc/commit/2a4eea0cf5a3dc39473ef47ab499159457b9131f" target="_blank" >Faster Utf8Span.Equals, 4th iteration</a></h5>
+<p>Important to be branchless for the first vector. Important not to store equals. It exists for readability only, but is single use.</p>
+<h5 id="inline-indexofsemicolon-for--32-byteshttpsgithubcombuybackoff1brccommitab0eff43078231964479542f960e0bd1e6c12d36"><a href="https://github.com/buybackoff/1brc/commit/ab0eff43078231964479542f960e0bd1e6c12d36" target="_blank" >Inline IndexOfSemicolon for &gt; 32 bytes</a></h5>
+<p>Inlined <code>IndexOfSemicolon</code> for longer names is better for the 10K dataset and no impact for the default one.</p>
+<h5 id="thats-one-small-step-for-hash-function-one-giant-leap-for-performancehttpsgithubcombuybackoff1brccommitd8a437e8eb199a5d0d45a1f49055088f625f7795"><a href="https://github.com/buybackoff/1brc/commit/d8a437e8eb199a5d0d45a1f49055088f625f7795" target="_blank" >That&rsquo;s one small step for hash function, one giant leap for performance</a></h5>
+<p>2.5% for this is nothing less but a giant leap 😸</p>
+<h5 id="goto-is-a-go-to-solution-for-high-perfhttpsgithubcombuybackoff1brccommita0bc7560f64cdad7814e6d5292a916bca031fcaa"><a href="https://github.com/buybackoff/1brc/commit/a0bc7560f64cdad7814e6d5292a916bca031fcaa" target="_blank" >goto is a go-to solution for high perf</a></h5>
+<p>1.5% faster</p>
+<h5 id="i-failed-miserably-like-a-noob-fix-it-httpsgithubcombuybackoff1brccommit2cdbd2eeea84c074c39f061a2e366567dd3576b5"><a href="https://github.com/buybackoff/1brc/commit/2cdbd2eeea84c074c39f061a2e366567dd3576b5" target="_blank" >I failed miserably like a noob, fix it 🤦‍♂️</a></h5>
+<p>One notable thing is that I had introduced a bug in the FixedDictionary at some point. Updating Summary was noop. 
+And I had inefficient FastMod implementation from the beginning (fixed in next commit below). 
+The performance impact of fixing the two more or less cancelled each other.</p>
+<h5 id="fix-constant-modulo-calculationhttpsgithubcombuybackoff1brccommit60a121e68931ce7bee25def7e1505a3ce92b1c60"><a href="https://github.com/buybackoff/1brc/commit/60a121e68931ce7bee25def7e1505a3ce92b1c60" target="_blank" >Fix constant modulo calculation</a></h5>
+<p>I was pretty sure that FastMod using static read-only would yield the same result or better than compiler div by constant, but not. Actually I still rather do not trust .NET JIT on issues like that, definitely trust Lemire more. But over the last year they did so many small things, even ternary now produces cmov in many cases&hellip;</p>
+<h2 id="windows-has-slow-mmap">Windows has slow mmap</h2>
+<p>Windows has slow mmap so using normal blocking file API is preferred there. My code detects the platform and chooses the best implementation automatically.</p>
+<p>Windows results by xoofx are available <a href="https://github.com/xoofx/Fast1BRC/?tab=readme-ov-file#results" target="_blank" >here</a>.</p>
 <h1 id="net-is-very-fast">.NET is very fast</h1>
 <p>.NET is very fast. And it is becoming even faster with every new release. 
 Some people joke that the best performance optimization for .NET is just updating it - and that is probably true for the majority of its users.</p>
