@@ -485,7 +485,6 @@ native integers.</p>
 | Time: 3.272 <code>-11.4%</code> / 8.232 <code>-4.3%</code> (10K)
 </tt></p>
 <p>Up until this point, I still had the default .NET dictionary. But since the specs say there are a maximum of 10K unique names I could use this information.</p>
-<p>Details TBD</p>
 <h3 id="fast-utf8spanequals">Fast Utf8Span.Equals</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/9ed39221ec7db8f89e8e2a0702d43a184cc5e879/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/8841e83..9ed3922?diff=split&amp;w=" target="_blank" >Diff with previous</a> 
@@ -506,7 +505,6 @@ before the end. I copy the remaining part to a memory buffer that is much bigger
 <li>Faster IndexOf that also relies on reading beyond <code>Utf8Span.Length</code>;</li>
 <li>Faster ProcessChunk loop.</li>
 </ul>
-<p>Details TBD</p>
 <h3 id="low-dictionary-load-factor">Low dictionary load factor</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/b19ccee08ac913214b20ab7d761127fa0424a5d6/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/1051e06..b19ccee?diff=split&amp;w=#diff-4eb6ec3412890a4793f491d80e808b0f847d81bb6791bc0390c2055ab8944da7R17" target="_blank" >Diff with previous</a> 
@@ -551,9 +549,9 @@ For the default dataset, the load factor goes from 4% to 1% and is probably less
 | Time: 1.975 <code>-2.5%</code>  / 3.394 <code>-9.5%</code> (10K)
 </tt></p>
 <p>Originally the <code>FixedDictionary</code> stored <code>Utf8Spans</code> pointing directly to the memory mapped file memory. That keys 
-are located in different places of the memory and has other data between them. After this change, the keys 
-are copied to a dedicated buffer contiguously. That makes cache locality as good as possible. The performance gain
-for the 10K dataset, where we have much more station names, is huge.</p>
+are located in different places of the memory and have other data between them. After this change, the keys 
+are copied to a dedicated buffer contiguously. This makes cache locality as good as possible. The performance gain
+for the 10K dataset, where we have much more station names scattered in the file randomly, is huge.</p>
 <h3 id="parseint-starts-from-semicolon">ParseInt starts from semicolon</h3>
 <p><tt><a href="https://github.com/buybackoff/1brc/tree/94b70a5e1c15cb87092c33ed8ecfb0483f965b1f/1brc" target="_blank" >Files as of commit</a> 
 | <a href="https://github.com/buybackoff/1brc/compare/4cdf9cd..94b70a5?diff=split" target="_blank" >Diff with previous</a> 
