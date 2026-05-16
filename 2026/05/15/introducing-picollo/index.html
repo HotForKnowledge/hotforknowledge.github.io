@@ -107,6 +107,40 @@
 <p>The initial public release of <a href="https://github.com/picollodev/Picollo" target="_blank">Picollo</a> <a href="https://www.nuget.org/packages/Picollo/0.1.0" target="_blank">v0.1.0</a> contains two components. First, a modern version of an HDR histogram, which is much faster for recording data and easier to use. It has a thread-local implementation that allows scaling metrics collection across many threads with minimal impact on performance of the existing code. Second, a set of APIs for <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank">`perf_event_open`</a>, including fast-path reads, that give raw access to PMU counters from .NET on Linux, WSL included.</p>
 <h1 id="hdr-histogram">HDR Histogram</h1>
 <p>An HDR histogram is a very useful tool to analyze not only networking latency, but any measurements that behave like a floor value plus some random noise. It is a very good fit for measuring code execution time and CPU counters.</p>
+<h2 id="visualization">Visualization</h2>
+<p>A dynamic widget is worth a thousand words. Here the entire HDR histogram layout for the value space 0-255 is shown. You can click the link below to open the widget in a new tab and play with the query string parameters. The visualization remains precise for up to <a href="/2026/05/15/introducing-picollo/hdr_histogram.htm?max=9007199254740990&min_trackable=0&max_trackable=9007199254740990&percentile_rank=50&precision=0.02" target="_blank"><code>int53</code></a> values.</p>
+<figure class="post-embed">
+<iframe id="hdr-histogram-frame" src="hdr_histogram.htm?max=255&min_trackable=0&max_trackable=255&percentile_rank=50&precision=0.125" style="width:100%;border:none;overflow:hidden;"></iframe>
+<p>
+Open in new tab:
+<a href="hdr_histogram.htm?max=255&min_trackable=0&max_trackable=255&percentile_rank=50&precision=0.125" target="_blank">
+[0, 256]
+</a>,
+<a href="hdr_histogram.htm?max=65535&min_trackable=0&max_trackable=65535&percentile_rank=50&precision=0.125" target="_blank">
+[0, UInt16.MaxValue]
+</a>,
+<a href="hdr_histogram.htm?max=4294967295&min_trackable=0&max_trackable=4294967295&percentile_rank=50&precision=0.125" target="_blank">
+[0, UInt32.MaxValue]
+</a>
+,
+<a href="hdr_histogram.htm?max=18446744073709551615&min_trackable=0&max_trackable=18446744073709551615&percentile_rank=50&precision=0.125" target="_blank">
+[0, UInt64.MaxValue]
+</a>
+</p>
+</figure>
+<script>
+window.addEventListener("message", function (event) {
+    if (!event.data || event.data.type !== "hdr-histogram-height") {
+        return;
+    }
+
+    var frame = document.getElementById("hdr-histogram-frame");
+    if (frame) {
+        frame.style.height = "0px";
+        frame.style.height = event.data.height + "px";
+    }
+});
+</script>
 <h2 id="how-it-works">How it works</h2>
 <p>The main purpose of a histogram is to compress the storage size required for observation counters. This is true for a standard and an HDR histogram. Compression comes at the cost of precision loss. The standard histogram usually keeps a bounded absolute precision, as defined by a bin width. The HDR histogram maintains the relative precision and can record a very large range of values with modest storage requirements.</p>
 <p>There has already been, for many years, a standard/legacy implementation that works well in many languages. You can find the details on the <a href="https://hdrhistogram.github.io/HdrHistogram/" target="_blank" >website</a>. Here I focus on my implementation, which is similar in the core idea but different in important details, and is much faster and easier to use, and also much easier to understand the implementation.</p>
@@ -203,27 +237,6 @@
 </span></span><span class="line"><span class="ln" id="hl-5-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-24">24</a></span><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>The <a href="https://github.com/picollodev/Picollo/blob/main/src/Picollo/Internal/UnsafeSpan.cs" target="_blank" ><code>UnsafeSpan&lt;TCounter&gt;</code></a> is a <code>Span&lt;T&gt;</code>-like structure that can be stored as a field and provides faster array indexing, even with bound checks. The struct, like the <code>Span&lt;T&gt;</code>, has the local length field that allows to skip touching the <code>array.Length</code> slot inside the array object, which is itself a load operation that can be expensive in the very hot path context. I believe that the bounds checks are expensive not because of the branches, but because of touching the length slot of an array. The performance of the safe indexer vs. unsafe access without bound checks in <code>UnsafeSpan&lt;TCounter&gt;</code> is basically identical, but using an array directly makes the code visibly slower.</p>
 <p>The <code>TCounter : unmanaged, IBinaryInteger&lt;TCounter&gt;, IUnsignedNumber&lt;TCounter&gt;</code> is either <code>uint</code> or <code>ulong</code> and defines the storage type. It&rsquo;s not related to the value range, but to the maximum counter value a single bucket can hold. It&rsquo;s rare that <code>ulong</code> is required, but the implementation does not check for overflows. If a single bucket count can exceed 2 billion observations in theory, you should use <code>ulong</code> as the backing storage.</p>
-<h3 id="visualization">Visualization</h3>
-<p>A dynamic widget is worth a thousand words. Here the entire HDR histogram layout for the value space 0-255 is shown. You can click the link below to open the widget in a new tab and play with the query string parameters. The visualization remains precise for up to <a href="/2026/05/15/introducing-picollo/hdr_histogram.htm?max=9007199254740990&min_trackable=0&max_trackable=9007199254740990&percentile_rank=50&precision=0.02" target="_blank"><code>int53</code></a> values, and seems to work even for larger values.</p>
-<figure class="post-embed">
-<iframe id="hdr-histogram-frame" src="hdr_histogram.htm?max=255&min_trackable=0&max_trackable=255&percentile_rank=50&precision=0.125" style="width:100%;border:none;overflow:hidden;"></iframe>
-<a href="hdr_histogram.htm?max=255&min_trackable=0&max_trackable=255&percentile_rank=50&precision=0.125" target="_blank">
-Open in new tab (note query string parameters)
-</a>
-</figure>
-<script>
-window.addEventListener("message", function (event) {
-    if (!event.data || event.data.type !== "hdr-histogram-height") {
-        return;
-    }
-
-    var frame = document.getElementById("hdr-histogram-frame");
-    if (frame) {
-        frame.style.height = "0px";
-        frame.style.height = event.data.height + "px";
-    }
-});
-</script>
 <h2 id="how-to-use">How to use</h2>
 <p>This section describes the public API and implementation details of Picollo HDR histogram</p>
 <h3 id="summary">Summary</h3>
@@ -1177,9 +1190,11 @@ window.addEventListener("message", function (event) {
 </span></span><span class="line"><span class="ln" id="hl-31-49"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-31-49">49</a></span><span class="cl">| Precision: |    0.0977% | 0.0977% |    0.0% |
 </span></span><span class="line"><span class="ln" id="hl-31-50"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-31-50">50</a></span><span class="cl">| Total:     |      1,000 |   1,000 |    0.0% |
 </span></span><span class="line"><span class="ln" id="hl-31-51"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-31-51">51</a></span><span class="cl">| D-value:   |            |         | -128.21 |
+</span></span><span class="line"><span class="ln" id="hl-31-52"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-31-52">52</a></span><span class="cl">
+</span></span><span class="line"><span class="ln" id="hl-31-53"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-31-53">53</a></span><span class="cl">Note: (17,179,303 - 8,927,461) / (500,179 - 28) = 16.5 cycles / miss
 </span></span></code></pre></div><p>Q.E.D.</p>
 <h1 id="next-steps">Next steps</h1>
-<p>The initial release of Picollo v0.1.0 should be quite usable, especially the HDR part and basic counters extraction. But it is not yet stable, and the API may change (a little, at least for the histogram). One issue I keep fighting is the stability of the fast-path counter reads. This part requires a native library with inline assembly, which is built as part of Picollo automatically. At least the CI/CD issue is trivially solved. But the values wrap around often, especially on WSL. The API for perf_event may change significantly, but the core shape will remain.</p>
+<p>The initial release of Picollo v0.1.0 should be quite usable, especially the HDR histogram part and basic counters extraction. But it is not yet stable, and the API may change (a little, at least for the histogram). One issue I keep fighting is the stability of the fast-path counter reads. This part requires a native library with inline assembly, which is built as part of Picollo automatically. At least the CI/CD issue is trivially solved. But the values wrap around often, especially on WSL. The API for perf_event may change significantly, but the core shape will remain.</p>
 <p>I would greatly appreciate practical feedback on the API shape and implementation, as well as bug reports and PRs with fixes.</p>
 <p><a href="https://news.ycombinator.com/item?id=48155685" target="_blank" >HackerNews</a> <a href="https://x.com/buybackoff/status/2055448880037208469" target="_blank" >X.com</a></p>
 </div>
