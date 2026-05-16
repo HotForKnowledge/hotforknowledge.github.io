@@ -24,11 +24,11 @@
 <meta property="og:description" content="How I optimized my 1BRC solution step-by-step and why .NET is great for high-performance code">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/">
-        <link rel="stylesheet" href="/dist/site.css">
-        <link rel="stylesheet" href="/dist/syntax.css">
+        <link rel="stylesheet" href="/styles/site.css">
+        <link rel="stylesheet" href="/styles/syntax.css">
         
-            <link rel="stylesheet" href="/dist/toc.css">
-            <link rel="stylesheet" href="/dist/sidebar.css">
+            <link rel="stylesheet" href="/styles/toc.css">
+            <link rel="stylesheet" href="/styles/sidebar.css">
         
         
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
@@ -708,7 +708,6 @@ and costs. Optimizations such as seen in 1BRC are not uncommon in our code. But 
 <p>We use and contribute to a lot of open-source projects at ABC and we maintain some.
 The .NET port of the famous high-performance inter-thread messaging library <a href="https://github.com/disruptor-net/Disruptor-net" target="_blank" >Disruptor-net</a>, which is maintained by <a href="https://github.com/ocoanet" target="_blank" >Olivier Coanet</a>, is at the core of our trading platform and handles every market tick and every trading order. I <a href="https://github.com/disruptor-net/Disruptor-net/commits?author=buybackoff" target="_blank" >contributed</a> several micro-optimizations similar in spirit to the ones discussed above. A lightweight peer-to-peer service bus <a href="https://github.com/Abc-Arbitrage/Zebus" target="_blank" >Zebus</a>, with <a href="https://github.com/ltrzesniewski" target="_blank" >Lucas Trzesniewski</a> as the main contributor, has been in the production environment at ABC Arbitrage since 2013, handles hundreds of millions of messages per day, and orchestrates the whole infrastructure. A logging library <a href="https://github.com/Abc-Arbitrage/ZeroLog" target="_blank" >ZeroLog</a>, with contributions from Lucas, <a href="https://github.com/rverdier" target="_blank" >Romain Verdier</a>, and others, is so fast and zero-alloc that we may use it easily even on the most latency-sensitive path. There are other projects in the <a href="https://github.com/Abc-Arbitrage/" target="_blank" >company repo</a> and many more contributions from our current and <abbr class="reset-styles" title="Good luck in 🇦🇺, Mendel! 😉 ">former</abbr> colleagues. We truly embrace open source 😍</p>
 <p>If you&rsquo;re into writing high-performance code using modern .NET and fancy a bit of fun in Paris, why not join us? We have several <a href="https://www.abc-arbitrage.com/career/" target="_blank" >open .NET positions</a>. And if you&rsquo;re feeling spontaneous, send us an application at <code>dotnet📧abc-arbitrage.com</code>.</p>
-
 </div>
 
         <footer class="post-footer clearfix">
@@ -784,12 +783,7 @@ The .NET port of the famous high-performance inter-thread messaging library <a h
         </div>
 
         <p class="footer-copyright">
-            <span>&copy; 2015-2024 Victor Baybekov </span>
-        </p>
-        <p class="footer-copyright">
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-                <img alt="Creative Commons License" style="border-width:0; margin: 0; padding: 0; display: inline;" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
-            </a>
+            <span>&copy; 2015-2026 Victor Baybekov </span>
         </p>
         <p class="footer-copyright">
             All content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
@@ -797,7 +791,7 @@ The .NET port of the famous high-performance inter-thread messaging library <a h
     </div>
 </footer>
 
-<script src="/js/jquery-1.11.3.min.js "></script>
+<script src="/js/jquery-4.0.0.min.js "></script>
 <script src="/js/jquery.fitvids.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.25.0/tocbot.min.js"></script>

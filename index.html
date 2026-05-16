@@ -24,8 +24,8 @@
 <meta property="og:description" content="Victor Baybekov&#39;s blog">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hotforknowledge.com/">
-        <link rel="stylesheet" href="/dist/site.css">
-        <link rel="stylesheet" href="/dist/syntax.css">
+        <link rel="stylesheet" href="/styles/site.css">
+        <link rel="stylesheet" href="/styles/syntax.css">
         
         
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
@@ -78,74 +78,222 @@
         
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/" itemprop="url">
+    <a class="post-stub-link" href="/2026/05/15/introducing-picollo/" itemprop="url">
+        <h4 class="post-stub-title" itemprop="name">Introducing Picollo: modern HDR histogram and PMU counters for .NET</h4>
+        <time class="post-stub-date" datetime="2026-05-15">Published Fri, May 15, 2026</time>
+        
+    </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                How to implement and use HDR histogram and perf_event_open API in .NET
+            
+        </em></p>
+        
+            <div><div style="overflow:auto; margin:0;">
+<a href="https://github.com/picollodev/Picollo" target="_blank">
+<img title="Picollo logo: A woodpecker with its crest resembling a mountain peak, with its eyes and peck resembling `ollo`. In French, the word pic stands both for a woodpecker and a peak." src="/2026/05/15/introducing-picollo/Picollo.png" alt="Picollo" style="float:left; width:96px; max-width:20%; margin:0 10px 10px 0;">
+</a>
+<p>Picollo is a new library for serious performance work in .NET. Picollo stands for <em>Performance Instrumentation and Continuous Observation for Low-Level Optimization</em>. It allows you to measure code performance with cycle-level precision, moving the time resolution to the picosecond level.</p> </div>
+<p>The initial public release of <a href="https://github.com/picollodev/Picollo" target="_blank">Picollo</a> <a href="https://www.nuget.org/packages/Picollo/0.1.0" target="_blank">v0.1.0</a> contains two components. First, a modern version of an HDR histogram, which is much faster for recording data and easier to use. It has a thread-local implementation that allows scaling metrics collection across many threads with minimal impact on performance of the existing code. Second, a set of APIs for <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank">`perf_event_open`</a>, including fast-path reads, that give raw access to PMU counters from .NET on Linux, WSL included.</p></div>
+        
+        
+            <p><a href="/2026/05/15/introducing-picollo/">Read more...</a></p>
+        
+    </div>
+</li>
+
+        
+            <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
+    <a class="post-stub-link" href="/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">1BRC in .NET among fastest on Linux: My Optimization Journey</h4>
         <time class="post-stub-date" datetime="2024-01-13">Published Sat, Jan 13, 2024</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                How I optimized my 1BRC solution step-by-step and why .NET is great for high-performance code
+            
+        </em></p>
+        
+            <div><p>At the start of the New Year, GitHub exploded with <a href="https://github.com/gunnarmorling/1brc" target="_blank" ><strong>The One Billion Row Challenge</strong></a>
+started by <a href="https://www.morling.dev/blog/one-billion-row-challenge/" target="_blank" >Gunnar Morling</a>. Originally it was a Java-only 
+competition, but <a href="https://github.com/gunnarmorling/1brc/discussions/categories/show-and-tell" target="_blank" >others wanted to have fun as well</a>.
+Please read these links first if you do not know about this challenge and its rules.</p>
+<p>I also fell down this rabbit hole. <a href="https://github.com/buybackoff/1brc" target="_blank" >I wrote one of the fastest managed 1BRC implementation</a> 
+that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.
+Furthermore, at the initial time of writing (the post date) my results were close to the C++ implementation for the default data and were faster in the case of more complex data.</p></div>
+        
+        
+            <p><a href="/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2019/07/14/6-rust-the-new-c/" itemprop="url">
+    <a class="post-stub-link" href="/2019/07/14/6-rust-the-new-c/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">Rust as the new C: building and combining native libs into C API</h4>
         <time class="post-stub-date" datetime="2019-07-14">Published Sun, Jul 14, 2019</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                Evaluating Rust as the common denominator of modern development
+            
+        </em></p>
+        
+            <div><p>In this blog series, I will experiment with Rust as a safer and simpler C/C++ replacement. The idea is to combine a couple
+of C dependencies in Rust, to do some work using the dependencies in Rust and to expose a final API
+from a Rust library via C ABI. Then I will consume the same exported Rust methods from a number of
+modern languages/platforms such as C#, Python, Java, Nodejs, R, Go and even back from C/C++.</p></div>
+        
+        
+            <p><a href="/2019/07/14/6-rust-the-new-c/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2016/10/31/5-data_spreads_excel_macros_in_csharp/" itemprop="url">
+    <a class="post-stub-link" href="/2016/10/31/5-data_spreads_excel_macros_in_csharp/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">Data Spreads: Write your Excel Macros In C#</h4>
         <time class="post-stub-date" datetime="2016-10-31">Published Mon, Oct 31, 2016</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                Replace VBA with modern C# for UDFs, macros and other Excel automation without Visual Studio
+            
+        </em></p>
+        
+            <div>A week ago, a friend of mine asked me if I could help him with parsing his old Excel files containing orders of Christmas trees. It was his seasonal business every end of a year for a long time, and old orders back to 2006 were kept in quite a free form so that I myself as a human had difficulties to grasp the structure of the worksheets. However, the goal was to export the data into a CRM system, to identify clients who made regular orders and to call them and try selling trees this year as well.</div>
+        
+        
+            <p><a href="/2016/10/31/5-data_spreads_excel_macros_in_csharp/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2016/10/19/4-functional-for-thought-imperative-for-hacking/" itemprop="url">
+    <a class="post-stub-link" href="/2016/10/19/4-functional-for-thought-imperative-for-hacking/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">Functional programming is a tool for thought, imperative programming is a tool for hacking</h4>
         <time class="post-stub-date" datetime="2016-10-19">Published Wed, Oct 19, 2016</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                Why I am taking a pause with F# development (until tooling is fixed or I buy 32 core/64 Gb machine)
+            
+        </em></p>
+        
+            <div>TL;DR; F# is great for algorithms and analytics. It could work for libraries, interop and high-performance code as well, but the experience is far from great and I do not want to fight with it anymore. At least I tried&hellip;
+I have been functional programming aficionado for a while. At some point, I took its advantages over mutable imperative code almost religiously. I fell in love with F#. Then I fell in love with mechanical sympathy, and F# - by being a multi-paradigm and .</div>
+        
+        
+            <p><a href="/2016/10/19/4-functional-for-thought-imperative-for-hacking/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2016/10/15/3-hugo-website-engine/" itemprop="url">
+    <a class="post-stub-link" href="/2016/10/15/3-hugo-website-engine/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">Migrating to Hugo Engine</h4>
         <time class="post-stub-date" datetime="2016-10-15">Published Sat, Oct 15, 2016</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                Easy and joyful static site generation with Hugo
+            
+        </em></p>
+        
+            <div>I have migrated my WordPress blog to Hugo. Since I am not a web publishing expert, I have nothing to say other than the experience was very nice and flexibility is awesome. Markdown + VS Code + git rule them all!
+I didn&rsquo;t have enough patience to setup Jekyll with all its dependencies hell a while ago. WordPress was easy to install from WebMatrix and to run on IIS in AWS cloud, but I was afraid to touch anything because the entire setup looked fragile.</div>
+        
+        
+            <p><a href="/2016/10/15/3-hugo-website-engine/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/" itemprop="url">
+    <a class="post-stub-link" href="/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">How to write the simplest trading strategy using Spreads</h4>
         <time class="post-stub-date" datetime="2015-12-29">Published Tue, Dec 29, 2015</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+        </em></p>
+        
+            <div>I am always amused when retail traders are offered and then do use black boxes with complex frameworks to build automatic trading strategies. Usually, that goes with an explanation how cool those platforms are and how easy to build a strategy using them. They forget about vendor lock-in and the most terrible model of shared state with events hell like &ldquo;OnData&rdquo;, &ldquo;OnOrder&rdquo;, &ldquo;OnBarOpen&rdquo;, &ldquo;OnBarClose&rdquo;, etc. The more I talk with people, the more I realize that CEP is the approach that desks and serious traders use.</div>
+        
+        
+            <p><a href="/2015/12/29/2-how-to-write-the-simplest-trading-strategy-using-spreads/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2015/12/20/1-introducing-spreads-library/" itemprop="url">
+    <a class="post-stub-link" href="/2015/12/20/1-introducing-spreads-library/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">Introducing Spreads library</h4>
         <time class="post-stub-date" datetime="2015-12-20">Published Sun, Dec 20, 2015</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+                Background and thoughts on my real-time number-crunching library
+            
+        </em></p>
+        
+            <div>TL;DR; This post is about background and thoughts on my number-crunching library Spreads, which stands for Series and Panels for Real-time and Exploratory Analysis of Data Streams. The library and its readme are on GitHub: https://github.com/Spreads/Spreads.
+While I worked at Goldman Sachs as a research analyst, I got used to internal declarative time series processing language. It was so cool that I could build MSCI index rebalancing methodology with several lines of code.</div>
+        
+        
+            <p><a href="/2015/12/20/1-introducing-spreads-library/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
             <li class="post-stub" itemprop="blogPost" itemscope="" itemtype="https://schema.org/BlogPosting">
-    <a href="/2015/08/23/0-hacker-background/" itemprop="url">
+    <a class="post-stub-link" href="/2015/08/23/0-hacker-background/" itemprop="url">
         <h4 class="post-stub-title" itemprop="name">My “hacker” background</h4>
         <time class="post-stub-date" datetime="2015-08-23">Published Sun, Aug 23, 2015</time>
         
     </a>
+
+    <div class="post-stub-description" itemprop="description">
+        <p><em>
+            
+        </em></p>
+        
+            <div>On my LinkedIn page, there are almost no endorsements for programming/tech, even though I program since age 12 or so. Probably this is an indication that the endorsement system is broken there or I am not very active there recently. Or this is a reflection of a mild problem I have - very few people from my former professional, mostly investment banking, network know that I can code well beyond VBA scripts.</div>
+        
+        
+            <p><a href="/2015/08/23/0-hacker-background/">Read more...</a></p>
+        
+    </div>
 </li>
 
         
@@ -206,12 +354,7 @@
         </div>
 
         <p class="footer-copyright">
-            <span>&copy; 2015-2024 Victor Baybekov </span>
-        </p>
-        <p class="footer-copyright">
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-                <img alt="Creative Commons License" style="border-width:0; margin: 0; padding: 0; display: inline;" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
-            </a>
+            <span>&copy; 2015-2026 Victor Baybekov </span>
         </p>
         <p class="footer-copyright">
             All content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
@@ -219,7 +362,7 @@
     </div>
 </footer>
 
-<script src="/js/jquery-1.11.3.min.js "></script>
+<script src="/js/jquery-4.0.0.min.js "></script>
 <script src="/js/jquery.fitvids.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.25.0/tocbot.min.js"></script>

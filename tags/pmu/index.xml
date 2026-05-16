@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PMU on Hot For Knowledge</title>
+    <link>https://hotforknowledge.com/tags/pmu/</link>
+    <description>Recent content in PMU on Hot For Knowledge</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Victor Baybekov</copyright>
+    <lastBuildDate>Fri, 15 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://hotforknowledge.com/tags/pmu/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Introducing Picollo: modern HDR histogram and PMU counters for .NET</title>
+      <link>https://hotforknowledge.com/2026/05/15/introducing-picollo/</link>
+      <pubDate>Fri, 15 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://hotforknowledge.com/2026/05/15/introducing-picollo/</guid>
+      <description>&lt;div style=&#34;overflow:auto; margin:0;&#34;&gt;
+&lt;a href=&#34;https://github.com/picollodev/Picollo&#34; target=&#34;_blank&#34;&gt;
+&lt;img title=&#34;Picollo logo: A woodpecker with its crest resembling a mountain peak, with its eyes and peck resembling `ollo`. In French, the word pic stands both for a woodpecker and a peak.&#34; src=&#34;https://hotforknowledge.com/2026/05/15/introducing-picollo/Picollo.png&#34; alt=&#34;Picollo&#34; style=&#34;float:left; width:96px; max-width:20%; margin:0 10px 10px 0;&#34;&gt;
+&lt;/a&gt;
+&lt;p&gt;Picollo is a new library for serious performance work in .NET. Picollo stands for &lt;em&gt;Performance Instrumentation and Continuous Observation for Low-Level Optimization&lt;/em&gt;. It allows you to measure code performance with cycle-level precision, moving the time resolution to the picosecond level.&lt;/p&gt; &lt;/div&gt;
+&lt;p&gt;The initial public release of &lt;a href=&#34;https://github.com/picollodev/Picollo&#34; target=&#34;_blank&#34;&gt;Picollo&lt;/a&gt; &lt;a href=&#34;https://www.nuget.org/packages/Picollo/0.1.0&#34; target=&#34;_blank&#34;&gt;v0.1.0&lt;/a&gt; contains two components. First, a modern version of an HDR histogram, which is much faster for recording data and easier to use. It has a thread-local implementation that allows scaling metrics collection across many threads with minimal impact on performance of the existing code. Second, a set of APIs for &lt;a href=&#34;https://man7.org/linux/man-pages/man2/perf_event_open.2.html&#34; target=&#34;_blank&#34;&gt;`perf_event_open`&lt;/a&gt;, including fast-path reads, that give raw access to PMU counters from .NET on Linux, WSL included.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -78,30 +78,56 @@ function removeClass(ele, cls) {
   }
 }
 
+var tocScrollPosition = 0;
+
 //Add event from js the keep the marup clean
 function init() {
-  document.getElementById("toc").addEventListener("click", toggleMenu);
-  document.getElementById("toc-button").addEventListener("click", toggleMenu);
-  document.getElementById("body-overlay").addEventListener("click", toggleMenu);
+  var toc = document.getElementById("toc");
+  var tocButton = document.getElementById("toc-button");
+  var bodyOverlay = document.getElementById("body-overlay");
+
+  if (toc) {
+    toc.addEventListener("click", toggleMenu);
+  }
+
+  if (tocButton) {
+    tocButton.addEventListener("click", toggleMenu);
+  }
+
+  if (bodyOverlay) {
+    bodyOverlay.addEventListener("click", toggleMenu);
+  }
 }
 
 function isSideBar() {
   var button = document.getElementById("toc-button");
-  return window.getComputedStyle(button).display != "none";
+  return button && window.getComputedStyle(button).display != "none";
 }
 
 //The actual fuction
 function toggleMenu() {
+  if (!isSideBar()) {
+    return;
+  }
+
   var ele = document.getElementsByTagName("body")[0];
-  if (isSideBar() && !hasClass(ele, "toc-open")) {
+  if (!hasClass(ele, "toc-open")) {
+    tocScrollPosition = window.scrollY || document.documentElement.scrollTop;
+    ele.style.top = "-" + tocScrollPosition + "px";
     addClass(ele, "toc-open");
   } else {
     removeClass(ele, "toc-open");
+    ele.style.top = "";
+    window.scrollTo(0, tocScrollPosition);
   }
 }
 
 window.addEventListener("scroll", function () {
   const fixedElement = document.getElementById("toc");
+  if (!fixedElement) {
+    return;
+  }
+
   if (isSideBar()) {
     fixedElement.style.top = "0";
     return;
@@ -111,6 +137,15 @@ window.addEventListener("scroll", function () {
     fixedElement.style.top = "10px";
   } else {
     fixedElement.style.top = Math.max(10, 80 - window.scrollY) + "px";
+  }
+});
+
+window.addEventListener("resize", function () {
+  var body = document.getElementsByTagName("body")[0];
+  if (!isSideBar() && hasClass(body, "toc-open")) {
+    removeClass(body, "toc-open");
+    body.style.top = "";
+    window.scrollTo(0, tocScrollPosition);
   }
 });
 

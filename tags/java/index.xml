@@ -14,8 +14,13 @@
       <pubDate>Sat, 13 Jan 2024 00:00:00 +0000</pubDate>
       
       <guid>https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/</guid>
-      <description>At the start of the New Year, GitHub exploded with The One Billion Row Challenge started by Gunnar Morling. Originally it was a Java-only competition, but others wanted to have fun as well. Please read these links first if you do not know about this challenge and its rules.
-I also fell down this rabbit hole. I wrote one of the fastest managed 1BRC implementation that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.</description>
+      <description>&lt;p&gt;At the start of the New Year, GitHub exploded with &lt;a href=&#34;https://github.com/gunnarmorling/1brc&#34; target=&#34;_blank&#34; &gt;&lt;strong&gt;The One Billion Row Challenge&lt;/strong&gt;&lt;/a&gt;
+started by &lt;a href=&#34;https://www.morling.dev/blog/one-billion-row-challenge/&#34; target=&#34;_blank&#34; &gt;Gunnar Morling&lt;/a&gt;. Originally it was a Java-only 
+competition, but &lt;a href=&#34;https://github.com/gunnarmorling/1brc/discussions/categories/show-and-tell&#34; target=&#34;_blank&#34; &gt;others wanted to have fun as well&lt;/a&gt;.
+Please read these links first if you do not know about this challenge and its rules.&lt;/p&gt;
+&lt;p&gt;I also fell down this rabbit hole. &lt;a href=&#34;https://github.com/buybackoff/1brc&#34; target=&#34;_blank&#34; &gt;I wrote one of the fastest managed 1BRC implementation&lt;/a&gt; 
+that performs well not only on the specific dataset that everyone was optimizing for but also on more generic data.
+Furthermore, at the initial time of writing (the post date) my results were close to the C++ implementation for the default data and were faster in the case of more complex data.&lt;/p&gt;</description>
     </item>
     
   </channel>

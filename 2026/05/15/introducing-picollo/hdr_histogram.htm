@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HdrHistogram Layout</title>
+    <style>
+        :root {
+            --bg: #fbfbf7;
+            --fg: #1f2328;
+            --muted: #5b6470;
+            --grid: #d6d9de;
+            --accent: #1a73b8;
+            --accent-soft: #d7e8f6;
+            --accent-strong: #0b4f82;
+            --counter-fill: #d2e3f4;
+            --counter-stroke: #2b6ea6;
+            --counter-text: #1f5582;
+            --disabled-fill: #eceff2;
+            --disabled-stroke: #b8bec6;
+            --disabled-text: #98a1ac;
+            --disabled-hover-fill: #dde2e7;
+            --disabled-hover-stroke: #8c97a3;
+            --percentile-fill: #f9e7b5;
+            --percentile-stroke: #b58300;
+            --percentile-text: #7c5a00;
+            --tooltip-bg: rgba(24, 28, 34, 0.95);
+            --tooltip-fg: #f8fafc;
+            --control-label-width: 170px;
+            --control-value-width: 72px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            padding: 18px;
+        }
+
+        .widget {
+            box-sizing: border-box;
+            margin: 0 auto;
+            max-width: none;
+            padding: 0 18px;
+            width: 100%;
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .controls.bottom {
+            margin-top: 14px;
+            margin-bottom: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls label,
+        .control-value,
+        .metrics,
+        .radio-group {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .controls label,
+        .metrics strong,
+        .percentile-value strong {
+            color: var(--fg);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .controls-row>label:first-child {
+            flex: 0 0 var(--control-label-width);
+        }
+
+        .controls input[type="range"] {
+            flex: 1 1 360px;
+            max-width: 420px;
+            min-width: 220px;
+        }
+
+        .control-value {
+            flex: 0 0 var(--control-value-width);
+            text-align: left;
+        }
+
+        .metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+        }
+
+        .chart-shell {
+            position: relative;
+            overflow-x: auto;
+            border: 1px solid var(--grid);
+            background: #fff;
+        }
+
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .axis-label,
+        .row-label {
+            font-size: 13px;
+            fill: var(--muted);
+        }
+
+        .axis-label {
+            font-weight: 600;
+        }
+
+        .slot {
+            cursor: pointer;
+        }
+
+        .slot rect {
+            fill: var(--accent-soft);
+            stroke: var(--accent);
+            stroke-width: 1;
+            transition: fill 0.15s ease-in-out, stroke-width 0.15s ease-in-out;
+        }
+
+        .slot text {
+            font-size: 11px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            fill: var(--accent-strong);
+        }
+
+        .slot.has-count rect {
+            fill: var(--counter-fill);
+            stroke: var(--counter-stroke);
+        }
+
+        .slot.has-count text {
+            fill: var(--counter-text);
+            font-weight: 600;
+        }
+
+        .slot.disabled {
+            cursor: not-allowed;
+        }
+
+        .slot.disabled rect {
+            fill: var(--disabled-fill);
+            stroke: var(--disabled-stroke);
+        }
+
+        .slot.disabled text {
+            fill: var(--disabled-text);
+        }
+
+        .slot.hovered rect {
+            fill: #b9dcf4;
+            stroke: var(--accent-strong);
+            stroke-width: 2;
+        }
+
+        .slot.disabled.hovered rect {
+            fill: var(--disabled-hover-fill);
+            stroke: var(--disabled-hover-stroke);
+        }
+
+        .slot.percentile rect {
+            fill: var(--percentile-fill);
+            stroke: var(--percentile-stroke);
+            stroke-width: 2;
+        }
+
+        .slot.percentile text {
+            fill: var(--percentile-text);
+            font-weight: 700;
+        }
+
+        .slot-marker {
+            stroke: var(--percentile-stroke);
+            stroke-width: 2;
+            shape-rendering: crispEdges;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .slot-marker.visible {
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: fixed;
+            z-index: 1000;
+            width: max-content;
+            max-width: calc(100vw - 24px);
+            background: var(--tooltip-bg);
+            color: var(--tooltip-fg);
+            padding: 10px 12px;
+            border-radius: 6px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+            font-size: 13px;
+            line-height: 1.4;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.12s ease-in-out, transform 0.12s ease-in-out;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tooltip .title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .tooltip .line {
+            white-space: nowrap;
+        }
+
+        .notes {
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px 16px;
+            flex: 1 1 auto;
+            max-width: none;
+            min-width: 0;
+        }
+
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--fg);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .percentile-value {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .percentile-value .control-value {
+            flex-basis: auto;
+            width: auto;
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --control-label-width: 170px;
+                --control-value-width: 64px;
+            }
+
+            .controls-row {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="widget" id="hdr-histogram-widget">
+        <div class="controls">
+            <div class="controls-row">
+                <label for="precision-slider">Precision</label>
+                <input id="precision-slider" type="range" min="0.005" max="0.5" step="0.005" value="0.10">
+                <span class="control-value" id="precision-value">0.10</span>
+            </div>
+            <div class="metrics">
+                <span><strong>Block size:</strong> <span id="block-size-value">8</span></span>
+                <span><strong>Block scale:</strong> <span id="block-scale-value">3</span></span>
+                <span><strong>Blocks:</strong> <span id="block-count-value">0</span></span>
+            </div>
+        </div>
+
+        <div class="chart-shell">
+            <svg id="histogram-svg" aria-label="HdrHistogram byte layout visualization"></svg>
+        </div>
+
+        <div class="controls bottom">
+            <div class="controls-row">
+                <label for="min-trackable-slider">Min trackable</label>
+                <input id="min-trackable-slider" type="range" min="0" max="1" step="1" value="0">
+                <span class="control-value" id="min-trackable-value">0</span>
+            </div>
+            <div class="controls-row">
+                <label for="max-trackable-slider">Max trackable</label>
+                <input id="max-trackable-slider" type="range" min="0" max="1" step="1" value="1">
+                <span class="control-value" id="max-trackable-value">1</span>
+            </div>
+            <div class="metrics">
+                <span><strong>Logical buckets count:</strong> <span id="logical-bucket-count-value">0</span></span>
+                <span><strong>Storage slots:</strong> <span id="storage-slot-count-value">0</span></span>
+                <span><strong>First index offset:</strong> <span id="first-slot-offset-value">0</span></span>
+            </div>
+            <div class="controls-row">
+                <label for="percentile-rank-slider">Percentile rank</label>
+                <input id="percentile-rank-slider" type="range" min="0" max="100" step="0.1" value="50">
+                <span class="control-value" id="percentile-rank-value">50.0%</span>
+            </div>
+            <div class="controls-row">
+                <label for="equivalent-value-selection">Equivalent value</label>
+                <div class="radio-group" id="equivalent-value-selection">
+                    <label><input type="radio" name="equivalent-value" value="upperBound">Upper bound</label>
+                    <label><input type="radio" name="equivalent-value" value="lowerBound">Lower bound</label>
+                    <label><input type="radio" name="equivalent-value" value="midpoint" checked>Midpoint</label>
+                    <label><input type="radio" name="equivalent-value" value="interpolated">Interpolated</label>
+                </div>
+            </div>
+            <div class="controls-row percentile-value">
+                <label>Percentile value</label>
+                <span class="control-value" id="percentile-equivalent-value">n/a</span>
+            </div>
+        </div>
+
+        <!-- <div class="notes">
+            Click a bucket to increment its counter, hover for details, and use the trackable range to see which logical
+            buckets are backed by storage.
+        </div> -->
+    </div>
+
+    <div class="tooltip" id="histogram-tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            const DEFAULT_DOMAIN_MAX = 255;
+            const DOMAIN_MAX = getDomainMaxFromQuery();
+            const DEFAULT_PRECISION = getPrecisionFromQuery();
+            const DEFAULT_MIN_TRACKABLE = getTrackableDefaultFromQuery("min_trackable", 0);
+            const DEFAULT_MAX_TRACKABLE = getTrackableDefaultFromQuery("max_trackable", DOMAIN_MAX);
+            const DEFAULT_PERCENTILE_RANK = getPercentileRankFromQuery();
+
+            const state = {
+                precision: DEFAULT_PRECISION,
+                blockSize: 0,
+                blockScale: 0,
+                blocks: [],
+                minTrackableValue: DEFAULT_MIN_TRACKABLE,
+                maxTrackableValue: DEFAULT_MAX_TRACKABLE,
+                minLogicalIndex: 0,
+                maxLogicalIndex: 0,
+                storageSlotCount: 0,
+                percentileRank: DEFAULT_PERCENTILE_RANK,
+                equivalentValueSelection: "midpoint",
+                percentileSlot: null,
+                percentileBlock: null,
+                percentileEquivalentValue: null,
+                percentileMarkerOffset: null,
+                totalCount: 0,
+                layout: {
+                    labelStartWidth: 46,
+                    labelStepWidth: 38,
+                    blockWidth: 640,
+                    rowHeight: 36,
+                    headerHeight: 30,
+                    slotHeight: 24,
+                    chartPadding: 14,
+                    labelHorizontalPadding: 10,
+                    labelCharWidth: 8,
+                    minBlockWidth: 640,
+                    svgWidth: 0,
+                    svgHeight: 0
+                },
+                hover: null,
+                hoverEvent: null
+            };
+
+            const root = d3.select("#hdr-histogram-widget");
+            const svg = d3.select("#histogram-svg");
+            const tooltip = d3.select("#histogram-tooltip");
+            const precisionSlider = document.getElementById("precision-slider");
+            const minTrackableSlider = document.getElementById("min-trackable-slider");
+            const maxTrackableSlider = document.getElementById("max-trackable-slider");
+            const percentileRankSlider = document.getElementById("percentile-rank-slider");
+            const precisionValue = document.getElementById("precision-value");
+            const blockSizeValue = document.getElementById("block-size-value");
+            const blockScaleValue = document.getElementById("block-scale-value");
+            const blockCountValue = document.getElementById("block-count-value");
+            const minTrackableValue = document.getElementById("min-trackable-value");
+            const maxTrackableValue = document.getElementById("max-trackable-value");
+            const logicalBucketCountValue = document.getElementById("logical-bucket-count-value");
+            const storageSlotCountValue = document.getElementById("storage-slot-count-value");
+            const firstSlotOffsetValue = document.getElementById("first-slot-offset-value");
+            const percentileRankValue = document.getElementById("percentile-rank-value");
+            const percentileEquivalentValue = document.getElementById("percentile-equivalent-value");
+            const equivalentValueSelection = document.getElementById("equivalent-value-selection");
+
+            function getDomainMaxFromQuery() {
+                const params = new URLSearchParams(window.location.search);
+                const rawValue = params.get("max");
+                if (rawValue === null) {
+                    return DEFAULT_DOMAIN_MAX;
+                }
+
+                const parsedValue = Number(rawValue);
+                if (!Number.isFinite(parsedValue)) {
+                    return DEFAULT_DOMAIN_MAX;
+                }
+
+                return Math.max(1, Math.floor(parsedValue));
+            }
+
+            function initializeDomainControls() {
+                if (state.minTrackableValue > state.maxTrackableValue) {
+                    const temp = state.minTrackableValue;
+                    state.minTrackableValue = state.maxTrackableValue;
+                    state.maxTrackableValue = temp;
+                }
+
+                minTrackableSlider.max = String(DOMAIN_MAX);
+                maxTrackableSlider.max = String(DOMAIN_MAX);
+                minTrackableSlider.value = String(state.minTrackableValue);
+                maxTrackableSlider.value = String(state.maxTrackableValue);
+                precisionSlider.value = String(state.precision);
+                percentileRankSlider.value = String(state.percentileRank);
+            }
+
+            function getTrackableDefaultFromQuery(paramName, fallbackValue) {
+                const params = new URLSearchParams(window.location.search);
+                const rawValue = params.get(paramName);
+                if (rawValue === null) {
+                    return fallbackValue;
+                }
+
+                const parsedValue = Number(rawValue);
+                if (!Number.isFinite(parsedValue)) {
+                    return fallbackValue;
+                }
+
+                return Math.max(0, Math.min(DOMAIN_MAX, Math.floor(parsedValue)));
+            }
+
+            function getPrecisionFromQuery() {
+                const params = new URLSearchParams(window.location.search);
+                const rawValue = params.get("precision");
+                if (rawValue === null) {
+                    return 0.10;
+                }
+
+                const parsedValue = Number(rawValue);
+                if (!Number.isFinite(parsedValue)) {
+                    return 0.10;
+                }
+
+                return Math.max(0.005, Math.min(0.5, parsedValue));
+            }
+
+            function getPercentileRankFromQuery() {
+                const params = new URLSearchParams(window.location.search);
+                const rawValue = params.get("percentile_rank");
+                if (rawValue === null) {
+                    return 50;
+                }
+
+                const parsedValue = Number(rawValue);
+                if (!Number.isFinite(parsedValue)) {
+                    return 50;
+                }
+
+                return Math.max(0, Math.min(100, parsedValue));
+            }
+
+            function nextPow2(value) {
+                let power = 1;
+                while (power < value) {
+                    power *= 2;
+                }
+                return power;
+            }
+
+            function computeBlockSize(precision) {
+                return nextPow2(0.5 / precision);
+            }
+
+            function computeBlockScale(blockSize) {
+                return Math.round(Math.log2(blockSize));
+            }
+
+            function getLogicalIndexForValue(value, blockScale) {
+                const blockSize = Math.pow(2, blockScale);
+                const shifted = Math.floor(value / blockSize);
+                const blockIndex = shifted <= 0 ? 0 : Math.floor(Math.log2(shifted)) + 1;
+                const stepScale = blockIndex > 0 ? blockIndex - 1 : 0;
+                const stepSize = Math.pow(2, stepScale);
+                const bucketIndexInBlock = Math.floor(value / stepSize) % blockSize;
+                return blockIndex * blockSize + bucketIndexInBlock;
+            }
+
+            function computeBlockStart(blockIndex, blockSize) {
+                if (blockIndex === 0) {
+                    return 0;
+                }
+                if (blockIndex === 1) {
+                    return blockSize;
+                }
+                return blockSize * Math.pow(2, blockIndex - 1);
+            }
+
+            function computeBlockStep(blockIndex) {
+                if (blockIndex <= 1) {
+                    return 1;
+                }
+                return Math.pow(2, blockIndex - 1);
+            }
+
+            function buildSlotsForBlock(blockIndex, blockSize, blockScale, start, step) {
+                const slots = [];
+                for (let slotIndex = 0; slotIndex < blockSize; slotIndex += 1) {
+                    const valueStart = start + slotIndex * step;
+                    const unclippedValueEnd = valueStart + step - 1;
+                    const valueEnd = Math.min(unclippedValueEnd, DOMAIN_MAX);
+                    const midpoint = valueStart + step / 2;
+                    const logicalIndex = blockIndex * blockSize + slotIndex;
+
+                    slots.push({
+                        blockIndex: blockIndex,
+                        slotIndex: slotIndex,
+                        logicalIndex: logicalIndex,
+                        valueStart: valueStart,
+                        valueEnd: valueEnd,
+                        midpoint: midpoint,
+                        counter: 0,
+                        isBacked: true,
+                        storageIndex: null
+                    });
+                }
+                return slots;
+            }
+
+            function buildBlocks(blockSize, blockScale) {
+                const blocks = [];
+                let blockIndex = 0;
+
+                while (true) {
+                    const start = computeBlockStart(blockIndex, blockSize);
+                    const step = computeBlockStep(blockIndex);
+                    const slots = buildSlotsForBlock(blockIndex, blockSize, blockScale, start, step);
+                    const endInclusive = slots[slots.length - 1].valueEnd;
+
+                    blocks.push({
+                        index: blockIndex,
+                        start: start,
+                        step: step,
+                        slotCount: blockSize,
+                        endInclusive: endInclusive,
+                        slots: slots
+                    });
+
+                    if (endInclusive >= DOMAIN_MAX) {
+                        break;
+                    }
+
+                    blockIndex += 1;
+                }
+
+                return blocks;
+            }
+
+            function formatTooltip(slot, block) {
+                const relativeError = block.step <= 1 || slot.valueStart === 0
+                    ? 0
+                    : (block.step / 2) / slot.valueStart * 100;
+                const lines = [
+                    '<div class="title">Block ' + block.index + ', slot ' + slot.slotIndex + '</div>',
+                    '<div class="line"><strong>Range:</strong> [' + formatNumber(slot.valueStart) + ', ' + formatNumber(slot.valueStart + block.step) + ')</div>',
+                    '<div class="line"><strong>Midpoint:</strong> ' + formatNumber(slot.midpoint) + '</div>',
+                    '<div class="line"><strong>Relative error:</strong> ' + formatPercent(relativeError) + '</div>',
+                    '<div class="line"><strong>Logical index:</strong> ' + formatNumber(slot.logicalIndex) + '</div>',
+                    '<div class="line"><strong>Storage index:</strong> ' + (slot.storageIndex === null ? "-" : formatNumber(slot.storageIndex)) + '</div>',
+                    '<div class="line"><strong>Counter:</strong> ' + formatNumber(slot.counter) + '</div>'
+                ];
+                if (slot === state.percentileSlot && state.percentileEquivalentValue !== null) {
+                    lines.push('<div class="line"><strong>Percentile value:</strong> ' + formatNumber(state.percentileEquivalentValue) + '</div>');
+                }
+                return lines.join("");
+            }
+
+            function formatNumber(value) {
+                return Number.isInteger(value)
+                    ? value.toLocaleString("en-US")
+                    : value.toLocaleString("en-US", {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1
+                    });
+            }
+
+            function formatPercent(value) {
+                return value.toLocaleString("en-US", {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1
+                }) + "%";
+            }
+
+            function notifyParentHeight() {
+                if (window.parent === window) {
+                    return;
+                }
+
+                window.requestAnimationFrame(function () {
+                    const rootNode = root.node();
+                    const measuredHeight = rootNode
+                        ? Math.max(
+                            rootNode.scrollHeight || 0,
+                            rootNode.offsetHeight || 0,
+                            rootNode.getBoundingClientRect().height || 0
+                        )
+                        : 0;
+
+                    window.parent.postMessage({
+                        type: "hdr-histogram-height",
+                        height: Math.ceil(measuredHeight) + 45
+                    }, "*");
+                });
+            }
+
+            function updateDerivedState() {
+                updateBackedRange();
+                updatePercentileSelection();
+                updateMetrics();
+            }
+
+            function updateMetrics() {
+                precisionValue.textContent = formatPercent(state.precision * 100);
+                blockSizeValue.textContent = formatNumber(state.blockSize);
+                blockScaleValue.textContent = formatNumber(state.blockScale);
+                blockCountValue.textContent = formatNumber(state.blocks.length);
+                minTrackableValue.textContent = formatNumber(state.minTrackableValue);
+                maxTrackableValue.textContent = formatNumber(state.maxTrackableValue);
+                logicalBucketCountValue.textContent = formatNumber(state.blocks.reduce(function (sum, block) {
+                    return sum + block.slotCount;
+                }, 0));
+                storageSlotCountValue.textContent = formatNumber(state.storageSlotCount);
+                firstSlotOffsetValue.textContent = formatNumber(state.minLogicalIndex);
+                percentileRankValue.textContent = state.percentileRank.toFixed(1) + "%";
+                percentileEquivalentValue.textContent =
+                    state.percentileEquivalentValue === null ? "n/a" : formatNumber(state.percentileEquivalentValue);
+            }
+
+            function updateLayoutMetrics() {
+                const maxStart = state.blocks.reduce(function (maxValue, block) {
+                    return Math.max(maxValue, block.start);
+                }, 0);
+                const maxStep = state.blocks.reduce(function (maxValue, block) {
+                    return Math.max(maxValue, block.step);
+                }, 0);
+                const startChars = Math.max(formatNumber(maxStart).length, "Start".length);
+                const stepChars = Math.max(formatNumber(maxStep).length, "Step".length);
+
+                state.layout.labelStartWidth =
+                    startChars * state.layout.labelCharWidth + state.layout.labelHorizontalPadding;
+                state.layout.labelStepWidth =
+                    stepChars * state.layout.labelCharWidth + state.layout.labelHorizontalPadding;
+
+                const rootNode = root.node();
+                const availableWidth = rootNode
+                    ? rootNode.getBoundingClientRect().width
+                    : state.layout.minBlockWidth + state.layout.labelStartWidth + state.layout.labelStepWidth + state.layout.chartPadding * 2;
+
+                state.layout.blockWidth = Math.max(
+                    state.layout.minBlockWidth,
+                    availableWidth - state.layout.chartPadding * 2 - state.layout.labelStartWidth - state.layout.labelStepWidth
+                );
+
+                state.layout.svgWidth =
+                    state.layout.chartPadding * 2 +
+                    state.layout.labelStartWidth +
+                    state.layout.labelStepWidth +
+                    state.layout.blockWidth;
+
+                state.layout.svgHeight =
+                    state.layout.headerHeight +
+                    state.layout.chartPadding * 2 +
+                    state.blocks.length * state.layout.rowHeight;
+            }
+
+            function updateBackedRange() {
+                state.minLogicalIndex = getLogicalIndexForValue(state.minTrackableValue, state.blockScale);
+                state.maxLogicalIndex = getLogicalIndexForValue(state.maxTrackableValue, state.blockScale);
+
+                if (state.maxLogicalIndex < state.minLogicalIndex) {
+                    const temp = state.minLogicalIndex;
+                    state.minLogicalIndex = state.maxLogicalIndex;
+                    state.maxLogicalIndex = temp;
+                }
+
+                state.storageSlotCount = 0;
+
+                state.blocks.forEach(function (block) {
+                    block.slots.forEach(function (slot) {
+                        slot.isBacked = slot.logicalIndex >= state.minLogicalIndex && slot.logicalIndex <= state.maxLogicalIndex;
+                        slot.storageIndex = slot.isBacked ? state.storageSlotCount : null;
+                        if (!slot.isBacked) {
+                            slot.counter = 0;
+                            return;
+                        }
+                        state.storageSlotCount += 1;
+                    });
+                });
+            }
+
+            function getEquivalentValue(slot, block, selection, rankInBucket) {
+                const lowerBound = slot.valueStart;
+                const upperBoundExclusive = slot.valueStart + block.step;
+                const upperBound = upperBoundExclusive - 1;
+                const midpoint = lowerBound + block.step / 2;
+
+                if (selection === "lowerBound") {
+                    return lowerBound;
+                }
+                if (selection === "midpoint") {
+                    return midpoint;
+                }
+                if (selection === "interpolated") {
+                    if (slot.counter <= 0) {
+                        return lowerBound;
+                    }
+                    const fraction = Math.max(0, Math.min(1, rankInBucket / slot.counter));
+                    return lowerBound + fraction * block.step;
+                }
+                return upperBound;
+            }
+
+            function getPercentileMarkerOffset(slot, block, equivalentValue) {
+                if (equivalentValue === null) {
+                    return null;
+                }
+
+                const slotWidth = state.layout.blockWidth / block.slotCount;
+                if (slotWidth <= 0 || block.step <= 0) {
+                    return null;
+                }
+
+                const relative = (equivalentValue - slot.valueStart) / block.step;
+                const clampedRelative = Math.max(0, Math.min(0.999, relative));
+                const inset = Math.min(3, Math.max(1, slotWidth * 0.08));
+                return inset + clampedRelative * Math.max(0, slotWidth - 2 - inset * 2);
+            }
+
+            function updatePercentileSelection() {
+                state.totalCount = 0;
+                state.percentileSlot = null;
+                state.percentileBlock = null;
+                state.percentileEquivalentValue = null;
+                state.percentileMarkerOffset = null;
+
+                state.blocks.forEach(function (block) {
+                    block.slots.forEach(function (slot) {
+                        if (slot.isBacked) {
+                            state.totalCount += slot.counter;
+                        }
+                    });
+                });
+
+                if (state.totalCount <= 0) {
+                    return;
+                }
+
+                const threshold = state.percentileRank / 100 * state.totalCount;
+                let runningCount = 0;
+
+                for (let blockIndex = 0; blockIndex < state.blocks.length; blockIndex += 1) {
+                    const block = state.blocks[blockIndex];
+                    for (let slotIndex = 0; slotIndex < block.slots.length; slotIndex += 1) {
+                        const slot = block.slots[slotIndex];
+                        if (!slot.isBacked || slot.counter <= 0) {
+                            continue;
+                        }
+
+                        runningCount += slot.counter;
+                        if (runningCount > threshold || (threshold === 0 && runningCount > 0) || (state.percentileRank === 100 && runningCount === state.totalCount)) {
+                            state.percentileSlot = slot;
+                            state.percentileBlock = block;
+                            state.percentileEquivalentValue = getEquivalentValue(
+                                slot,
+                                block,
+                                state.equivalentValueSelection,
+                                threshold - (runningCount - slot.counter)
+                            );
+                            state.percentileMarkerOffset = getPercentileMarkerOffset(
+                                slot,
+                                block,
+                                state.percentileEquivalentValue
+                            );
+                            return;
+                        }
+                    }
+                }
+            }
+
+            function rebuildModel() {
+                state.blockSize = computeBlockSize(state.precision);
+                state.blockScale = computeBlockScale(state.blockSize);
+                state.blocks = buildBlocks(state.blockSize, state.blockScale);
+                state.hover = null;
+                state.hoverEvent = null;
+                updateDerivedState();
+                updateLayoutMetrics();
+            }
+
+            function getSlotGeometry(block, slotIndex) {
+                const x =
+                    state.layout.chartPadding +
+                    state.layout.labelStartWidth +
+                    state.layout.labelStepWidth +
+                    slotIndex * (state.layout.blockWidth / block.slotCount);
+                const width = state.layout.blockWidth / block.slotCount;
+                return {
+                    x: x,
+                    width: width
+                };
+            }
+
+            function renderTooltip(slot, block, event) {
+                state.hoverEvent = {
+                    clientX: event.clientX,
+                    clientY: event.clientY
+                };
+                tooltip.html(formatTooltip(slot, block));
+                tooltip.classed("visible", true);
+
+                const tooltipNode = tooltip.node();
+                const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 0;
+                const tooltipHeight = tooltipNode ? tooltipNode.offsetHeight : 0;
+                const margin = 12;
+                const left = Math.max(
+                    margin,
+                    Math.min(event.clientX - tooltipWidth, window.innerWidth - tooltipWidth - margin)
+                );
+                const top = Math.max(
+                    margin,
+                    Math.min(event.clientY + 20, window.innerHeight - tooltipHeight - margin)
+                );
+
+                tooltip
+                    .style("left", left + "px")
+                    .style("top", top + "px");
+            }
+
+            function refreshTooltip() {
+                if (!state.hover || !state.hoverEvent) {
+                    return;
+                }
+
+                const hoveredBlock = state.percentileSlot === state.hover
+                    ? state.percentileBlock
+                    : state.blocks[state.hover.blockIndex];
+
+                if (!hoveredBlock) {
+                    return;
+                }
+
+                renderTooltip(state.hover, hoveredBlock, state.hoverEvent);
+            }
+
+            function hideTooltip() {
+                tooltip.classed("visible", false);
+            }
+
+            function setHoveredSlot(targetSlot) {
+                state.hover = targetSlot;
+                if (targetSlot === null) {
+                    state.hoverEvent = null;
+                }
+                svg.selectAll(".slot")
+                    .classed("hovered", function (d) {
+                        return d === targetSlot;
+                    });
+            }
+
+            function updateSlotVisuals() {
+                const slotSelection = svg.selectAll(".slot");
+
+                slotSelection
+                    .classed("disabled", function (d) {
+                        return !d.isBacked;
+                    })
+                    .classed("percentile", function (d) {
+                        return d === state.percentileSlot;
+                    })
+                    .classed("has-count", function (d) {
+                        return d.counter > 0;
+                    })
+                    .select("text")
+                    .text(function (d) {
+                        return d.counter > 0 && d.isBacked ? d.counter : "";
+                    });
+
+                slotSelection.select(".slot-marker")
+                    .classed("visible", function (d) {
+                        return d === state.percentileSlot && state.percentileMarkerOffset !== null;
+                    })
+                    .attr("x1", function (d) {
+                        return d === state.percentileSlot && state.percentileMarkerOffset !== null
+                            ? state.percentileMarkerOffset
+                            : 0;
+                    })
+                    .attr("x2", function (d) {
+                        return d === state.percentileSlot && state.percentileMarkerOffset !== null
+                            ? state.percentileMarkerOffset
+                            : 0;
+                    });
+            }
+
+            function findSlotForValue(value) {
+                for (let blockIndex = 0; blockIndex < state.blocks.length; blockIndex += 1) {
+                    const block = state.blocks[blockIndex];
+                    if (value < block.start || value > block.endInclusive) {
+                        continue;
+                    }
+
+                    for (let slotIndex = 0; slotIndex < block.slots.length; slotIndex += 1) {
+                        const slot = block.slots[slotIndex];
+                        if (value >= slot.valueStart && value <= slot.valueEnd) {
+                            return {
+                                block: block,
+                                slot: slot
+                            };
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            function record(value) {
+                if (!Number.isFinite(value)) {
+                    return null;
+                }
+
+                const clamped = Math.max(0, Math.min(DOMAIN_MAX, Math.floor(value)));
+                const target = findSlotForValue(clamped);
+                if (!target || !target.slot.isBacked) {
+                    return null;
+                }
+
+                target.slot.counter += 1;
+                updatePercentileSelection();
+                updateMetrics();
+                updateSlotVisuals();
+                return target;
+            }
+
+            function render() {
+                svg
+                    .attr("viewBox", "0 0 " + state.layout.svgWidth + " " + state.layout.svgHeight)
+                    .attr("width", state.layout.svgWidth)
+                    .attr("height", state.layout.svgHeight);
+
+                svg.selectAll("*").remove();
+
+                const headerY = state.layout.chartPadding + 12;
+                const blockAreaX = state.layout.chartPadding + state.layout.labelStartWidth + state.layout.labelStepWidth;
+
+                svg.append("text")
+                    .attr("class", "axis-label")
+                    .attr("x", state.layout.chartPadding)
+                    .attr("y", headerY)
+                    .text("Start");
+
+                svg.append("text")
+                    .attr("class", "axis-label")
+                    .attr("x", state.layout.chartPadding + state.layout.labelStartWidth)
+                    .attr("y", headerY)
+                    .text("Step");
+
+                svg.append("text")
+                    .attr("class", "axis-label")
+                    .attr("x", blockAreaX)
+                    .attr("y", headerY)
+                    .text("Buckets");
+
+                const rows = svg.append("g")
+                    .attr("transform", "translate(0," + state.layout.headerHeight + ")");
+
+                const rowGroup = rows.selectAll(".block-row")
+                    .data(state.blocks, function (d) { return d.index; })
+                    .enter()
+                    .append("g")
+                    .attr("class", "block-row")
+                    .attr("transform", function (d, i) {
+                        return "translate(0," + (state.layout.chartPadding + i * state.layout.rowHeight) + ")";
+                    });
+
+                rowGroup.append("text")
+                    .attr("class", "row-label")
+                    .attr("x", state.layout.chartPadding)
+                    .attr("y", state.layout.slotHeight / 2 + 4)
+                    .text(function (d) { return formatNumber(d.start); });
+
+                rowGroup.append("text")
+                    .attr("class", "row-label")
+                    .attr("x", state.layout.chartPadding + state.layout.labelStartWidth)
+                    .attr("y", state.layout.slotHeight / 2 + 4)
+                    .text(function (d) { return formatNumber(d.step); });
+
+                rowGroup.each(function (block) {
+                    const group = d3.select(this);
+                    const slotGroup = group.selectAll(".slot")
+                        .data(block.slots)
+                        .enter()
+                        .append("g")
+                        .attr("class", "slot")
+                        .attr("transform", function (slot, slotIndex) {
+                            const geometry = getSlotGeometry(block, slotIndex);
+                            return "translate(" + geometry.x + ",0)";
+                        })
+                        .on("mouseenter", function (event, slot) {
+                            setHoveredSlot(slot);
+                            renderTooltip(slot, block, event);
+                        })
+                        .on("mousemove", function (event, slot) {
+                            renderTooltip(slot, block, event);
+                        })
+                        .on("mouseleave", function () {
+                            setHoveredSlot(null);
+                            hideTooltip();
+                        })
+                        .on("click", function (event, slot) {
+                            if (!slot.isBacked) {
+                                setHoveredSlot(slot);
+                                renderTooltip(slot, block, event);
+                                return;
+                            }
+                            record(slot.valueStart);
+                            setHoveredSlot(slot);
+                            renderTooltip(slot, block, event);
+                        });
+
+                    slotGroup.append("line")
+                        .attr("class", "slot-marker")
+                        .attr("y1", -5)
+                        .attr("y2", state.layout.slotHeight + 5)
+                        .attr("x1", 0)
+                        .attr("x2", 0);
+
+                    slotGroup.append("rect")
+                        .attr("x", 0)
+                        .attr("y", 0)
+                        .attr("rx", 3)
+                        .attr("ry", 3)
+                        .attr("width", function (_, slotIndex) {
+                            return Math.max(12, getSlotGeometry(block, slotIndex).width) - 2;
+                        })
+                        .attr("height", state.layout.slotHeight);
+
+                    slotGroup.append("text")
+                        .attr("x", function (_, slotIndex) {
+                            return (Math.max(12, getSlotGeometry(block, slotIndex).width) - 2) / 2;
+                        })
+                        .attr("y", state.layout.slotHeight / 2 + 1)
+                        .text("");
+                });
+
+                updateSlotVisuals();
+            }
+
+            function finalizeView(shouldRerender) {
+                if (shouldRerender) {
+                    render();
+                } else {
+                    updateSlotVisuals();
+                }
+
+                refreshTooltip();
+                notifyParentHeight();
+            }
+
+            function rerenderFromPrecision(precision) {
+                state.precision = precision;
+                rebuildModel();
+                finalizeView(true);
+            }
+
+            precisionSlider.addEventListener("input", function () {
+                rerenderFromPrecision(Number(precisionSlider.value));
+                hideTooltip();
+            });
+
+            minTrackableSlider.addEventListener("input", function () {
+                const value = Number(minTrackableSlider.value);
+                state.minTrackableValue = Math.min(value, state.maxTrackableValue);
+                minTrackableSlider.value = String(state.minTrackableValue);
+                updateDerivedState();
+                finalizeView(false);
+                hideTooltip();
+            });
+
+            maxTrackableSlider.addEventListener("input", function () {
+                const value = Number(maxTrackableSlider.value);
+                state.maxTrackableValue = Math.max(value, state.minTrackableValue);
+                maxTrackableSlider.value = String(state.maxTrackableValue);
+                updateDerivedState();
+                finalizeView(false);
+                hideTooltip();
+            });
+
+            percentileRankSlider.addEventListener("input", function () {
+                state.percentileRank = Number(percentileRankSlider.value);
+                updatePercentileSelection();
+                updateMetrics();
+                finalizeView(false);
+            });
+
+            equivalentValueSelection.addEventListener("change", function (event) {
+                if (event.target && event.target.name === "equivalent-value") {
+                    state.equivalentValueSelection = event.target.value;
+                    updatePercentileSelection();
+                    updateMetrics();
+                    finalizeView(false);
+                }
+            });
+
+            window.addEventListener("resize", function () {
+                updateLayoutMetrics();
+                finalizeView(true);
+            });
+
+            window.Record = function (value) {
+                const result = record(value);
+                if (result) {
+                    refreshTooltip();
+                    notifyParentHeight();
+                }
+                return result;
+            };
+
+            window.HdrHistogramWidget = {
+                getState: function () {
+                    return state;
+                },
+                rebuild: function () {
+                    rerenderFromPrecision(state.precision);
+                },
+                Record: window.Record
+            };
+
+            initializeDomainControls();
+            rerenderFromPrecision(DEFAULT_PRECISION);
+            window.addEventListener("load", notifyParentHeight);
+        }());
+    </script>
+</body>
+
+</html>
