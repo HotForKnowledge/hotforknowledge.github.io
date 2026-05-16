@@ -106,7 +106,7 @@
 <p>Picollo is a new library for serious performance work in .NET. Picollo stands for <em>Performance Instrumentation and Continuous Observation for Low-Level Optimization</em>. It allows you to measure code performance with cycle-level precision, moving the time resolution to the picosecond level.</p> </div>
 <p>The initial public release of <a href="https://github.com/picollodev/Picollo" target="_blank">Picollo</a> <a href="https://www.nuget.org/packages/Picollo/0.1.0" target="_blank">v0.1.0</a> contains two components. First, a modern version of an HDR histogram, which is much faster for recording data and easier to use. It has a thread-local implementation that allows scaling metrics collection across many threads with minimal impact on performance of the existing code. Second, a set of APIs for <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank">`perf_event_open`</a>, including fast-path reads, that give raw access to PMU counters from .NET on Linux, WSL included.</p>
 <h1 id="hdr-histogram">HDR Histogram</h1>
-<p>An HDR histogram is a very useful tool to analyze not only networking latency, but any measurements that behave like a floor value plus some random noise. It is a very good fit for measuring code execution time and CPU counters.</p>
+<p>An HDR histogram is a useful tool to analyze not only networking latency, but any measurements that behave like a floor value plus some random noise. It is a good fit for measuring code execution time and CPU counters.</p>
 <h2 id="visualization">Visualization</h2>
 <p>A dynamic widget is worth a thousand words. Here the entire HDR histogram layout for the value space 0-255 is shown. You can click the link below to open the widget in a new tab and play with the query string parameters. The visualization remains precise for up to <a href="/2026/05/15/introducing-picollo/hdr_histogram.htm?max=9007199254740990&min_trackable=0&max_trackable=9007199254740990&percentile_rank=50&precision=0.02" target="_blank"><code>int53</code></a> values.</p>
 <figure class="post-embed">
@@ -142,7 +142,7 @@ window.addEventListener("message", function (event) {
 });
 </script>
 <h2 id="how-it-works">How it works</h2>
-<p>The main purpose of a histogram is to compress the storage size required for observation counters. This is true for a standard and an HDR histogram. Compression comes at the cost of precision loss. The standard histogram usually keeps a bounded absolute precision, as defined by a bin width. The HDR histogram maintains the relative precision and can record a very large range of values with modest storage requirements.</p>
+<p>The main purpose of a histogram is to compress the storage size required for observation counters. This is true for a standard and an HDR histogram. Compression comes at the cost of precision loss. The standard histogram usually keeps a bounded absolute precision, as defined by a bin width. The HDR histogram maintains the relative precision and can record a wide range of values with modest storage requirements.</p>
 <p>There has already been, for many years, a standard/legacy implementation that works well in many languages. You can find the details on the <a href="https://hdrhistogram.github.io/HdrHistogram/" target="_blank" >website</a>. Here I focus on my implementation, which shares the same core HDR idea but differs in important details. It has better performance, is easier to use, and has a much simpler implementation.</p>
 <p>Here is the full implementation of the core algorithm (<a href="https://github.com/picollodev/Picollo/blob/9506e1daddf86de29c32a2e81ae4b3db9d5d8f4c/src/Picollo/Metrics/HdrBuckets.cs#L8-L38" target="_blank" >GitHub</a>):</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a></span><span class="cl"><span class="k">internal</span> <span class="k">readonly</span> <span class="k">struct</span> <span class="nc">HdrBuckets</span>
@@ -187,7 +187,7 @@ window.addEventListener("message", function (event) {
 <p>The error is the highest for the first bucket in a block. For the bucket <code>[14,16)</code>, the maximum error is <code>1/14</code>, or 7.1%. If we add the next block <code>[16, 20, 24, 28]</code>, with a step size of 4, the first bucket there has the error of <code>2/16 = 1/8</code>, and the last bucket has the error of <code>2/28 = 1/14</code>. These are exactly the same relative errors as we have seen for the previous bucket. The relative error remains bounded, while the absolute error doubles with each block.</p>
 <h3 id="bucket-indexing">Bucket indexing</h3>
 <p>To calculate the linear bucket index in the histogram, we precompute the <code>BlockScale</code>, which is the exponent to which 2 must be raised to get the block size: <code>BlockSize = 2^BlockScale</code>.</p>
-<p>To calculate the block index, the value is first scaled down by the block size. Since <code>BlockSize == 1 &lt;&lt; BlockScale</code>, shifting by <code>BlockScale</code> is integer division by <code>BlockSize</code>. However, the <code>BlockSize</code> is not a compile-time constant, so integer division is very expensive, while the shift operation is among the fastest ones. Then <code>LeadingZeroCount</code> gives the bit width of the scaled value. That bit width is the logarithmic block number. If the scaled value is zero, the result is zero, so values below BlockSize stay in block 0.</p>
+<p>To calculate the block index, the value is first scaled down by the block size. Since <code>BlockSize == 1 &lt;&lt; BlockScale</code>, shifting by <code>BlockScale</code> is integer division by <code>BlockSize</code>. However, the <code>BlockSize</code> is not a compile-time constant, so integer division is quite expensive, while the shift operation is among the fastest ones. Then <code>LeadingZeroCount</code> gives the bit width of the scaled value. That bit width is the logarithmic block number. If the scaled value is zero, the result is zero, so values below BlockSize stay in block 0.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a></span><span class="cl"><span class="kt">int</span> <span class="n">blockIndex</span> <span class="p">=</span> <span class="m">64</span> <span class="p">-</span> <span class="n">BitOperations</span><span class="p">.</span><span class="n">LeadingZeroCount</span><span class="p">(</span><span class="k">value</span> <span class="p">&gt;&gt;</span> <span class="n">BlockScale</span><span class="p">);</span>
 </span></span></code></pre></div><p>To calculate the bucket resolution for this block, we need <code>blockIndex - 1</code> for all blocks except for block 0. Without the correction, block 0 would get <code>stepScale = -1</code>, which is invalid. So the expression subtracts 1 only when <code>blockIndex != 0</code>. There is no branch instruction in this code and not even a <code>cmov</code> instruction. At the IL level, the <code>blockIndex != 0</code> is the instruction <a href="https://learn.microsoft.com/en-us/dotnet/api/system.reflection.emit.opcodes.cgt_un" target="_blank" ><code>cgt.un</code></a>, which pushes either 1 or 0 onto the evaluation stack. The Roslyn compiler, not even the JIT, recognizes that the ternary operator returns the value that is already pushed onto the stack, so there is nothing else to do. The result of the comparison is directly used by the subsequent <code>sub</code> instruction.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a></span><span class="cl"><span class="kt">int</span> <span class="n">stepScale</span> <span class="p">=</span> <span class="n">blockIndex</span> <span class="p">-</span> <span class="p">(</span><span class="n">blockIndex</span> <span class="p">!=</span> <span class="m">0</span> <span class="p">?</span> <span class="m">1</span> <span class="p">:</span> <span class="m">0</span><span class="p">);</span>
@@ -235,13 +235,13 @@ window.addEventListener("message", function (event) {
 </span></span><span class="line"><span class="ln" id="hl-5-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-22">22</a></span><span class="cl">
 </span></span><span class="line"><span class="ln" id="hl-5-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-23">23</a></span><span class="cl">    <span class="k">return</span> <span class="k">ref</span> <span class="n">Data</span><span class="p">.</span><span class="n">GetAtUnsafe</span><span class="p">(</span><span class="n">storageIndex</span><span class="p">);</span>
 </span></span><span class="line"><span class="ln" id="hl-5-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-24">24</a></span><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>The <a href="https://github.com/picollodev/Picollo/blob/main/src/Picollo/Internal/UnsafeSpan.cs" target="_blank" ><code>UnsafeSpan&lt;TCounter&gt;</code></a> is a <code>Span&lt;T&gt;</code>-like structure that can be stored as a field and provides faster array indexing, even with bound checks. The struct, like the <code>Span&lt;T&gt;</code>, has the local length field that allows to skip touching the <code>array.Length</code> slot inside the array object, which is itself a load operation that can be expensive in the very hot path context. I believe that the bounds checks are expensive not because of the branches, but because of touching the length slot of an array. The performance of the safe indexer vs. unsafe access without bound checks in <code>UnsafeSpan&lt;TCounter&gt;</code> is basically identical, but using an array directly makes the histogram measurably slower.</p>
+</span></span></code></pre></div><p>The <a href="https://github.com/picollodev/Picollo/blob/main/src/Picollo/Internal/UnsafeSpan.cs" target="_blank" ><code>UnsafeSpan&lt;TCounter&gt;</code></a> is a <code>Span&lt;T&gt;</code>-like structure that can be stored as a field and provides faster array indexing, even with bound checks. The struct, like the <code>Span&lt;T&gt;</code>, has the local length field that allows to skip touching the <code>array.Length</code> slot inside the array object, which is itself a load operation that can be expensive in a hot path context. I believe that the bounds checks are expensive not because of the branches, but because of touching the length slot of an array. The performance of the safe indexer vs. unsafe access without bound checks in <code>UnsafeSpan&lt;TCounter&gt;</code> is basically identical, but using an array directly makes the histogram measurably slower.</p>
 <p>The <code>TCounter : unmanaged, IBinaryInteger&lt;TCounter&gt;, IUnsignedNumber&lt;TCounter&gt;</code> is either <code>uint</code> or <code>ulong</code> and defines the storage type. It is not related to the value range, but to the maximum counter value a single bucket can hold. It is rare that <code>ulong</code> is required, but the implementation does not check for overflows. If a single bucket count can exceed 2 billion observations in theory, you should use <code>ulong</code> as the backing storage.</p>
 <h2 id="how-to-use">How to use</h2>
 <p>This section describes the public API and implementation details of Picollo HDR histogram</p>
 <h3 id="summary">Summary</h3>
-<p>The entry point for a histogram is the factory <code>Picollo.Metrics.HdrHistogram.Factory</code>. From there, the usage is hopefully self-evident from the intellisense. After the histogram is created, the main method is <code>Record(value)</code> to increment a counter for the value, accompanied by <code>Record(value, count)</code> to add <code>count</code> to the counter. Another method that modifies the recorded data is <code>Reset()</code>, which clears all counters.</p>
-<p>A very useful method is <code>HdrHistogramSummary GetSummary(HdrHistogramSummary? reuseInstance = null)</code>. The returned <a href="https://github.com/picollodev/Picollo/blob/9506e1daddf86de29c32a2e81ae4b3db9d5d8f4c/src/Picollo/Metrics/HdrHistogram.Summary.cs" target="_blank" >summary object</a> has a predefined set of percentile ranks and aggregates such as total/overflow counts, the mean and the standard deviation. The summary has methods <code>PrettyPrint/PrettyPrintDiff</code>, with the outputs shown below. Frankly, this alone makes it worth it for me to reimplement the histogram, as I&rsquo;m tired of reinventing custom compact output or scanning a wall of text to find a specific percentile in the legacy output.</p>
+<p>The entry point for a histogram is the factory <code>Picollo.Metrics.HdrHistogram.Factory</code>. From there, the usage should be self-evident from the intellisense. After the histogram is created, the main method is <code>Record(value)</code> to increment a counter for the value, accompanied by <code>Record(value, count)</code> to add <code>count</code> to the counter. Another method that modifies the recorded data is <code>Reset()</code>, which clears all counters.</p>
+<p>A useful method is <code>HdrHistogramSummary GetSummary(HdrHistogramSummary? reuseInstance = null)</code>. The returned <a href="https://github.com/picollodev/Picollo/blob/9506e1daddf86de29c32a2e81ae4b3db9d5d8f4c/src/Picollo/Metrics/HdrHistogram.Summary.cs" target="_blank" >summary object</a> has a predefined set of percentile ranks and aggregates such as total/overflow counts, the mean and the standard deviation. The summary has methods <code>PrettyPrint/PrettyPrintDiff</code>, with the outputs shown below. Frankly, this alone makes it worth it for me to reimplement the histogram, as I&rsquo;m tired of reinventing custom compact output or scanning a wall of text to find a specific percentile in the legacy output.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1"> 1</a></span><span class="cl"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="n">GettingStarted</span><span class="p">()</span>
 </span></span><span class="line"><span class="ln" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2"> 2</a></span><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="ln" id="hl-6-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-3"> 3</a></span><span class="cl">    <span class="kt">var</span> <span class="n">h</span> <span class="p">=</span>
@@ -328,7 +328,7 @@ window.addEventListener("message", function (event) {
 </span></span><span class="line"><span class="ln" id="hl-7-49"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-49">49</a></span><span class="cl">| Precision: |   0.7813% |   0.7813% |    0.0% |
 </span></span><span class="line"><span class="ln" id="hl-7-50"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-50">50</a></span><span class="cl">| Total:     | 1,000,000 | 2,000,000 | +100.0% |
 </span></span><span class="line"><span class="ln" id="hl-7-51"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-51">51</a></span><span class="cl">| D-value:   |           |           |   -0.07 |
-</span></span></code></pre></div><p>Note that the rows with <code>92.5/97.5</code> may look ugly at the first glance as they stand out visually. However, they become very helpful to scan the rows just after several actual uses of the output. For me, they create anchors or visual clues saying: &ldquo;Do not read me yet, you probably want the lines above, between and below&rdquo;. I can focus on the Value column and still &ldquo;feel&rdquo; the rank of each row starting from P90 just from the shape of the first column I passively see with my side vision. These ranks are still useful for deeper understanding of the tail and are symmetrical to <code>25/75</code> for the last 10%.</p>
+</span></span></code></pre></div><p>Note that the rows with <code>92.5/97.5</code> may look ugly at the first glance as they stand out visually. However, they become helpful to scan the rows just after several actual uses of the output. For me, they create anchors or visual clues saying: &ldquo;Do not read me yet, you probably want the lines above, between and below&rdquo;. I can focus on the Value column and still &ldquo;feel&rdquo; the rank of each row starting from P90 just from the shape of the first column I passively see with my side vision. These ranks are still useful for deeper understanding of the tail and are symmetrical to <code>25/75</code> for the last 10%.</p>
 <h3 id="snapshots">Snapshots</h3>
 <p>The histogram supports snapshots that can be updated in place without allocation during steady-state operations. This feature is useful to get a consistent state of a live histogram from a monitoring thread over some time interval.</p>
 <p>The code below produces exactly the same result as above, but with a snapshot, without resetting the histogram. Avoiding the reset may be useful for monitoring the metrics live and still having the totals by the end of some logical cycle, e.g. a day.</p>
@@ -587,8 +587,8 @@ window.addEventListener("message", function (event) {
 </span></span><span class="line"><span class="ln" id="hl-16-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-21">21</a></span><span class="cl">| Mean:      | 255,340,667.00 | StDev:   | 435,895,264.66 |
 </span></span><span class="line"><span class="ln" id="hl-16-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-22">22</a></span><span class="cl">| Precision: |        0.0977% | Total:   |              4 |
 </span></span></code></pre></div><p>Under the hood, all scopes use <a href="https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch.gettimestamp?view=netframework-4.8.1&amp;viewFallbackFrom=net-10.0" target="_blank" ><code>Stopwatch.GetTimestamp</code></a> and <a href="https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch.frequency?view=netframework-4.8.1" target="_blank" ><code>Stopwatch.Frequency</code></a> to convert stopwatch ticks to time units. The stopwatch ticks correspond to <code>clock_gettime(monotonic)</code> on Linux. The <code>GetTimestamp</code> method gives the most precise time measurements when using the standard API.</p>
-<p>In the summary above, you can see that my main daily-driver modest machine with i5-12500 has ~10M ticks per second, or 100 ns per tick. This surprisingly matches the <code>DateTime/TimeSpan</code> resolution, one can just simply use <code>TimeSpan</code> API of  <code>Stopwatch</code>, right!?</p>
-<p>But the 10MHz frequency is a ridiculously low number when modern CPUs, as modest as mine, are running at 4+ GHz. The 10M comes not from the hardware limit, but from Windows. On that OS, .NET Stopwatch uses <code>QueryPerformanceFrequency</code>/<code>QueryPerformanceCounter</code> native methods. The QPC frequency is fixed at boot and is often lower than the actual hardware tick generator frequency. The method docs link to an article &ldquo;Acquiring high-resolution time stamps&rdquo;, that is probably dated by decades if they still call 10MHz a high resolution.</p>
+<p>In the summary above, you can see that my main daily-driver modest machine with i5-12500 has ~10M ticks per second, or 100 ns per tick. This surprisingly matches the <code>DateTime/TimeSpan</code> resolution, one can just simply use <code>TimeSpan</code> API of  <code>Stopwatch</code>, right?</p>
+<p>However, the 10MHz frequency is a ridiculously low number when modern CPUs, as modest as mine, are running at 4+ GHz. The 10M comes not from the hardware limit, but from Windows. On that OS, .NET Stopwatch uses <code>QueryPerformanceFrequency</code>/<code>QueryPerformanceCounter</code> native methods. The QPC frequency is fixed at boot and is often lower than the actual hardware tick generator frequency. The method docs link to an article &ldquo;Acquiring high-resolution time stamps&rdquo;, that is probably dated by decades if they still call 10MHz a high resolution.</p>
 <p>Let&rsquo;s see if it is just a snarky emotional comment from my side or a deserved critique. Let&rsquo;s measure the actual time resolution with this code:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-17-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-1"> 1</a></span><span class="cl"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="n">GettingStartedClockResolution</span><span class="p">()</span>
 </span></span><span class="line"><span class="ln" id="hl-17-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-2"> 2</a></span><span class="cl"><span class="p">{</span>
@@ -752,7 +752,7 @@ window.addEventListener("message", function (event) {
 </span></span></code></pre></div><p>This is a standard optimistic retry pattern. In Picollo, it is used even for non-concurrent implementation to protect reads from structural updates and guarantee internal data consistency. But the main purpose of this retry loop is the <a href="https://github.com/picollodev/Picollo/blob/9506e1daddf86de29c32a2e81ae4b3db9d5d8f4c/src/Picollo/Metrics/HdrHistogram.ThreadLocal.cs" target="_blank" >thread-local implementation</a>, which reuses the base implementation for per-thread and accumulator storage. This implementation is quite similar to the .NET&rsquo;s <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Threading/ThreadLocal.cs,42021806b924c5cd" target="_blank" ><code>ThreadLocal&lt;T&gt;</code></a> class on the read path. However, it manages the local instances and their lifetimes differently, and allows fast and allocation-free iteration over local instances.</p>
 <p>The thread-local implementation itself may deserve a dedicated post, but it is out of scope here. However, I invite you to challenge the implementation and try to find failure modes, or fundamentally improve the <code>Reset</code> behavior. I reviewed it several times over multiple days, and asked the top 3 AIs to find issues. At this stage, it seems correct, maybe not optimal.</p>
 <h3 id="benchmarks">Benchmarks</h3>
-<p>The design of Picollo HDR histogram is focused on <em>very fast non-intrusive writes</em>, and good-enough low-allocating reads, with zero-allocating steady-state paths for normal usage with a single monitoring/reader thread. That is, writes are as fast as possible even if that requires making reads slower (mainly due to conservative snapshotting).</p>
+<p>The design of Picollo HDR histogram is focused on <em>fast non-intrusive writes</em>, and good-enough low-allocating reads, with zero-allocating steady-state paths for normal usage with a single monitoring/reader thread. That is, writes are as fast as possible even if that requires making reads slower (mainly due to conservative snapshotting).</p>
 <p>The benchmarks are done on i5-12500 Windows and WSL, with turbo off, at 3GHz. Tiered PGO is enabled. The code is <a href="https://github.com/picollodev/Picollo/blob/main/src/Picollo.Runner/HdrHistogramBenches.cs" target="_blank" >here</a>.</p>
 <p>The shared benchmark setup is as following:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-C#" data-lang="C#"><span class="line"><span class="ln" id="hl-26-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-26-1"> 1</a></span><span class="cl"><span class="k">public</span> <span class="k">class</span> <span class="nc">HdrHistogramBenches</span>
@@ -812,67 +812,67 @@ window.addEventListener("message", function (event) {
 <p>The Picollo HDR histogram spends on average <em>2.7-3 ns</em> per <code>Record</code> operation. The numbers are stable on Windows/WSL and do not depend much on the input parameters. For the legacy histogram, I have noticed that the performance depends on the max trackable value in a weirdly significant way, while the footprint remains in L2. The range that I observe is <em>3.5-14.6 ns</em> per <code>RecordValue</code> operation.</p>
 <p>Max trackable: 7716549600 // The default max in most tests in the legacy implementation</p>
 <ul>
-<li>Picollo: footprint 97,588, best time: 2.7 ns/ops</li>
-<li>Legacy: footprint 98,816, best time: 10.7 ns/ops</li>
+<li>Picollo: footprint 97,588, best time: 2.7 ns/op</li>
+<li>Legacy: footprint 98,816, best time: 10.7 ns/op</li>
 </ul>
 <p>Max trackable: 30000</p>
 <ul>
-<li>Picollo: footprint 24,004, best time: 3.0 ns/ops</li>
-<li>Legacy: footprint 25,088, best time: 3.5 ns/ops</li>
+<li>Picollo: footprint 24,004, best time: 3.0 ns/op</li>
+<li>Legacy: footprint 25,088, best time: 3.5 ns/op</li>
 </ul>
 <p>Max trackable: NanoScope.OneSecondValue = 1_000_000_000</p>
 <ul>
-<li>Picollo: footprint 85,572, best time: 2.8 ns/ops</li>
-<li>Legacy: footprint 98,816, best time: 7.0 ns/ops</li>
+<li>Picollo: footprint 85,572, best time: 2.8 ns/op</li>
+<li>Legacy: footprint 98,816, best time: 7.0 ns/op</li>
 </ul>
 <p>Max trackable: long.MaxValue</p>
 <ul>
-<li>Picollo: footprint 221,300, best time: 2.8 ns/ops</li>
-<li>Legacy: footprint 221,300, best time: 14.6 ns/ops</li>
+<li>Picollo: footprint 221,300, best time: 2.8 ns/op</li>
+<li>Legacy: footprint 221,300, best time: 14.6 ns/op</li>
 </ul>
-<p>These numbers are all good and rarely relevant e.g. for measuring network latencies. But it may become a significant difference when instrumenting very hot code regions.</p>
+<p>These numbers are all good and rarely relevant e.g. for measuring network latencies. But it may become a significant difference when instrumenting hot code regions.</p>
 <h4 id="multi-threaded-writes">Multi-threaded writes</h4>
 <p>This benchmark is much more interesting. The workload is the same, but multiple threads write the values concurrently. The legacy histogram tracks the total count and has a reader-writer lock, which results in 3 interlocked operations per counter increment, two of which hit the same locations. Picollo&rsquo;s interlocked implementation has only counters, which are randomly hit at different locations. Picollo&rsquo;s thread-local implementation does not have any write contention by design, but has some overheads to resolve the storage location from a thread-static slot.</p>
 <p>Here are approximate numbers as before, best runs observed within a reasonable amount of time. The interesting axes of measurements are the number of threads and max trackable value. With a smaller range, there should be higher contention per counter.</p>
 <p>Max trackable: long.MaxValue, 1 thread</p>
 <ul>
-<li>Picollo thread-local: footprint 442,608, best time: 5.5 ns/ops</li>
-<li>Picollo interlocked: footprint 221,304, best time: 9.6 ns/ops</li>
-<li>Legacy: footprint 225,792, best time: 31.6 ns/ops</li>
+<li>Picollo thread-local: footprint 442,608, best time: 5.5 ns/op</li>
+<li>Picollo interlocked: footprint 221,304, best time: 9.6 ns/op</li>
+<li>Legacy: footprint 225,792, best time: 31.6 ns/op</li>
 </ul>
 <p>Max trackable: long.MaxValue, 2 threads</p>
 <ul>
-<li>Picollo thread-local: footprint 663,912, best time: 5.5 ns/ops</li>
-<li>Picollo interlocked: footprint 221,304, best time: 12.1 ns/ops (1.3x worse than single threaded)</li>
+<li>Picollo thread-local: footprint 663,912, best time: 5.5 ns/op</li>
+<li>Picollo interlocked: footprint 221,304, best time: 12.1 ns/op (1.3x worse than single threaded)</li>
 <li>Legacy: footprint 225,792, best time: 181 ns/ops (5.7x worse than single threaded)</li>
 </ul>
 <p>Max trackable: long.MaxValue, 4 threads</p>
 <ul>
-<li>Picollo thread-local: footprint 1,106,520, best time: 5.6 ns/ops</li>
-<li>Picollo interlocked: footprint 221,304, best time: 14.9 ns/ops (1.6x worse than single threaded)</li>
-<li>Legacy: footprint 225,792, best time: 408 ns/ops (13x worse than single threaded)</li>
+<li>Picollo thread-local: footprint 1,106,520, best time: 5.6 ns/op</li>
+<li>Picollo interlocked: footprint 221,304, best time: 14.9 ns/op (1.6x worse than single threaded)</li>
+<li>Legacy: footprint 225,792, best time: 408 ns/op (13x worse than single threaded)</li>
 </ul>
 <p>Max trackable: 30000, 1 thread</p>
 <ul>
-<li>Picollo thread-local: footprint 48,016, best time: 5.3 ns/ops</li>
-<li>Picollo interlocked: footprint 24,008, best time: 9.6 ns/ops</li>
-<li>Legacy: footprint 25,088, best time: 29.1 ns/ops</li>
+<li>Picollo thread-local: footprint 48,016, best time: 5.3 ns/op</li>
+<li>Picollo interlocked: footprint 24,008, best time: 9.6 ns/op</li>
+<li>Legacy: footprint 25,088, best time: 29.1 ns/op</li>
 </ul>
 <p>Max trackable: 30000, 2 threads</p>
 <ul>
-<li>Picollo thread-local: footprint 72,024, best time: 5.2 ns/ops</li>
-<li>Picollo interlocked: footprint 24,008, best time: 20.4 ns/ops (2x worse than single threaded)</li>
-<li>Legacy: footprint 25,088, best time: 174 ns/ops (6x worse than single threaded)</li>
+<li>Picollo thread-local: footprint 72,024, best time: 5.2 ns/op</li>
+<li>Picollo interlocked: footprint 24,008, best time: 20.4 ns/op (2x worse than single threaded)</li>
+<li>Legacy: footprint 25,088, best time: 174 ns/op (6x worse than single threaded)</li>
 </ul>
 <p>Max trackable: 30000, 4 threads</p>
 <ul>
-<li>Picollo thread-local: footprint 120,040, best time: 5.4 ns/ops</li>
-<li>Picollo interlocked: footprint 24,008, best time: 38.7 ns/ops (4x worse than single threaded)</li>
-<li>Legacy: footprint 25,088, best time: 446 ns/ops (15x worse than single threaded)</li>
+<li>Picollo thread-local: footprint 120,040, best time: 5.4 ns/op</li>
+<li>Picollo interlocked: footprint 24,008, best time: 38.7 ns/op (4x worse than single threaded)</li>
+<li>Legacy: footprint 25,088, best time: 446 ns/op (15x worse than single threaded)</li>
 </ul>
 <p>As you can see, the thread-local version just does not care about threads. Its footprint is shown as the total, but most of the time it will use per-core L2 cache. The interlocked version benefits from multiple counter slots that reduce the contention, which is per a cache line (8-16 counters). But if an interlocked version is forced to update the same locations, its overhead explodes even with 4 threads. You can imagine what it will do on a machine with dozens of cores and multiple NUMA nodes. (I will add such a benchmark later)</p>
 <h1 id="perfevent">PerfEvent</h1>
-<p>This section is tiny compared to the first one. I want to focus on how easy it is to use the raw performance counters in .NET. It is not very surprising, given that .NET has one of the best FFI implementations known as PInvoke, and the heavy lifting is done by the <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank"><code>perf_event_open</code></a> function. This function is not directly exposed by <code>libc</code>, it is a numbered syscall, but this changes nothing substantial.</p>
+<p>This section is tiny compared to the first one. I want to focus on how easy it is to use the raw performance counters in .NET. It is not surprising, given that .NET has one of the best FFI implementations known as PInvoke, and the heavy lifting is done by the <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank"><code>perf_event_open</code></a> function. This function is not directly exposed by <code>libc</code>, it is a numbered syscall, but this changes nothing substantial.</p>
 <p>The man page for <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank"><code>perf_event_open</code></a> is intimidating in size and overwhelming in detail. How it works is definitely beyond the scope of this post. But I can show how to use it from .NET. Maybe I will describe internals in a second post, if there is interest.</p>
 <p>One thing that is worth highlighting is that PMU counters, at least the basic hardware ones, do work on WSL. There might be edge cases with vPMU support, but it is already so much better than nothing on Windows.</p>
 <h2 id="getting-started">Getting started</h2>
