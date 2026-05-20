@@ -871,6 +871,9 @@ window.addEventListener("message", function (event) {
 <li>Legacy: footprint 25,088, time: 446 ns/op (15x worse than single threaded)</li>
 </ul>
 <p>As you can see, the thread-local version just does not care about threads. Its footprint is shown as the total, but most of the time it will use per-core L2 cache. The interlocked version benefits from multiple counter slots that reduce the contention, which is per a cache line (8-16 counters). But if an interlocked version is forced to update the same locations, its overhead explodes even with 4 threads. You can imagine what it will do on a machine with dozens of cores and multiple NUMA nodes. (I will add such a benchmark later)</p>
+<blockquote>
+<p>Update: On SkyLake-X, running on 20 out of 24 cores at 4GHz with 2 NUMA nodes, it takes slightly more than 3000 ns/op.</p>
+</blockquote>
 <h1 id="perfevent">PerfEvent</h1>
 <p>This section is tiny compared to the first one. I want to focus on how easy it is to use the raw performance counters in .NET. It is not surprising, given that .NET has one of the best FFI implementations known as PInvoke, and the heavy lifting is done by the <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank"><code>perf_event_open</code></a> function. This function is not directly exposed by <code>libc</code>, it is a numbered syscall, but this changes nothing substantial.</p>
 <p>The man page for <a href="https://man7.org/linux/man-pages/man2/perf_event_open.2.html" target="_blank"><code>perf_event_open</code></a> is intimidating in size and overwhelming in detail. How it works is definitely beyond the scope of this post. But I can show how to use it from .NET. Maybe I will describe internals in a second post, if there is interest.</p>
